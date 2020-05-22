@@ -472,3 +472,5 @@ composer.lock
 *.css.map
 *.sass.map
 *.scss.map
+
+woo-index.php
