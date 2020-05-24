@@ -1,10 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-// If this file is called directly, abort.
-if (!defined('ABSPATH')) exit;
-
 /**
  * Provide a public-facing view for the plugin
  *
@@ -13,8 +8,8 @@ if (!defined('ABSPATH')) exit;
  * @link       http://example.com
  * @since      1.0.0
  *
- * @package    PluginName
- * @subpackage PluginName/Public/partials
+ * @package    Plugin_Name
+ * @subpackage Plugin_Name/public/partials
  */
 ?>
 

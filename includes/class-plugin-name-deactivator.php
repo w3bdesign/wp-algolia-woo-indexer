@@ -1,25 +1,27 @@
 <?php
 
-declare(strict_types=1);
-
-namespace PluginName\Includes;
-
-// If this file is called directly, abort.
-if (!defined('ABSPATH')) exit;
+/**
+ * Fired during plugin deactivation
+ *
+ * @link       http://example.com
+ * @since      1.0.0
+ *
+ * @package    Plugin_Name
+ * @subpackage Plugin_Name/includes
+ */
 
 /**
  * Fired during plugin deactivation.
  *
  * This class defines all code necessary to run during the plugin's deactivation.
  *
- * @link       http://example.com
  * @since      1.0.0
- * @package    PluginName
- * @subpackage PluginName/Includes
+ * @package    Plugin_Name
+ * @subpackage Plugin_Name/includes
  * @author     Your Name <email@example.com>
  */
-class Deactivator
-{
+class Plugin_Name_Deactivator {
+
 	/**
 	 * Short Description. (use period)
 	 *
@@ -27,9 +29,8 @@ class Deactivator
 	 *
 	 * @since    1.0.0
 	 */
-	public static function deactivate()
-	{
-		
+	public static function deactivate() {
+
 	}
 
 }
