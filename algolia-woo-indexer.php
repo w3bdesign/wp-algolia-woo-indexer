@@ -1,3 +1,6 @@
 <?php
+/**
+ * Comment comment
+ */
 
-echo 'Wordpress!';
+echo 'Testing!';
