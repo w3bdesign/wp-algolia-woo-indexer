@@ -9,19 +9,25 @@
  * @package         algolia-woo-indexer
  */
 
-
 namespace ALGOWOO;
 
 /**
  * WooIndexer
  */
-class WooIndexer {	
+class WooIndexer {
+
+
 	/**
 	 * __construct
 	 *
 	 * @return void
 	 */
-	public function __construct() {  }
+	public function __construct() {     }
 
+	/**
+	 *  Init
+	 *
+	 * @return void
+	 */
 	public static function init() {     }
 }
