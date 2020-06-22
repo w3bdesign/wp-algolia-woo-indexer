@@ -2,6 +2,7 @@
 
 ![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green)
 
+
 # Algolia Woocommerce Indexer
 
 ## Description
