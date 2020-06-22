@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Project-Id-Version: Algolia Woocommerce Indexer\n"
-"POT-Creation-Date: 2020-06-23 00:45+0200\n"
-"PO-Revision-Date: 2020-06-23 00:44+0200\n"
+"POT-Creation-Date: 2020-06-23 01:25+0200\n"
+"PO-Revision-Date: 2020-06-23 01:25+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -21,8 +21,13 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.min.js\n"
 
+#: classes/class-algolia-wooindexer.php:71
 #: classes/class-algolia-wooindexer.php:72
 msgid "Algolia Woo Indexer Settings"
+msgstr ""
+
+#: classes/class-algolia-wooindexer.php:87
+msgid "Action not allowed."
 msgstr ""
 
 #. Plugin Name of the plugin/theme
