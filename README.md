@@ -1,6 +1,5 @@
-![Inspections](https://github.com/w3bdesign/algolia-woo-indexer/workflows/Inspections/badge.svg)
+![Inspections](https://github.com/w3bdesign/algolia-woo-indexer/workflows/Inspections/badge.svg) ![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green)
 
-![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green)
 
 
 # Algolia Woocommerce Indexer
