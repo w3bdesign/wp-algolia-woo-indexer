@@ -1,8 +1,14 @@
+![Inspections](https://github.com/w3bdesign/algolia-woo-indexer/workflows/Inspections/badge.svg)
+
+![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green)
+
+
 # Algolia Woocommerce Indexer
 
 ## Description
 
-This plugin indexes products inside of Woocommerce and submits them to Algolia. 
+This plugin indexes products inside of Woocommerce and submits them to Algolia.
+
 You need to add the Application ID and the Search-Only API Key from the "API keys" section in Algolia.
 
 
