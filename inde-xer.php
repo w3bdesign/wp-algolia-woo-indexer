@@ -12,15 +12,9 @@
 
 namespace ALGOWOO;
 
-class WooIndexer
-{
-    public static function __construct()
-    {
-        
-    }
+class WooIndexer {
 
-    public static function init()
-    {
-        
-    }
+	public static function __construct() {  }
+
+	public static function init() {     }
 }
