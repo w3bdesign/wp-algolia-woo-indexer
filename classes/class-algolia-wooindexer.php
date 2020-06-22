@@ -1,7 +1,7 @@
 <?php
 /**
  * Main Algolia Woo Indexer class
- * Called from algolia-woo-indexer.php
+ * Called from main plugin file algolia-woo-indexer.php
  *
  * @package algolia-woo-indexer
  */
@@ -22,14 +22,14 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		const PLUGIN_TRANSIENT = 'algowoo-plugin-notice';
 
 		/**
-		 * Class instance.
+		 * Class instance
 		 *
 		 * @var object
 		 */
 		private static $instance;
 
 		/**
-		 * Class constructor.
+		 * Class constructor
 		 *
 		 * @return void
 		 */
@@ -38,7 +38,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		}
 
 		/**
-		 *  Initialize class, load settings and add necessary admin_menu
+		 *  Initialize class, load settings and add settings menu
 		 *
 		 * @return void
 		 */
@@ -51,29 +51,46 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			}
 		}
 
-			/**
-			 * Load text domain for internalization
-			 *
-			 * @return void
-			 */
+		/**
+		 * Load text domain for internalization
+		 *
+		 * @return void
+		 */
 		public static function load_textdomain() {
 			load_plugin_textdomain( 'algolia-woo-indexer', false, basename( dirname( __FILE__ ) ) . '/languages/' );
 		}
 
-
-			/**
-			 * Add the new menu to settings section so that we can configure the plugin
-			 *
-			 * @return void
-			 */
+		/**
+		 * Add the new menu to settings section so that we can configure the plugin
+		 *
+		 * @return void
+		 */
 		public static function admin_menu() {
 			add_submenu_page(
 				'options-general.php',
-				'<div class="dashicons dashicons-admin-site"></div> ' . esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ),
+				esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ),
+				esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ),
 				'manage_options',
 				'algolia-woo-indexer-settings',
 				array( get_called_class(), 'algolia_woo_indexer_settings' )
 			);
+		}
+
+		/**
+		 * Display settings and allow user to modify them
+		 *
+		 * @return void
+		 */
+		public static function algolia_woo_indexer_settings() {
+			// Verify that the user can access the settings page
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'Action not allowed.', 'algolia_woo_indexer_settings' ) );
+			}
+
+			?>
+			<div class="wrap">
+			<h1><div class="dashicons dashicons-admin-site ic-devops"></div> <?php esc_html_e( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
+			<?php
 		}
 
 		/**
