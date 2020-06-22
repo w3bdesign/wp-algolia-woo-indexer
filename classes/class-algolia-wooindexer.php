@@ -82,7 +82,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_settings() {
-			// Verify that the user can access the settings page
+			/**
+			 * Verify that the user can access the settings page
+			 */
 			if ( ! current_user_can( 'manage_options' ) ) {
 				wp_die( esc_html__( 'Action not allowed.', 'algolia_woo_indexer_settings' ) );
 			}
