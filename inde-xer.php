@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name:     Algolia Woocommerce Indexer
  * Description:     Implement Algolia indexing from Woocommerce
@@ -8,4 +9,25 @@
  * @package         algolia-woo-indexer
  */
 
-echo 'Testing!';
+namespace ALGOWOO;
+
+/**
+ * WooIndexer
+ */
+class WooIndexer {
+
+
+	/**
+	 * __construct
+	 *
+	 * @return void
+	 */
+	public function __construct() {     }
+
+	/**
+	 *  Init
+	 *
+	 * @return void
+	 */
+	public static function init() {     }
+}
