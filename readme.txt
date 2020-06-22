@@ -1,5 +1,5 @@
 === Algolia Woo Indexer ===
-Contributors: Daniel Fjeldstad
+Contributors: Daniel F
 Tags: algolia, woocommerce, search, algolia search, algolia indexing
 Requires at least: not tested
 Tested up to: 5.4
