@@ -1,4 +1,10 @@
 <?php
+/**
+ * Main Algolia Woo Indexer class
+ * Called from algolia-woo-indexer.php
+ *
+ * @package algolia-woo-indexer
+ */
 
 namespace ALGOWOO;
 
@@ -72,12 +78,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		}
 
 		/**
-		 * The actions to execute when the plugin is activated.
+		 * The actions to execute when the plugin is deactivated.
 		 *
 		 * @return void
 		 */
 		public static function deactivate_plugin() {
-			// self::maybe_upgrade_version();
 			delete_transient( self::PLUGIN_TRANSIENT, true );
 		}
 	}
