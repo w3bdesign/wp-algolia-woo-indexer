@@ -15,8 +15,7 @@ namespace ALGOWOO;
 /**
  * WooIndexer
  */
-class WooIndexer {
-	
+class WooIndexer {	
 	/**
 	 * __construct
 	 *
