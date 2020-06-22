@@ -9,7 +9,7 @@
  */
 
 require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-wooindexer.php';
-$algowooindexer = Algolia_Woo_Indexer::get_instance();
+$algowooindexer = \ALGOWOO\Algolia_Woo_Indexer::get_instance();
 
 register_activation_hook( __FILE__, array( $algowooindexer, 'activate_plugin' ) );
 register_deactivation_hook( __FILE__, array( $algowooindexer, 'deactivate_plugin' ) );

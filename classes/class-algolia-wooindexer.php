@@ -11,6 +11,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		const PLUGIN_NAME      = 'Algolia Woo Indexer';
 		const PLUGIN_TRANSIENT = 'algowoo-plugin-notice';
 
+			/**
+			 * Class instance.
+			 *
+			 * @var object
+			 */
+		private static $instance;
+
 		/**
 		 * __construct
 		 *
