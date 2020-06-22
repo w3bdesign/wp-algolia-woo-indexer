@@ -8,18 +8,8 @@
  * @package         algolia-woo-indexer
  */
 
-add_action( 'plugins_loaded', 'indexer_plugin_bootstrap' );
+require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-wooindexer.php';
+$algowooindexer = Algolia_Woo_Indexer::get_instance();
 
-/**
- * pdev_plugin_bootstrap
- *
- * @return void
- */
-function indexer_plugin_bootstrap() {
-
-	require_once plugin_dir_path( __FILE__ ) . 'class-setup.php';
-
-	$setup = new \ALGOWOO\Setup();
-
-	$setup->boot();
-}
+register_activation_hook( __FILE__, array( $algowooindexer, 'activate_plugin' ) );
+register_deactivation_hook( __FILE__, array( $algowooindexer, 'deactivate_plugin' ) );
