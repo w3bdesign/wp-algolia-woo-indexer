@@ -104,7 +104,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 			echo "<input id='algolia_woo_indexer_search_api_key' name='algolia_woo_indexer_search_api_key[key]'
 				type='text' value='" . esc_attr( $api_key ) . "' />";
-
 		}
 
 
@@ -127,7 +126,16 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_section_text() {
-			echo esc_html__( '<p>Enter your settings here.</p>', 'algolia-woo-indexer' );
+			echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
+		}
+
+		/**
+		 * Check if Woocommerce is activated
+		 *
+		 * @return boolean
+		 */
+		public static function is_woocommerce_plugin_active() {
+			return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true );
 		}
 
 		/**
@@ -149,6 +157,17 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				add_action( 'admin_init', array( $ob_class, 'verify_settings_nonce' ) );
 
 				self::$plugin_url = admin_url( 'options-general.php?page=algolia-woo-indexer-settings' );
+
+				if ( ! self::is_woocommerce_plugin_active() ) {
+					add_action(
+						'admin_notices',
+						function () {
+							echo '<div class="error notice">
+								  <p>' . esc_html__( 'Algolia Woocommerce Indexer: Woocommerce plugin should be enabled for Algolia Woo Indexer to work.', 'algolia-woo-indexer' ) . '</p>
+								</div>';
+						}
+					);
+				}
 			}
 		}
 
@@ -218,6 +237,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				'',
 				$input['name']
 			);
+			print_r( $valid );
 			return $valid;
 		}
 
