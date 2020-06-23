@@ -148,10 +148,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			add_action( 'plugins_loaded', array( $ob_class, 'load_textdomain' ) );
 			self::load_settings();
 
+			/**
+			* Add actions to setup admin menu
+			*/
 			if ( is_admin() ) {
-				/**
-				 * Add actions to setup admin menu
-				 */
 				add_action( 'admin_menu', array( $ob_class, 'admin_menu' ) );
 				add_action( 'admin_init', array( $ob_class, 'setup_settings_sections' ) );
 				add_action( 'admin_init', array( $ob_class, 'verify_settings_nonce' ) );
@@ -163,7 +163,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 						'admin_notices',
 						function () {
 							echo '<div class="error notice">
-								  <p>' . esc_html__( 'Woocommerce plugin should be enabled for Algolia Woo Indexer to work.', 'algolia-woo-indexer' ) . '</p>
+								  <p>' . esc_html__( 'WooCommerce plugin must be enabled for Algolia Woo Indexer to work.', 'algolia-woo-indexer' ) . '</p>
 								</div>';
 						}
 					);
@@ -237,7 +237,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				'',
 				$input['name']
 			);
-			print_r( $valid );
 			return $valid;
 		}
 
