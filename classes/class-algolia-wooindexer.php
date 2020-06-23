@@ -18,6 +18,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 	 */
 	class Algolia_Woo_Indexer {
 
+
 		const PLUGIN_NAME      = 'Algolia Woo Indexer';
 		const PLUGIN_TRANSIENT = 'algowoo-plugin-notice';
 
@@ -27,6 +28,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @var object
 		 */
 		private static $instance;
+
+		/**
+		 * The plugin URL
+		 *
+		 * @var string
+		 */
+		private static $plugin_url = '';
 
 		/**
 		 * Class constructor
@@ -48,6 +56,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			self::load_settings();
 			if ( is_admin() ) {
 				add_action( 'admin_menu', array( $ob_class, 'admin_menu' ) );
+				self::$plugin_url = admin_url( 'options-general.php?page=algolia-woo-indexer-settings' );
 			}
 		}
 
@@ -83,18 +92,18 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 */
 		public static function algolia_woo_indexer_settings() {
 			/**
-			 * Verify that the user can access the settings page
-			 */
+			* Verify that the user can access the settings page
+			*/
 			if ( ! current_user_can( 'manage_options' ) ) {
 				wp_die( esc_html__( 'Action not allowed.', 'algolia_woo_indexer_settings' ) );
 			}
 			?>
 			<div class="wrap">
-			<h1><?php esc_html_e( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>		
-			<form action="options.php" method="post">
-			Here we will display settings
-			</form>
-			</div>			
+				<h1><?php esc_html_e( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
+				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
+					Here we will display settings
+				</form>
+			</div>
 			<?php
 		}
 
@@ -104,7 +113,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return object
 		 */
 		public static function get_instance() {
-
 			if ( ! self::$instance ) {
 				self::$instance = new Algolia_Woo_Indexer();
 			}
