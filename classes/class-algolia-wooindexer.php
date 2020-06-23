@@ -69,24 +69,24 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				$algowooindexer = self::get_instance();
 
 				add_settings_section(
-					'algo_woo_plugin_main',
+					'algolia_woo_indexer_main',
 					'Algo Woo Plugin Settings',
-					array( $algowooindexer, 'algo_woo_plugin_section_text' ),
-					'algo_woo_plugin'
+					array( $algowooindexer, 'algolia_woo_indexer_section_text' ),
+					'algolia_woo_indexer'
 				);
 				add_settings_field(
-					'algo_woo_plugin_application_id',
+					'algolia_woo_indexer_application_id',
 					'Application ID',
-					array( $algowooindexer, 'algo_woo_plugin_application_id_output' ),
-					'algo_woo_plugin',
-					'algo_woo_plugin_main'
+					array( $algowooindexer, 'algolia_woo_indexer_application_id_output' ),
+					'algolia_woo_indexer',
+					'algolia_woo_indexer_main'
 				);
 				add_settings_field(
-					'algo_woo_plugin_search_api_key',
+					'algolia_woo_indexer_search_api_key',
 					'Search-Only API Key',
-					array( $algowooindexer, 'algo_woo_plugin_search_api_key_output' ),
-					'algo_woo_plugin',
-					'algo_woo_plugin_main'
+					array( $algowooindexer, 'algolia_woo_indexer_search_api_key_output' ),
+					'algolia_woo_indexer',
+					'algolia_woo_indexer_main'
 				);
 			}
 		}
@@ -96,13 +96,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public static function algo_woo_plugin_search_api_key_output() {
+		public static function algolia_woo_indexer_search_api_key_output() {
 
 			$api_key = get_option( '_algolia_woo_indexer_api_search_key' );
 
-			wp_nonce_field( 'algo_woo_plugin_search_api_nonce_action', 'algo_woo_plugin_search_api_nonce_name' );
+			wp_nonce_field( 'algolia_woo_indexer_search_api_nonce_action', 'algolia_woo_indexer_search_api_nonce_name' );
 
-			echo "<input id='algo_woo_plugin_search_api_key' name='algo_woo_plugin_search_api_key[key]'
+			echo "<input id='algolia_woo_indexer_search_api_key' name='algolia_woo_indexer_search_api_key[key]'
 				type='text' value='" . esc_attr( $api_key ) . "' />";
 
 		}
@@ -113,11 +113,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public static function algo_woo_plugin_application_id_output() {
+		public static function algolia_woo_indexer_application_id_output() {
 
 			$application_id = get_option( '_algolia_woo_indexer_application_id' );
 
-			echo "<input id='algo_woo_plugin_application_id' name='algo_woo_plugin_application_id[id]'
+			echo "<input id='algolia_woo_indexer_application_id' name='algolia_woo_indexer_application_id[id]'
 				type='text' value='" . esc_attr( $application_id ) . "' />";
 		}
 
@@ -126,7 +126,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public static function algo_woo_plugin_section_text() {
+		public static function algolia_woo_indexer_section_text() {
 			echo esc_html__( '<p>Enter your settings here.</p>', 'algolia-woo-indexer' );
 		}
 
@@ -162,7 +162,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			/**
 			 * Filter incoming nonce
 			 */
-			$nonce = filter_input( INPUT_POST, 'algo_woo_plugin_search_api_nonce_name', FILTER_DEFAULT );
+			$nonce = filter_input( INPUT_POST, 'algolia_woo_indexer_search_api_nonce_name', FILTER_DEFAULT );
 
 			/**
 			 * Return if if no nonce field
@@ -174,15 +174,15 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			/**
 			 * Display error and die if nonce is not verified and does not pass security check
 			 */
-			if ( ! wp_verify_nonce( $nonce, 'algo_woo_plugin_search_api_nonce_action' ) ) {
+			if ( ! wp_verify_nonce( $nonce, 'algolia_woo_indexer_search_api_nonce_action' ) ) {
 				wp_die( esc_html__( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html__( 'Error!', 'algolia-woo-indexer' ) );
 			}
 
 			/**
 			 * Filter the application id and api key
 			 */
-			$post_application_id = filter_input( INPUT_POST, 'algo_woo_plugin_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-			$post_api_key        = filter_input( INPUT_POST, 'algo_woo_plugin_search_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+			$post_application_id = filter_input( INPUT_POST, 'algolia_woo_indexer_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+			$post_api_key        = filter_input( INPUT_POST, 'algolia_woo_indexer_search_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 
 			/**
 			 * Properly sanitize text fields before updating data
@@ -264,11 +264,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 				<?php
 				settings_fields( 'algo_woo_options' );
-				do_settings_sections( 'algo_woo_plugin' );
+				do_settings_sections( 'algolia_woo_indexer' );
 				submit_button( 'Save Changes', 'primary' );
 				?>
-			  
-
 				</form>
 			</div>
 			<?php
@@ -310,7 +308,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function deactivate_plugin() {
-			delete_option( ALGOWOO_DB_OPTION . '_db_ver' );
+			// TODO Delete the options we have registered !
 		}
 	}
 }
