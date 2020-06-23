@@ -127,9 +127,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algo_woo_plugin_section_text() {
-			echo '<p>Enter your settings here.</p>';
+			echo esc_html__( '<p>Enter your settings here.</p>', 'algolia-woo-indexer' );
 		}
-
 
 		/**
 		 * Initialize class, setup settings sections and fields
@@ -184,8 +183,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 */
 			$post_application_id = filter_input( INPUT_POST, 'algo_woo_plugin_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 			$post_api_key        = filter_input( INPUT_POST, 'algo_woo_plugin_search_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-
-			print_r($post_api_key);
 
 			/**
 			 * Properly sanitize text fields before updating data
