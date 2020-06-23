@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Main Algolia Woo Indexer class
  * Called from main plugin file algolia-woo-indexer.php
@@ -10,15 +9,15 @@
 namespace ALGOWOO;
 
 // Define the plugin version.
-define('ALGOWOO_DB_OPTION', 'algo_woo');
-define('ALGOWOO_CURRENT_DB_VERSION', 0.3);
+define( 'ALGOWOO_DB_OPTION', 'algo_woo' );
+define( 'ALGOWOO_CURRENT_DB_VERSION', 0.3 );
 
-if (!class_exists('Algolia_Woo_Indexer')) {
+if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 	/**
 	 * WooIndexer
 	 */
-	class Algolia_Woo_Indexer
-	{
+	class Algolia_Woo_Indexer {
+
 
 		const PLUGIN_NAME      = 'Algolia Woo Indexer';
 		const PLUGIN_TRANSIENT = 'algowoo-plugin-notice';
@@ -42,8 +41,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
 		 *
 		 * @return void
 		 */
-		public function __construct()
-		{
+		public function __construct() {
 			$this->init();
 		}
 
@@ -52,14 +50,13 @@ if (!class_exists('Algolia_Woo_Indexer')) {
 		 *
 		 * @return void
 		 */
-		public static function init()
-		{
+		public static function init() {
 			$ob_class = get_called_class();
-			add_action('plugins_loaded', array($ob_class, 'load_textdomain'));
+			add_action( 'plugins_loaded', array( $ob_class, 'load_textdomain' ) );
 			self::load_settings();
-			if (is_admin()) {
-				add_action('admin_menu', array($ob_class, 'admin_menu'));
-				self::$plugin_url = admin_url('options-general.php?page=algolia-woo-indexer-settings');
+			if ( is_admin() ) {
+				add_action( 'admin_menu', array( $ob_class, 'admin_menu' ) );
+				self::$plugin_url = admin_url( 'options-general.php?page=algolia-woo-indexer-settings' );
 			}
 		}
 
@@ -68,9 +65,8 @@ if (!class_exists('Algolia_Woo_Indexer')) {
 		 *
 		 * @return void
 		 */
-		public static function load_textdomain()
-		{
-			load_plugin_textdomain('algolia-woo-indexer', false, basename(dirname(__FILE__)) . '/languages/');
+		public static function load_textdomain() {
+			load_plugin_textdomain( 'algolia-woo-indexer', false, basename( dirname( __FILE__ ) ) . '/languages/' );
 		}
 
 		/**
@@ -78,15 +74,14 @@ if (!class_exists('Algolia_Woo_Indexer')) {
 		 *
 		 * @return void
 		 */
-		public static function admin_menu()
-		{
+		public static function admin_menu() {
 			add_submenu_page(
 				'options-general.php',
-				esc_html__('Algolia Woo Indexer Settings', 'algolia-woo-indexer'),
-				esc_html__('Algolia Woo Indexer Settings', 'algolia-woo-indexer'),
+				esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ),
+				esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ),
 				'manage_options',
 				'algolia-woo-indexer-settings',
-				array(get_called_class(), 'algolia_woo_indexer_settings')
+				array( get_called_class(), 'algolia_woo_indexer_settings' )
 			);
 		}
 
@@ -95,22 +90,21 @@ if (!class_exists('Algolia_Woo_Indexer')) {
 		 *
 		 * @return void
 		 */
-		public static function algolia_woo_indexer_settings()
-		{
+		public static function algolia_woo_indexer_settings() {
 			/**
-			 * Verify that the user can access the settings page
-			 */
-			if (!current_user_can('manage_options')) {
-				wp_die(esc_html__('Action not allowed.', 'algolia_woo_indexer_settings'));
+			* Verify that the user can access the settings page
+			*/
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'Action not allowed.', 'algolia_woo_indexer_settings' ) );
 			}
-?>
+			?>
 			<div class="wrap">
-				<h1><?php esc_html_e('Algolia Woo Indexer Settings', 'algolia-woo-indexer'); ?></h1>
-				<form action="<?php echo esc_url(self::$plugin_url); ?>" method="POST">
+				<h1><?php esc_html_e( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
+				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 					Here we will display settings
 				</form>
 			</div>
-<?php
+			<?php
 		}
 
 		/**
@@ -118,10 +112,8 @@ if (!class_exists('Algolia_Woo_Indexer')) {
 		 *
 		 * @return object
 		 */
-		public static function get_instance()
-		{
-
-			if (!self::$instance) {
+		public static function get_instance() {
+			if ( ! self::$instance ) {
 				self::$instance = new Algolia_Woo_Indexer();
 			}
 			return self::$instance;
@@ -132,8 +124,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
 		 *
 		 * @return void
 		 */
-		public static function load_settings()
-		{
+		public static function load_settings() {
 			// TODO Load settings and get plugin options !
 		}
 
@@ -142,9 +133,8 @@ if (!class_exists('Algolia_Woo_Indexer')) {
 		 *
 		 * @return void
 		 */
-		public static function activate_plugin()
-		{
-			set_transient(self::PLUGIN_TRANSIENT, true);
+		public static function activate_plugin() {
+			set_transient( self::PLUGIN_TRANSIENT, true );
 		}
 
 		/**
@@ -152,9 +142,8 @@ if (!class_exists('Algolia_Woo_Indexer')) {
 		 *
 		 * @return void
 		 */
-		public static function deactivate_plugin()
-		{
-			delete_option(ALGOWOO_DB_OPTION . '_db_ver');
+		public static function deactivate_plugin() {
+			delete_option( ALGOWOO_DB_OPTION . '_db_ver' );
 		}
 	}
 }
