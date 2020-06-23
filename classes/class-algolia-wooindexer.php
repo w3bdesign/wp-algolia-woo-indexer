@@ -176,20 +176,23 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				return;
 			}
 
-			// Display error and die if not verified.
+			/**
+			 * Display error and die if nonce is not verified and does not pass security check
+			 */
 			if ( ! wp_verify_nonce( $_POST['algo_woo_plugin_search_api_nonce_name'], 'algo_woo_plugin_search_api_nonce_action' ) ) {
 				wp_die( 'Your nonce could not be verified.' );
 			}
 
-			// Sanitize and update the option if it's set.
-
+			/**
+			 * Sanitize and update the option if it is set
+			 */
 			if ( isset( $_POST['algo_woo_plugin_application_id'] ) ) {
 				print_r( 'Nonce verified and information is set!' );
 				// print_r( wp_strip_all_tags( $_POST['algo_woo_plugin_application_id[id]'] ) );
 				print_r( wp_unslash( $_POST['algo_woo_plugin_application_id'] ) );
 
 				/*
-				update_option(
+				Update_option(
 					'pdev_nonce_example',
 					wp_strip_all_tags( $_POST['pdev_nonce_example'] )
 				);
