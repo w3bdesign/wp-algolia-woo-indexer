@@ -75,9 +75,16 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					'algo_woo_plugin'
 				);
 				add_settings_field(
+					'algo_woo_plugin_application_id',
+					'Application ID',
+					array( $algowooindexer, 'algo_woo_plugin_application_id_output' ),
 					'algo_woo_plugin',
-					'Test Name',
-					array( $algowooindexer, 'algo_woo_plugin_setting_name' ),
+					'algo_woo_plugin_main'
+				);
+				add_settings_field(
+					'algo_woo_plugin_search_api_key',
+					'Search-Only API Key',
+					array( $algowooindexer, 'algo_woo_plugin_search_api_key_output' ),
 					'algo_woo_plugin',
 					'algo_woo_plugin_main'
 				);
@@ -89,8 +96,39 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public static function algo_woo_plugin_setting_name() {
-			echo '<p>Enter your settings here.</p>';
+		public static function algo_woo_plugin_search_api_key_output() {
+
+			$options = get_option( 'algo_woo_plugin_search_api_key' );
+			print_r( $options );
+			$name = $options['algo_woo_plugin_search_api_key'];
+
+			wp_nonce_field( 'algo_woo_plugin_search_api_nonce_action', 'algo_woo_plugin_search_api_nonce_name' );
+			echo "<input id='algo_woo_plugin_search_api_key' name='algo_woo_plugin_search_api_key[key]'
+				type='text' value='" . esc_attr( $name ) . "' />";
+
+			// TODO Setup nonce checks and fields
+				echo '<br/> Print r POST: <br/> ';
+				echo '<pre>';
+				print_r( $_POST );
+				echo '</pre>';
+
+		}
+
+
+		/**
+		 * Section text for plugin settings field
+		 *
+		 * @return void
+		 */
+		public static function algo_woo_plugin_application_id_output() {
+
+			$options = get_option( 'algo_woo_plugin_application_id' );
+			print_r( $options );
+			 $name = $options['algo_woo_plugin_application_id'];
+
+			echo "<input id='algo_woo_plugin_application_id' name='algo_woo_plugin_application_id[id]'
+				type='text' value='" . esc_attr( $name ) . "' />";
+
 		}
 
 		/**
@@ -118,8 +156,47 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				 */
 				add_action( 'admin_menu', array( $ob_class, 'admin_menu' ) );
 				add_action( 'admin_init', array( $ob_class, 'setup_settings_sections' ) );
+				add_action( 'admin_init', array( $ob_class, 'verify_settings_nonce' ) );
 
 				self::$plugin_url = admin_url( 'options-general.php?page=algolia-woo-indexer-settings' );
+			}
+		}
+
+		/**
+		 * Verify nonces before we update options and settings
+		 *
+		 * @return void
+		 */
+		public static function verify_settings_nonce() {
+			/**
+			 * Return if if no nonce field
+			 */
+
+			if ( ! isset( $_POST['algo_woo_plugin_search_api_nonce_name'] ) ) {
+				return;
+			}
+
+			/**
+			 * Display error and die if nonce is not verified and does not pass security check
+			 */
+			if ( ! wp_verify_nonce( $_POST['algo_woo_plugin_search_api_nonce_name'], 'algo_woo_plugin_search_api_nonce_action' ) ) {
+				wp_die( 'Your nonce could not be verified.' );
+			}
+
+			/**
+			 * Sanitize and update the option if it is set
+			 */
+			if ( isset( $_POST['algo_woo_plugin_application_id'] ) ) {
+				print_r( 'Nonce verified and information is set!' );
+				// print_r( wp_strip_all_tags( $_POST['algo_woo_plugin_application_id[id]'] ) );
+				print_r( wp_unslash( $_POST['algo_woo_plugin_application_id'] ) );
+
+				/*
+				Update_option(
+					'pdev_nonce_example',
+					wp_strip_all_tags( $_POST['pdev_nonce_example'] )
+				);
+				*/
 
 			}
 		}
