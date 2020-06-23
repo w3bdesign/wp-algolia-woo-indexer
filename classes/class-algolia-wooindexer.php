@@ -9,7 +9,7 @@
 namespace ALGOWOO;
 
 // Define the plugin version.
-define( 'ALGOWOO_DB_OPTION', 'algo_woo' );
+define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
 define( 'ALGOWOO_CURRENT_DB_VERSION', 0.3 );
 
 if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
@@ -99,18 +99,12 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		public static function algo_woo_plugin_search_api_key_output() {
 
 			$options = get_option( 'algo_woo_plugin_search_api_key' );
-			print_r( $options );
-			$name = $options['algo_woo_plugin_search_api_key'];
+
+			$api_key = $options['algo_woo_plugin_search_api_key'];
 
 			wp_nonce_field( 'algo_woo_plugin_search_api_nonce_action', 'algo_woo_plugin_search_api_nonce_name' );
 			echo "<input id='algo_woo_plugin_search_api_key' name='algo_woo_plugin_search_api_key[key]'
-				type='text' value='" . esc_attr( $name ) . "' />";
-
-			// TODO Setup nonce checks and fields
-				echo '<br/> Print r POST: <br/> ';
-				echo '<pre>';
-				print_r( $_POST );
-				echo '</pre>';
+				type='text' value='" . esc_attr( $api_key ) . "' />";
 
 		}
 
@@ -122,13 +116,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 */
 		public static function algo_woo_plugin_application_id_output() {
 
-			$options = get_option( 'algo_woo_plugin_application_id' );
-			print_r( $options );
-			 $name = $options['algo_woo_plugin_application_id'];
+			$application_id = get_option( '_algolia_woo_indexer_application_id' );
 
 			echo "<input id='algo_woo_plugin_application_id' name='algo_woo_plugin_application_id[id]'
-				type='text' value='" . esc_attr( $name ) . "' />";
-
+				type='text' value='" . esc_attr( $application_id ) . "' />";
 		}
 
 		/**
@@ -168,36 +159,41 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function verify_settings_nonce() {
+
+			/**
+			 * Filter incoming nonce
+			 */
+			$nonce = filter_input( INPUT_POST, 'algo_woo_plugin_search_api_nonce_name', FILTER_DEFAULT );
+
 			/**
 			 * Return if if no nonce field
 			 */
-
-			if ( ! isset( $_POST['algo_woo_plugin_search_api_nonce_name'] ) ) {
+			if ( ! isset( $nonce ) ) {
 				return;
 			}
 
 			/**
 			 * Display error and die if nonce is not verified and does not pass security check
 			 */
-			if ( ! wp_verify_nonce( $_POST['algo_woo_plugin_search_api_nonce_name'], 'algo_woo_plugin_search_api_nonce_action' ) ) {
-				wp_die( 'Your nonce could not be verified.' );
+			if ( ! wp_verify_nonce( $nonce, 'algo_woo_plugin_search_api_nonce_action' ) ) {
+				wp_die( esc_html__( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html__( 'Error!', 'algolia-woo-indexer' ) );
 			}
 
 			/**
-			 * Sanitize and update the option if it is set
+			 * Filter the application id
 			 */
-			if ( isset( $_POST['algo_woo_plugin_application_id'] ) ) {
-				print_r( 'Nonce verified and information is set!' );
-				// print_r( wp_strip_all_tags( $_POST['algo_woo_plugin_application_id[id]'] ) );
-				print_r( wp_unslash( $_POST['algo_woo_plugin_application_id'] ) );
+			$post_application_id = filter_input( INPUT_POST, 'algo_woo_plugin_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 
-				/*
-				Update_option(
-					'pdev_nonce_example',
-					wp_strip_all_tags( $_POST['pdev_nonce_example'] )
+			/**
+			 * Properly sanitize text fields before updating data
+			*/
+			$filtered_application_id = sanitize_text_field( $post_application_id['id'] );
+
+			if ( isset( $filtered_application_id ) ) {
+				update_option(
+					ALGOWOO_DB_OPTION . '_application_id',
+					$filtered_application_id
 				);
-				*/
-
 			}
 		}
 
