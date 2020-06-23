@@ -71,13 +71,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				add_settings_section(
 					'algo_woo_plugin_main',
 					'Algo Woo Plugin Settings',
-					array(  $algowooindexer, 'algo_woo_plugin_section_text' ),
+					array( $algowooindexer, 'algo_woo_plugin_section_text' ),
 					'algo_woo_plugin'
 				);
 				add_settings_field(
 					'algo_woo_plugin',
 					'Test Name',
-					array(  $algowooindexer, 'algo_woo_plugin_setting_name' ),
+					array( $algowooindexer, 'algo_woo_plugin_setting_name' ),
 					'algo_woo_plugin',
 					'algo_woo_plugin_main'
 				);
