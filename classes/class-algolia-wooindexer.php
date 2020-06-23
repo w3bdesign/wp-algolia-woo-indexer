@@ -98,11 +98,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 */
 		public static function algo_woo_plugin_search_api_key_output() {
 
-			$options = get_option( 'algo_woo_plugin_search_api_key' );
-
-			$api_key = $options['algo_woo_plugin_search_api_key'];
+			$api_key = get_option( '_algolia_woo_indexer_api_search_key' );
 
 			wp_nonce_field( 'algo_woo_plugin_search_api_nonce_action', 'algo_woo_plugin_search_api_nonce_name' );
+
 			echo "<input id='algo_woo_plugin_search_api_key' name='algo_woo_plugin_search_api_key[key]'
 				type='text' value='" . esc_attr( $api_key ) . "' />";
 
@@ -128,9 +127,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algo_woo_plugin_section_text() {
-			echo '<p>Enter your settings here.</p>';
+			echo esc_html__( '<p>Enter your settings here.</p>', 'algolia-woo-indexer' );
 		}
-
 
 		/**
 		 * Initialize class, setup settings sections and fields
@@ -141,6 +139,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$ob_class = get_called_class();
 			add_action( 'plugins_loaded', array( $ob_class, 'load_textdomain' ) );
 			self::load_settings();
+
 			if ( is_admin() ) {
 				/**
 				 * Add actions to setup admin menu
@@ -180,19 +179,28 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			}
 
 			/**
-			 * Filter the application id
+			 * Filter the application id and api key
 			 */
 			$post_application_id = filter_input( INPUT_POST, 'algo_woo_plugin_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+			$post_api_key        = filter_input( INPUT_POST, 'algo_woo_plugin_search_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 
 			/**
 			 * Properly sanitize text fields before updating data
 			*/
 			$filtered_application_id = sanitize_text_field( $post_application_id['id'] );
+			$filtered_api_key        = sanitize_text_field( $post_api_key['key'] );
 
 			if ( isset( $filtered_application_id ) ) {
 				update_option(
 					ALGOWOO_DB_OPTION . '_application_id',
 					$filtered_application_id
+				);
+			}
+
+			if ( isset( $filtered_api_key ) ) {
+				update_option(
+					ALGOWOO_DB_OPTION . '_api_search_key',
+					$filtered_api_key
 				);
 			}
 		}
