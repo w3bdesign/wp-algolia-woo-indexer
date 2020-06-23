@@ -88,10 +88,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			if ( ! current_user_can( 'manage_options' ) ) {
 				wp_die( esc_html__( 'Action not allowed.', 'algolia_woo_indexer_settings' ) );
 			}
-
 			?>
 			<div class="wrap">
-			<h1><div class="dashicons dashicons-admin-site ic-devops"></div> <?php esc_html_e( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
+			<h1><?php esc_html_e( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>		
+			<form action="options.php" method="post">
+			Here we will display settings
+			</form>
+			</div>			
 			<?php
 		}
 
