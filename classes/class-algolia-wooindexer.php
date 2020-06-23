@@ -163,7 +163,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 						'admin_notices',
 						function () {
 							echo '<div class="error notice">
-								  <p>' . esc_html__( 'Algolia Woocommerce Indexer: Woocommerce plugin should be enabled for Algolia Woo Indexer to work.', 'algolia-woo-indexer' ) . '</p>
+								  <p>' . esc_html__( 'Woocommerce plugin should be enabled for Algolia Woo Indexer to work.', 'algolia-woo-indexer' ) . '</p>
 								</div>';
 						}
 					);
