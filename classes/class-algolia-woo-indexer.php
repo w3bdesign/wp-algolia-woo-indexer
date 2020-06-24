@@ -300,15 +300,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				wp_die( esc_html__( 'Action not allowed.', 'algolia_woo_indexer_settings' ) );
 			}
 			?>
-			
-			
 
-
-
-
-			<div class="wrap">
-
-
+				<div class="wrap">
 				<h1><?php esc_html_e( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 				<?php
@@ -325,7 +318,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				echo '<a href="' . $link . '">';
 				submit_button( 'Submit products to Algolia', 'primary' );
 				echo '</a>';
-
 				?>
 			</div>
 			<?php
