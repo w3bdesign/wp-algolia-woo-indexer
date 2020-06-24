@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Project-Id-Version: Algolia Woocommerce Indexer\n"
-"POT-Creation-Date: 2020-06-23 23:28+0200\n"
-"PO-Revision-Date: 2020-06-23 23:28+0200\n"
+"POT-Creation-Date: 2020-06-24 04:57+0200\n"
+"PO-Revision-Date: 2020-06-24 04:57+0200\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,29 +19,29 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.min.js\n"
 
-#: classes/class-algolia-wooindexer.php:129
+#: classes/class-algolia-woo-indexer.php:136
 msgid "Enter your settings here"
 msgstr "Enter your settings here"
 
-#: classes/class-algolia-wooindexer.php:166
-msgid "Woocommerce plugin should be enabled for Algolia Woo Indexer to work."
-msgstr "Woocommerce plugin should be enabled for Algolia Woo Indexer to work."
+#: classes/class-algolia-woo-indexer.php:173
+msgid "WooCommerce plugin must be enabled for Algolia Woo Indexer to work."
+msgstr "WooCommerce plugin must be enabled for Algolia Woo Indexer to work."
 
-#: classes/class-algolia-wooindexer.php:197
+#: classes/class-algolia-woo-indexer.php:204
 msgid "Action is not allowed."
 msgstr "Action is not allowed."
 
-#: classes/class-algolia-wooindexer.php:197
+#: classes/class-algolia-woo-indexer.php:204
 msgid "Error!"
 msgstr "Error!"
 
-#: classes/class-algolia-wooindexer.php:261
-#: classes/class-algolia-wooindexer.php:262
-#: classes/class-algolia-wooindexer.php:283
+#: classes/class-algolia-woo-indexer.php:282
+#: classes/class-algolia-woo-indexer.php:283
+#: classes/class-algolia-woo-indexer.php:305
 msgid "Algolia Woo Indexer Settings"
 msgstr "Algolia Woo Indexer Settings"
 
-#: classes/class-algolia-wooindexer.php:279
+#: classes/class-algolia-woo-indexer.php:300
 msgid "Action not allowed."
 msgstr "Action not allowed."
 
