@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Name:     Algolia Woocommerce Indexer
  * Description:     Implement Algolia indexing from Woocommerce
