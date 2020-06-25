@@ -1,5 +1,7 @@
 <?php
 
+
+
 /**
  * Main Algolia Woo Indexer class
  * Called from main plugin file algolia-woo-indexer.php
@@ -11,7 +13,13 @@ namespace ALGOWOO;
 
 // Define the plugin version.
 define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
-define( 'ALGOWOO_CURRENT_DB_VERSION', 0.3 );
+define( 'ALGOWOO_CURRENT_DB_VERSION', '0.3' );
+// The minmum required PHP version.
+define( 'ALGOLIA_MIN_PHP_VERSION', '7.2' );
+// The minimum required WordPress version.
+define( 'ALGOLIA_MIN_WP_VERSION', '5.0' );
+
+
 
 if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 	/**
@@ -91,7 +99,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				);
 				add_settings_field(
 					'algolia_woo_indexer_admin_api_key',
-					'Search-Only API Key',
+					'Admin API Key',
 					array( $algowooindexer, 'algolia_woo_indexer_admin_api_key_output' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
@@ -164,12 +172,55 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		}
 
 		/**
+		 * Check for required PHP version.
+		 *
+		 * @return bool
+		 */
+		public static function algolia_php_version_check() {
+			if ( version_compare( PHP_VERSION, ALGOLIA_MIN_PHP_VERSION, '<' ) ) {
+				return false;
+			}
+			return true;
+		}
+
+		/**
+		 * Check for required WordPress version.
+		 *
+		 * @return bool
+		 */
+		public static function algolia_wp_version_check() {
+			if ( version_compare( $GLOBALS['wp_version'], ALGOLIA_MIN_WP_VERSION, '<' ) ) {
+				return false;
+			}
+			return true;
+		}
+
+		/**
 		 * Initialize class, setup settings sections and fields
 		 *
 		 * @return void
 		 */
 		public static function init() {
+
+			/**
+			 * Check that we have the minimum versions required
+			 */
+			if ( ! self::algolia_wp_version_check() || ! self::algolia_php_version_check() ) {
+				add_action(
+					'admin_notices',
+					function () {
+						echo '<div class="error notice">
+                                  <p>' . esc_html__( 'Algolia Woo Indexer requires minimum PHP version 7.2 and WordPress version 5.0', 'algolia-woo-indexer' ) . '</p>
+                                </div>';
+					}
+				);
+			}
+
 			$ob_class = get_called_class();
+
+			/**
+			 * Setup translations
+			 */
 			add_action( 'plugins_loaded', array( $ob_class, 'load_textdomain' ) );
 			self::load_settings();
 
@@ -277,6 +328,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			}
 		}
 
+
+
 		/**
 		 * Send WooCommerce products to Algolia
 		 *
@@ -285,40 +338,87 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		public static function send_products_to_algolia() {
 
 			/**
-			 * Fetch the required variables from the WP database
-			 */
-
-			 $algolia_application_id = get_option( ALGOWOO_DB_OPTION . '_application_id' );
-			 $algolia_api_key        = get_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
-			 $algolia_index_name     = get_option( ALGOWOO_DB_OPTION . '_index_name' );
-
-			 print_r( $algolia_application_id . '<br/>' );
-			 print_r( $algolia_api_key . '<br/>' );
-			 print_r( $algolia_index_name . '<br/>' );
-
-			/**
-			 * Remove classes from plugin url and sanitize before we can require it
+			 * Remove classes from plugin url and autoload Algolia with Composer
 			 */
 
 			$base_plugin_directory = str_replace( 'classes', '', dirname( __FILE__ ) );
 
+			require_once $base_plugin_directory . '/vendor/autoload.php';
+
 			/**
-			 * Composer autoloading of Algoliasearch PHP client
+			 * Fetch the required variables from the Settings API
 			 */
 
-			require_once $base_plugin_directory . '/vendor/autoload.php';
+			$algolia_application_id = get_option( ALGOWOO_DB_OPTION . '_application_id' );
+			$algolia_api_key        = get_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
+			$algolia_index_name     = get_option( ALGOWOO_DB_OPTION . '_index_name' );
+
+			/**
+			 * Display admin notice and return if not all values have been set
+			 */
+			if ( empty( $algolia_application_id ) || empty( $algolia_api_key || empty( $algolia_index_name ) ) ) {
+				add_action(
+					'admin_notices',
+					function () {
+						echo '<div class="error notice">
+							  <p>' . esc_html__( 'All settings need to be set for the plugin to work.', 'algolia-woo-indexer' ) . '</p>
+							</div>';
+					}
+				);
+					return;
+			}
 
 			global $algolia;
 
 			$algolia = \Algolia\AlgoliaSearch\SearchClient::create( $algolia_application_id, $algolia_api_key );
 
-			$index = $algolia->initIndex( 'WP_TEST' );
+			/**
+			 * Check if we can connect, if not, handle the exception, display an error and then return
+			 */
+			try {
+				$algolia->listApiKeys();
+			} catch ( \Algolia\AlgoliaSearch\Exceptions\UnreachableException $error ) {
+				add_action(
+					'admin_notices',
+					function () {
+						echo '<div class="error notice">
+							  <p>' . esc_html__( 'An error has been encountered. Please check your Algolia settings. ', 'algolia-woo-indexer' ) . '</p>
+							</div>';
+					}
+				);
+					return;
+			}
 
-			print_r( 'Algolia: ' );
-			echo '<pre>';
-			print_r( $index );
-			echo '</pre>';
+			// TODO Use index name from database !
+			// $index = $algolia->initIndex( 'WP_TEST' );
 
+			/**
+			 * Setup arguments for sending all products to Algolia. Limit => -1 means we send all products
+			 */
+
+			$arguments = array(
+				'status'   => 'publish',
+				'limit'    => -1,
+				'paginate' => false,
+			);
+
+			// $products = wc_get_products($arguments);
+
+			$records = array();
+
+			$record['objectID'] = 1;
+			$record['test']     = 'test';
+
+			$records[] = $record;
+
+			/*
+			try {
+				$client->listUserKeys();
+				return;
+			} catch ( Exception $exception ) {
+			}*/
+
+			// print_r("$count posts indexed in Algolia");
 		}
 
 		/**

@@ -17,7 +17,7 @@ This is NOT a plugin for beginners.
 
 * Access to install and activate plugins (usually administrator rights)
 * Wordpress 5.4
-* PHP 7.3
+* PHP 7.2
 * SSH access to the server with Composer installed
 
 ## Installation
