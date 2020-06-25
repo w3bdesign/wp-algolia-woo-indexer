@@ -20,4 +20,4 @@ You need to add the Application ID and the Search-Only API Key from the "API key
 * Add the Application ID to the plugin settings page
 * Add the Search-Only API Key to the plugin settings page
 * Add the name of the index that should be used to index Woocommerce products
-* Click on the 'Sync now!' button to send the products to Algolia
+* Click on the 'Send products with Algolia' button to send the products to Algolia

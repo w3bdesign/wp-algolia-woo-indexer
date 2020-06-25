@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Main Algolia Woo Indexer class
  * Called from main plugin file algolia-woo-indexer.php
@@ -48,7 +49,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public function __construct() {
-			$this->init();
+			 $this->init();
 		}
 
 		/**
@@ -77,7 +78,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 				add_settings_section(
 					'algolia_woo_indexer_main',
-					'Algolia WooCommerce Plugin Settings',
+					'Algolia Woo Plugin Settings',
 					array( $algowooindexer, 'algolia_woo_indexer_section_text' ),
 					'algolia_woo_indexer'
 				);
@@ -104,7 +105,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_search_api_key_output() {
-
 			$api_key = get_option( '_algolia_woo_indexer_api_search_key' );
 
 			wp_nonce_field( 'algolia_woo_indexer_search_api_nonce_action', 'algolia_woo_indexer_search_api_nonce_name' );
@@ -120,7 +120,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_application_id_output() {
-
 			$application_id = get_option( '_algolia_woo_indexer_application_id' );
 
 			echo "<input id='algolia_woo_indexer_application_id' name='algolia_woo_indexer_application_id[id]'
@@ -133,7 +132,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_section_text() {
-			echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
+			 echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
 		}
 
 		/**
@@ -142,7 +141,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return boolean
 		 */
 		public static function is_woocommerce_plugin_active() {
-			return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true );
+			 return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true );
 		}
 
 		/**
@@ -156,8 +155,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			self::load_settings();
 
 			/**
-			* Add actions to setup admin menu
-			*/
+			 * Add actions to setup admin menu
+			 */
 			if ( is_admin() ) {
 				add_action( 'admin_menu', array( $ob_class, 'admin_menu' ) );
 				add_action( 'admin_init', array( $ob_class, 'setup_settings_sections' ) );
@@ -180,28 +179,43 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 		/**
 		 * Verify nonces before we update options and settings
+		 * Also retrieve the value from the send_products_to_algolia hidden field to check if we are sending products to Algolia
 		 *
 		 * @return void
 		 */
 		public static function verify_settings_nonce() {
+			/**
+			 * Filter incoming nonces and values
+			 */
+			$settings_nonce           = filter_input( INPUT_POST, 'algolia_woo_indexer_search_api_nonce_name', FILTER_DEFAULT );
+			$send_products_nonce      = filter_input( INPUT_POST, 'send_products_to_algolia_nonce_name', FILTER_DEFAULT );
+			$send_products_to_algolia = filter_input( INPUT_POST, 'send_products_to_algolia', FILTER_DEFAULT );
 
 			/**
-			 * Filter incoming nonce
+			 * Return if if no nonce has been set for either of the two forms
 			 */
-			$nonce = filter_input( INPUT_POST, 'algolia_woo_indexer_search_api_nonce_name', FILTER_DEFAULT );
-
-			/**
-			 * Return if if no nonce field
-			 */
-			if ( ! isset( $nonce ) ) {
+			if ( ! isset( $settings_nonce ) && ! isset( $send_products_nonce ) ) {
 				return;
 			}
 
 			/**
 			 * Display error and die if nonce is not verified and does not pass security check
+			 * Also check if the hidden value field send_products_to_algolia is set
 			 */
-			if ( ! wp_verify_nonce( $nonce, 'algolia_woo_indexer_search_api_nonce_action' ) ) {
+			if ( ! wp_verify_nonce( $settings_nonce, 'algolia_woo_indexer_search_api_nonce_action' ) && ! isset( $send_products_to_algolia ) ) {
 				wp_die( esc_html__( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html__( 'Error!', 'algolia-woo-indexer' ) );
+			}
+
+			if ( ! wp_verify_nonce( $send_products_nonce, 'send_products_to_algolia_nonce_action' ) && isset( $send_products_to_algolia ) ) {
+				wp_die( esc_html__( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html__( 'Error!', 'algolia-woo-indexer' ) );
+			}
+
+			/**
+			 * If we have verified the send_products_nonce and the send_products hidden field is set, call the function to send the products
+			 */
+			if ( wp_verify_nonce( $send_products_nonce, 'send_products_to_algolia_nonce_action' ) && isset( $send_products_to_algolia ) ) {
+				// TODO Call the function to send the products !
+				return;
 			}
 
 			/**
@@ -212,7 +226,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 			/**
 			 * Properly sanitize text fields before updating data
-			*/
+			 */
 			$filtered_application_id = sanitize_text_field( $post_application_id['id'] );
 			$filtered_api_key        = sanitize_text_field( $post_api_key['key'] );
 
@@ -230,6 +244,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				);
 			}
 		}
+
 
 		/**
 		 * Send WooCommerce products to Algolia
@@ -298,27 +313,20 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			*/
 			if ( ! current_user_can( 'manage_options' ) ) {
 				wp_die( esc_html__( 'Action not allowed.', 'algolia_woo_indexer_settings' ) );
-			}
-			?>
-
-				<div class="wrap">
+			} ?>
+			<div class="wrap">
 				<h1><?php esc_html_e( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
-				<?php
-				settings_fields( 'algolia_woo_options' );
-				do_settings_sections( 'algolia_woo_indexer' );
-				submit_button( 'Save Changes', 'primary' );
-				?>
-				</form>
-				<br/>
-				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">				
-				<?php
-				$nonce = wp_create_nonce( 'my_user_like_nonce' );
-				$link  = admin_url( 'admin-ajax.php?action=send_algolia_products&nonce=' . $nonce );
-				echo '<a href="' . $link . '">';
-				submit_button( 'Submit products to Algolia', 'primary' );
-				echo '</a>';
-				?>
+					<?php
+					settings_fields( 'algolia_woo_options' );
+					do_settings_sections( 'algolia_woo_indexer' );
+					submit_button( 'Save Changes', 'primary' );
+					?>
+				</form>				
+				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
+					<?php wp_nonce_field( 'send_products_to_algolia_nonce_action', 'send_products_to_algolia_nonce_name' ); ?>
+					<input type="hidden" name="send_products_to_algolia" id="send_products_to_algolia" value="true" />
+					<?php submit_button( 'Send products to Algolia', 'primary wide', '', false ); ?>
 			</div>
 			<?php
 		}
@@ -359,7 +367,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function deactivate_plugin() {
-			// TODO Delete the options we have registered !
+			delete_transient( self::PLUGIN_TRANSIENT, true );
 		}
 	}
 }
