@@ -395,21 +395,19 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					return;
 			}
 
-			global $algolia;
-
-			$algolia = \Algolia\AlgoliaSearch\SearchClient::create( $algolia_application_id, $algolia_api_key );
+			self::$algolia = \Algolia\AlgoliaSearch\SearchClient::create( $algolia_application_id, $algolia_api_key );
 
 			/**
 			 * Check if we can connect, if not, handle the exception, display an error and then return
 			 */
 			try {
-				$algolia->listApiKeys();
+				self::$algolia->listApiKeys();
 			} catch ( \Algolia\AlgoliaSearch\Exceptions\UnreachableException $error ) {
 				add_action(
 					'admin_notices',
 					function () {
 						echo '<div class="error notice">
-							  <p>' . esc_html__( 'An error has been encountered. Please check your Algolia settings. ', 'algolia-woo-indexer' ) . '</p>
+							  <p>' . esc_html__( 'An error has been encountered. Please check your application ID and API key. ', 'algolia-woo-indexer' ) . '</p>
 							</div>';
 					}
 				);
