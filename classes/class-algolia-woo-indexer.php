@@ -11,15 +11,17 @@
 
 namespace ALGOWOO;
 
-// Define the plugin version.
+/**
+ * Define the plugin version and the database table name
+ */
 define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
 define( 'ALGOWOO_CURRENT_DB_VERSION', '0.3' );
-// The minmum required PHP version.
+
+/**
+ * Define minimum required versions of PHP and WordPress
+ */
 define( 'ALGOLIA_MIN_PHP_VERSION', '7.2' );
-// The minimum required WordPress version.
-define( 'ALGOLIA_MIN_WP_VERSION', '5.0' );
-
-
+define( 'ALGOLIA_MIN_WP_VERSION', '5.4' );
 
 if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 	/**
