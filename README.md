@@ -6,9 +6,19 @@
 
 This plugin sends products from WooCommerce to Algolia.
 
-You need to add the Application ID and the Search-Only API Key from the "API keys" section in Algolia.
+You need to add the Application ID and the Search-Only API Key from the `API keys` section in Algolia.
 
-![Screenshot 1](/screenshots/screenshot1.jpg?raw=true "Screenshot 1") ![Screenshot 2](/screenshots/screenshot2.jpg?raw=true "Screenshot 1")
+Note that this plugin is designed for developers developing headless Ecommerce solutions. 
+As a result, this plugin requires SSH access to the server where Wordpress is installed.
+
+This is NOT a plugin for beginners.
+
+## Requirements
+
+* Access to install and activate plugins (usually administrator rights)
+* Wordpress 5.4
+* PHP 7.3
+* SSH access to the server with Composer installed
 
 ## Installation
 
