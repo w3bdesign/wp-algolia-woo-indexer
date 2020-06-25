@@ -6,7 +6,7 @@
 
 This plugin sends products from WooCommerce to Algolia.
 
-You need to add the Application ID and the Search-Only API Key from the `API keys` section in Algolia.
+You need to add the Application ID and the Admin API Key from the `API keys` section in Algolia.
 
 Note that this plugin is designed for developers developing headless Ecommerce solutions. 
 As a result, this plugin requires SSH access to the server where Wordpress is installed.
@@ -25,10 +25,10 @@ This is NOT a plugin for beginners.
 * Login to Wordpress as Admin
 * Upload `Algolia Woo Indexer` to the `/wp-content/plugins/` directory of your application
 * SSH to the server and navigate to the folder where the plugin is installed and do a `composer install` to properly setup all required dependencies
-* Activate the plugin through the 'Plugins' menu in WordPress
-* Login to Algolia and go to 'API keys' and copy or write down the Application ID and the Search-Only API Key
-* Go back to Wordpress and access plugin settings under 'Settings->Algolia Woo Indexer'
+* Activate the plugin through the `Plugins` menu in WordPress
+* Login to Algolia and go to 'API keys' and copy or write down the Application ID and the `Admin API Key`
+* Go back to Wordpress and access plugin settings under `Settings->Algolia Woo Indexer`
 * Add the Application ID to the plugin settings page
 * Add the Search-Only API Key to the plugin settings page
 * Add the name of the index that should be used to index Woocommerce products
-* Click on the 'Send products with Algolia' button to send the products to Algolia
+* Click on the `Send products with Algolia` button to send the products to Algolia
