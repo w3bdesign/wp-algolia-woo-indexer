@@ -183,13 +183,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-	public static function verify_settings_nonce() {
+		public static function verify_settings_nonce() {
 			/**
 			 * Filter incoming nonces and values
 			 */
 			$settings_nonce           = filter_input( INPUT_POST, 'algolia_woo_indexer_search_api_nonce_name', FILTER_DEFAULT );
 			$send_products_nonce      = filter_input( INPUT_POST, 'send_products_to_algolia_nonce_name', FILTER_DEFAULT );
-			$send_products_to_algolia = filter_input( INPUT_POST, 'send_products_to_algolia', FILTER_DEFAULT );			
+			$send_products_to_algolia = filter_input( INPUT_POST, 'send_products_to_algolia', FILTER_DEFAULT );
 
 			/**
 			 * Return if if no nonce has been set for either of the two forms
@@ -213,7 +213,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			/**
 			 * If we have verified the send_products_nonce and the send_products hidden field is set, call the function to send the products
 			 */
-			if ( wp_verify_nonce( $send_products_nonce, 'send_products_to_algolia_nonce_action' ) && isset( $send_products_to_algolia )) {
+			if ( wp_verify_nonce( $send_products_nonce, 'send_products_to_algolia_nonce_action' ) && isset( $send_products_to_algolia ) ) {
 				// TODO Call the function to send the products !
 				return;
 			}
@@ -228,7 +228,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * Properly sanitize text fields before updating data
 			 */
 			$filtered_application_id = sanitize_text_field( $post_application_id['id'] );
-			$filtered_api_key        = sanitize_text_field( $post_api_key['key'] );			
+			$filtered_api_key        = sanitize_text_field( $post_api_key['key'] );
 
 			if ( isset( $filtered_application_id ) ) {
 				update_option(
@@ -242,8 +242,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					ALGOWOO_DB_OPTION . '_api_search_key',
 					$filtered_api_key
 				);
-			}		
-		
+			}
+		}
+
 
 		/**
 		 * Send WooCommerce products to Algolia
