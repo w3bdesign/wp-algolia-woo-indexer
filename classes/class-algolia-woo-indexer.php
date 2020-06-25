@@ -49,7 +49,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public function __construct() {
-			 $this->init();
+			$this->init();
 		}
 
 		/**
@@ -132,7 +132,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_section_text() {
-			 echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
+			echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
 		}
 
 		/**
@@ -141,7 +141,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return boolean
 		 */
 		public static function is_woocommerce_plugin_active() {
-			 return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true );
+			return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true );
 		}
 
 		/**
@@ -327,6 +327,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					<?php wp_nonce_field( 'send_products_to_algolia_nonce_action', 'send_products_to_algolia_nonce_name' ); ?>
 					<input type="hidden" name="send_products_to_algolia" id="send_products_to_algolia" value="true" />
 					<?php submit_button( 'Send products to Algolia', 'primary wide', '', false ); ?>
+				</form>
 			</div>
 			<?php
 		}
