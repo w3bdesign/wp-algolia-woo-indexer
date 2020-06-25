@@ -184,6 +184,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function verify_settings_nonce() {
+			
+			// TODO Separate this into two separate functions or do a switch or something else to clean this function up ?
+			// TODO Right now we verify two nonces in one function and it can get a bit messy if we need to add a third nonce
+			
 			/**
 			 * Filter incoming nonces and values
 			 */
