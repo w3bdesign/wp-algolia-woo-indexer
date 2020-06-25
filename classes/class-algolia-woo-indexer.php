@@ -214,7 +214,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * If we have verified the send_products_nonce and the send_products hidden field is set, call the function to send the products
 			 */
 			if ( wp_verify_nonce( $send_products_nonce, 'send_products_to_algolia_nonce_action' ) && isset( $send_products_to_algolia ) ) {
-				// TODO Call the function to send the products !
+				self::send_products_to_algolia();
 				return;
 			}
 
@@ -252,13 +252,21 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function send_products_to_algolia() {
-			print_r( 'Clicked button <br/>' );
-			print_r( plugin_dir_path( __FILE__ ) );
-			// require_once plugin_dir_path( __FILE__ ) . '../algoliasearch-client-php-master/autoload.php';
 
-			// $algolia = \Algolia\AlgoliaSearch\SearchClient::create( '7L9M5Y0B1K', '4aa733f889b121fce6395714a4e4b281' );
+			/**
+			 * Remove classes from plugin url and sanitize before we can require it
+			 */
+			$base_plugin_directory = esc_url( str_replace( 'classes', '', dirname( __FILE__ ) ) );
 
-			// print_r( $algolia );
+			/**
+			 * Composer autoloading of Algoliasearch PHP client
+			 */
+			require_once $base_directory . '/vendor/autoload.php';
+
+			global $algolia;
+
+			// TODO Fetch Algolia parameters from get_option !
+			// TODO $algolia = \Algolia\AlgoliaSearch\SearchClient::create( 'appid', 'searchkey' ); !
 		}
 
 		/**
