@@ -18,6 +18,7 @@ This is NOT a plugin for beginners.
 * Access to install and activate plugins (usually administrator rights)
 * Wordpress 5.4
 * PHP 7.2
+* PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
 * SSH access to the server with Composer installed
 
 ## Installation
