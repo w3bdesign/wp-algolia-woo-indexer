@@ -196,6 +196,29 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		}
 
 		/**
+		 * Check that we have all of the required PHP extensions installed
+		 *
+		 * @return void
+		 */
+		public static function check_unmet_requirements() {
+			if ( ! extension_loaded( 'mbstring' ) ) {
+				echo '<div class="error notice">
+					  <p>' . esc_html__( 'Algolia Woo Indexer requires the "mbstring" PHP extension to be enabled. Please contact your hosting provider.', 'algolia-woo-indexer' ) . '</p>
+				  </div>';
+			} elseif ( ! function_exists( 'mb_ereg_replace' ) ) {
+				echo '<div class="error notice">
+					  <p>' . esc_html__( 'Algolia Woo Indexer needs "mbregex" NOT to be disabled. Please contact your hosting provider.', 'algolia-woo-indexer' ) . '</p>
+				  </div>';
+			}
+			if ( ! extension_loaded( 'curl' ) ) {
+				echo '<div class="error notice">
+					  <p>' . esc_html__( 'Algolia Woo Indexer requires the "cURL" PHP extension to be enabled. Please contact your hosting provider.', 'algolia-woo-indexer' ) . '</p>
+				  </div>';
+				return;
+			}
+		}
+
+		/**
 		 * Initialize class, setup settings sections and fields
 		 *
 		 * @return void
@@ -203,14 +226,16 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		public static function init() {
 
 			/**
-			 * Check that we have the minimum versions required
+			 * Check that we have the minimum versions required and all of the required PHP extensions
 			 */
+			self::check_unmet_requirements();
+
 			if ( ! self::algolia_wp_version_check() || ! self::algolia_php_version_check() ) {
 				add_action(
 					'admin_notices',
 					function () {
 						echo '<div class="error notice">
-                                  <p>' . esc_html__( 'Algolia Woo Indexer requires minimum PHP version 7.2 and WordPress version 5.0', 'algolia-woo-indexer' ) . '</p>
+                                  <p>' . esc_html__( 'Please check the server requirements for Algolia Woo Indexer. <br/> It requires minimum PHP version 7.2 and WordPress version 5.0', 'algolia-woo-indexer' ) . '</p>
                                 </div>';
 					}
 				);
