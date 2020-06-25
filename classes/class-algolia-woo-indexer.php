@@ -332,13 +332,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					<?php
 					settings_fields( 'algolia_woo_options' );
 					do_settings_sections( 'algolia_woo_indexer' );
-					submit_button( 'Save Changes', 'primary' );
+					submit_button( '', 'primary wide' );
 					?>
 				</form>				
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 					<?php wp_nonce_field( 'send_products_to_algolia_nonce_action', 'send_products_to_algolia_nonce_name' ); ?>
 					<input type="hidden" name="send_products_to_algolia" id="send_products_to_algolia" value="true" />
-					<?php submit_button( 'Send products to Algolia', 'primary wide', '', false ); ?>
+					<?php submit_button( esc_html__('Send products to Algolia', 'algolia_woo_indexer_settings' ), 'primary wide', '', false ); ?>
 				</form>
 			</div>
 			<?php
