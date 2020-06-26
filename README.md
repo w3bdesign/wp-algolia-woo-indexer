@@ -22,7 +22,7 @@ This is NOT a plugin for beginners.
 * Wordpress 5.4
 * PHP 7.2
 * PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
-* SSH access to the server with Composer installed
+* Preferably SSH access to the server with Composer installed, or if you have Composer installed locally, you can clone the plugin, run `composer install` locally and then upload the modified folder. 
 
 ## Installation
 
