@@ -417,54 +417,55 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$index = self::$algolia->initIndex( $algolia_index_name );
 
 			/**
-			 * Setup arguments for sending all products to Algolia 
+			 * Setup arguments for sending all products to Algolia
+			 *
 			 * Limit => -1 means we send all products
 			 */
+						$arguments = array(
+							'status'   => 'publish',
+							'limit'    => -1,
+							'paginate' => false,
+						);
 
-			$arguments = array(
-				'status'   => 'publish',
-				'limit'    => -1,
-				'paginate' => false,
-			);
-
-			/**
-			 * Fetch all products from WooCommerce
-			 */
-			$products = wc_get_products( $arguments );
-
-			if ( $products ) {
-				$records = array();
-
-				foreach ( $products as $product ) {
-					/**
-					 * Only index products that are in stock
-					 */
-					if ( $product->is_in_stock() ) {
 						/**
-						 * Extract image from $product->get_image()
+						 * Fetch all products from WooCommerce
 						 */
-						preg_match_all( '/<img.*?src=[\'"](.*?)[\'"].*?>/i', $product->get_image(), $matches );
-						$product_image = implode( $matches[1] );
+						$products = wc_get_products( $arguments );
 
-						$record['objectID']          = $product->get_id();
-						$record['product_name']      = $product->get_name();
-						$record['product_image']     = $product_image;
-						$record['short_description'] = $product->get_short_description();
-						$record['regular_price']     = $product->get_regular_price();
-						$record['sale_price']        = $product->get_sale_price();
-						$record['on_sale']           = $product->is_on_sale();
-						$record['short_description'] = $product->get_short_description();
+						if ( $products ) {
+							$records = array();
+							$record  = array();
 
-						$records[] = $record;
-					}
-				}
-				wp_reset_postdata();
-			}
+							foreach ( $products as $product ) {
+								/**
+								 * Only index products that are in stock
+								 */
+								if ( $product->is_in_stock() ) {
+									/**
+									 * Extract image from $product->get_image()
+									 */
+									preg_match_all( '/<img.*?src=[\'"](.*?)[\'"].*?>/i', $product->get_image(), $matches );
+									$product_image = implode( $matches[1] );
 
-			$index->saveObjects( $records );
+									$record['objectID']          = $product->get_id();
+									$record['product_name']      = $product->get_name();
+									$record['product_image']     = $product_image;
+									$record['short_description'] = $product->get_short_description();
+									$record['regular_price']     = $product->get_regular_price();
+									$record['sale_price']        = $product->get_sale_price();
+									$record['on_sale']           = $product->is_on_sale();
+									$record['short_description'] = $product->get_short_description();
 
-			echo '<div class="notice notice-success is-dismissible">
-					  <p>' . esc_html__( intval( count( $records ) ) . ' product(s) sent to Algolia with index name ' . $algolia_index_name, 'algolia-woo-indexer' ) . '</p>
+									$records[] = $record;
+								}
+							}
+							wp_reset_postdata();
+						}
+
+						$index->saveObjects( $records );
+
+						echo '<div class="notice notice-success is-dismissible">
+					  <p>' . esc_html__( 'Product(s) sent to Algolia.', 'algolia-woo-indexer' ) . '</p>
 				  </div>';
 		}
 
