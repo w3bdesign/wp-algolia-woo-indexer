@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Project-Id-Version: Algolia Woocommerce Indexer\n"
-"POT-Creation-Date: 2020-06-26 01:10+0200\n"
-"PO-Revision-Date: 2020-06-26 01:10+0200\n"
+"POT-Creation-Date: 2020-06-26 04:17+0200\n"
+"PO-Revision-Date: 2020-06-26 04:17+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -22,67 +22,72 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-0: *.min.js\n"
 "X-Poedit-SearchPathExcluded-1: vendor\n"
 
-#: classes/class-algolia-woo-indexer.php:162
+#: classes/class-algolia-woo-indexer.php:164
 msgid "Enter your settings here"
 msgstr ""
 
-#: classes/class-algolia-woo-indexer.php:206
+#: classes/class-algolia-woo-indexer.php:208
 msgid ""
 "Algolia Woo Indexer requires the \"mbstring\" PHP extension to be enabled. "
 "Please contact your hosting provider."
 msgstr ""
 
-#: classes/class-algolia-woo-indexer.php:210
+#: classes/class-algolia-woo-indexer.php:212
 msgid ""
 "Algolia Woo Indexer needs \"mbregex\" NOT to be disabled. Please contact "
 "your hosting provider."
 msgstr ""
 
-#: classes/class-algolia-woo-indexer.php:215
+#: classes/class-algolia-woo-indexer.php:217
 msgid ""
 "Algolia Woo Indexer requires the \"cURL\" PHP extension to be enabled. "
 "Please contact your hosting provider."
 msgstr ""
 
-#: classes/class-algolia-woo-indexer.php:238
+#: classes/class-algolia-woo-indexer.php:240
 msgid ""
 "Please check the server requirements for Algolia Woo Indexer. <br/> It "
 "requires minimum PHP version 7.2 and WordPress version 5.0"
 msgstr ""
 
-#: classes/class-algolia-woo-indexer.php:267
+#: classes/class-algolia-woo-indexer.php:269
 msgid "WooCommerce plugin must be enabled for Algolia Woo Indexer to work."
 msgstr ""
 
-#: classes/class-algolia-woo-indexer.php:305
-#: classes/class-algolia-woo-indexer.php:309
+#: classes/class-algolia-woo-indexer.php:307
+#: classes/class-algolia-woo-indexer.php:311
 msgid "Action is not allowed."
 msgstr ""
 
-#: classes/class-algolia-woo-indexer.php:305
-#: classes/class-algolia-woo-indexer.php:309
+#: classes/class-algolia-woo-indexer.php:307
+#: classes/class-algolia-woo-indexer.php:311
 msgid "Error!"
 msgstr ""
 
-#: classes/class-algolia-woo-indexer.php:389
+#: classes/class-algolia-woo-indexer.php:391
 msgid "All settings need to be set for the plugin to work."
 msgstr ""
 
 #: classes/class-algolia-woo-indexer.php:410
-msgid "An error has been encountered. Please check your Algolia settings. "
+msgid ""
+"An error has been encountered. Please check your application ID and API key. "
 msgstr ""
 
-#: classes/class-algolia-woo-indexer.php:482
-#: classes/class-algolia-woo-indexer.php:483
-#: classes/class-algolia-woo-indexer.php:503
+#: classes/class-algolia-woo-indexer.php:468
+msgid "Product(s) sent to Algolia."
+msgstr ""
+
+#: classes/class-algolia-woo-indexer.php:505
+#: classes/class-algolia-woo-indexer.php:506
+#: classes/class-algolia-woo-indexer.php:526
 msgid "Algolia Woo Indexer Settings"
 msgstr ""
 
-#: classes/class-algolia-woo-indexer.php:500
+#: classes/class-algolia-woo-indexer.php:523
 msgid "Action not allowed."
 msgstr ""
 
-#: classes/class-algolia-woo-indexer.php:514
+#: classes/class-algolia-woo-indexer.php:537
 msgid "Send products to Algolia"
 msgstr ""
 
