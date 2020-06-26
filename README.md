@@ -29,9 +29,9 @@ This is NOT a plugin for beginners.
 * Upload `Algolia Woo Indexer` to the `/wp-content/plugins/` directory of your application
 * SSH to the server and navigate to the folder where the plugin is installed and do a `composer install` to properly setup all required dependencies
 * Activate the plugin through the `Plugins` menu in WordPress
-* Login to Algolia and go to 'API keys' and copy or write down the Application ID and the `Admin API Key`
+* Login to Algolia and go to `API keys` and copy or write down the Application ID and the `Admin API Key`
 * Go back to Wordpress and access plugin settings under `Settings->Algolia Woo Indexer`
-* Add the Application ID to the plugin settings page
-* Add the Search-Only API Key to the plugin settings page
+* Add the `Application ID` to the plugin settings page
+* Add the `Admin API Key` to the plugin settings page
 * Add the name of the index that should be used to index Woocommerce products
 * Click on the `Send products with Algolia` button to send the products to Algolia
