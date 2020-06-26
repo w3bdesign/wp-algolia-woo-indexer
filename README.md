@@ -10,7 +10,8 @@ This plugin sends products from WooCommerce to Algolia.
 
 You need to add the Application ID and the Admin API Key from the `API keys` section in Algolia.
 
-Note that this plugin is designed for developers developing headless Ecommerce solutions. 
+Note that this plugin is designed for developers developing headless Ecommerce solutions.
+ 
 As a result, this plugin requires SSH access to the server where Wordpress is installed.
 
 This is NOT a plugin for beginners.
