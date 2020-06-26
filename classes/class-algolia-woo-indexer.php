@@ -414,11 +414,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					return;
 			}
 
-			// TODO Use index name from database !
-			// $index = $algolia->initIndex( 'WP_TEST' );
+			$index = self::$algolia->initIndex( $algolia_index_name );
 
 			/**
-			 * Setup arguments for sending all products to Algolia. Limit => -1 means we send all products
+			 * Setup arguments for sending all products to Algolia 
+			 * Limit => -1 means we send all products
 			 */
 
 			$arguments = array(
@@ -427,23 +427,45 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				'paginate' => false,
 			);
 
-			// $products = wc_get_products($arguments);
+			/**
+			 * Fetch all products from WooCommerce
+			 */
+			$products = wc_get_products( $arguments );
 
-			$records = array();
+			if ( $products ) {
+				$records = array();
 
-			$record['objectID'] = 1;
-			$record['test']     = 'test';
+				foreach ( $products as $product ) {
+					/**
+					 * Only index products that are in stock
+					 */
+					if ( $product->is_in_stock() ) {
+						/**
+						 * Extract image from $product->get_image()
+						 */
+						preg_match_all( '/<img.*?src=[\'"](.*?)[\'"].*?>/i', $product->get_image(), $matches );
+						$product_image = implode( $matches[1] );
 
-			$records[] = $record;
+						$record['objectID']          = $product->get_id();
+						$record['product_name']      = $product->get_name();
+						$record['product_image']     = $product_image;
+						$record['short_description'] = $product->get_short_description();
+						$record['regular_price']     = $product->get_regular_price();
+						$record['sale_price']        = $product->get_sale_price();
+						$record['on_sale']           = $product->is_on_sale();
+						$record['short_description'] = $product->get_short_description();
 
-			/*
-			try {
-				$client->listUserKeys();
-				return;
-			} catch ( Exception $exception ) {
-			}*/
+						$records[] = $record;
+					}
+				}
+				wp_reset_postdata();
+			}
 
-			// print_r("$count posts indexed in Algolia");
+			$index->saveObjects( $records );
+
+			echo '<div class="notice notice-success is-dismissible">
+					  <p>' . esc_html__( intval( count( $records ) ) . ' product(s) sent to Algolia with index name ' . $algolia_index_name, 'algolia-woo-indexer' ) . '</p>
+				  </div>';
 		}
 
 		/**
@@ -535,7 +557,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function load_settings() {
-			// TODO Load settings and get plugin options !
+			// TODO Load settings and get plugin options ?
 		}
 
 		/**
