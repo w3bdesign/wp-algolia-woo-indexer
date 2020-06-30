@@ -18,7 +18,7 @@ define( 'ALGOWOO_CURRENT_DB_VERSION', '0.3' );
 
 if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 	/**
-	 * WooIndexer
+	 * Algolia WooIndexer main class
 	 */
 	class Algolia_Woo_Indexer {
 
@@ -113,6 +113,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Output for admin API key field
 		 *
+		 * @see https://developer.wordpress.org/reference/functions/wp_nonce_field/
+		 *
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_admin_api_key_output() {
@@ -123,7 +125,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			echo "<input id='algolia_woo_indexer_admin_api_key' name='algolia_woo_indexer_admin_api_key[key]'
 				type='text' value='" . esc_attr( $api_key ) . "' />";
 		}
-
 
 		/**
 		 * Output for application ID field
@@ -217,10 +218,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public static function verify_settings_nonce() {
-
-			// TODO Separate this into two separate functions or do a switch or something else to clean this function up ?
-			// TODO Right now we verify two nonces in one function and it can get a bit messy if we need to add a third nonce ?
+		public static function verify_settings_nonce() {	
 
 			/**
 			 * Filter incoming nonces and values
@@ -257,7 +255,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			}
 
 			/**
-			 * Filter the application id, api key and index name
+			 * Filter the application id, api key, index name and verify that the input is an array
+			 * @see https://www.php.net/manual/en/function.filter-input.php
 			 */
 			$post_application_id = filter_input( INPUT_POST, 'algolia_woo_indexer_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 			$post_api_key        = filter_input( INPUT_POST, 'algolia_woo_indexer_admin_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
@@ -265,11 +264,17 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 			/**
 			 * Properly sanitize text fields before updating data
+			 * @see https://developer.wordpress.org/reference/functions/sanitize_text_field/
 			 */
 			$filtered_application_id = sanitize_text_field( $post_application_id['id'] );
 			$filtered_api_key        = sanitize_text_field( $post_api_key['key'] );
 			$filtered_index_name     = sanitize_text_field( $post_index_name ['name'] );
 
+			/**
+			 * Values have been filtered and sanitized
+			 * Check if set and update the database with update_option with the submitted values
+			 * @see https://developer.wordpress.org/reference/functions/update_option/
+			 */
 			if ( isset( $filtered_application_id ) ) {
 				update_option(
 					ALGOWOO_DB_OPTION . '_application_id',
@@ -367,6 +372,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 						/**
 						 * Fetch all products from WooCommerce
+						 * @see https://docs.woocommerce.com/wc-apidocs/function-wc_get_products.html
 						 */
 						$products = wc_get_products( $arguments );
 
