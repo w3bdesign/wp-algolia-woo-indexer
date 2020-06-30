@@ -44,7 +44,6 @@ if ( ! class_exists( 'Algolia_Check_Requirements' ) ) {
 			return true;
 		}
 
-
 		/**
 		 * Check that we have all of the required PHP extensions installed
 		 *
@@ -75,13 +74,6 @@ if ( ! class_exists( 'Algolia_Check_Requirements' ) ) {
 		 */
 		public static function is_woocommerce_plugin_active() {
 			return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true );
-        }
-        
-        
-
-
-
-
-
+		}
 	}
 }
