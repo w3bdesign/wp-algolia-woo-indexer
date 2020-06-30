@@ -1,7 +1,4 @@
 <?php
-
-
-
 /**
  * Main Algolia Woo Indexer class
  * Called from main plugin file algolia-woo-indexer.php
@@ -9,19 +6,15 @@
  * @package algolia-woo-indexer
  */
 
-namespace ALGOWOO;
+namespace Algowoo;
+
+use \Algowoo\Algolia_Check_Requirements as Algolia_Check_Requirements;
 
 /**
  * Define the plugin version and the database table name
  */
 define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
 define( 'ALGOWOO_CURRENT_DB_VERSION', '0.3' );
-
-/**
- * Define minimum required versions of PHP and WordPress
- */
-define( 'ALGOLIA_MIN_PHP_VERSION', '7.2' );
-define( 'ALGOLIA_MIN_WP_VERSION', '5.4' );
 
 if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 	/**
@@ -166,62 +159,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		}
 
 		/**
-		 * Check if Woocommerce is activated
-		 *
-		 * @return boolean
-		 */
-		public static function is_woocommerce_plugin_active() {
-			return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true );
-		}
-
-		/**
-		 * Check for required PHP version.
-		 *
-		 * @return bool
-		 */
-		public static function algolia_php_version_check() {
-			if ( version_compare( PHP_VERSION, ALGOLIA_MIN_PHP_VERSION, '<' ) ) {
-				return false;
-			}
-			return true;
-		}
-
-		/**
-		 * Check for required WordPress version.
-		 *
-		 * @return bool
-		 */
-		public static function algolia_wp_version_check() {
-			if ( version_compare( $GLOBALS['wp_version'], ALGOLIA_MIN_WP_VERSION, '<' ) ) {
-				return false;
-			}
-			return true;
-		}
-
-		/**
-		 * Check that we have all of the required PHP extensions installed
-		 *
-		 * @return void
-		 */
-		public static function check_unmet_requirements() {
-			if ( ! extension_loaded( 'mbstring' ) ) {
-				echo '<div class="error notice">
-					  <p>' . esc_html__( 'Algolia Woo Indexer requires the "mbstring" PHP extension to be enabled. Please contact your hosting provider.', 'algolia-woo-indexer' ) . '</p>
-				  </div>';
-			} elseif ( ! function_exists( 'mb_ereg_replace' ) ) {
-				echo '<div class="error notice">
-					  <p>' . esc_html__( 'Algolia Woo Indexer needs "mbregex" NOT to be disabled. Please contact your hosting provider.', 'algolia-woo-indexer' ) . '</p>
-				  </div>';
-			}
-			if ( ! extension_loaded( 'curl' ) ) {
-				echo '<div class="error notice">
-					  <p>' . esc_html__( 'Algolia Woo Indexer requires the "cURL" PHP extension to be enabled. Please contact your hosting provider.', 'algolia-woo-indexer' ) . '</p>
-				  </div>';
-				return;
-			}
-		}
-
-		/**
 		 * Initialize class, setup settings sections and fields
 		 *
 		 * @return void
@@ -231,9 +168,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			/**
 			 * Check that we have the minimum versions required and all of the required PHP extensions
 			 */
-			self::check_unmet_requirements();
+			Algolia_Check_Requirements::check_unmet_requirements();
 
-			if ( ! self::algolia_wp_version_check() || ! self::algolia_php_version_check() ) {
+			if ( ! Algolia_Check_Requirements::algolia_wp_version_check() || ! Algolia_Check_Requirements::algolia_php_version_check() ) {
 				add_action(
 					'admin_notices',
 					function () {
@@ -250,7 +187,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * Setup translations
 			 */
 			add_action( 'plugins_loaded', array( $ob_class, 'load_textdomain' ) );
-			self::load_settings();
 
 			/**
 			 * Add actions to setup admin menu
@@ -262,7 +198,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 				self::$plugin_url = admin_url( 'options-general.php?page=algolia-woo-indexer-settings' );
 
-				if ( ! self::is_woocommerce_plugin_active() ) {
+				if ( ! Algolia_Check_Requirements::is_woocommerce_plugin_active() ) {
 					add_action(
 						'admin_notices',
 						function () {
@@ -356,8 +292,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			}
 		}
 
-
-
 		/**
 		 * Send WooCommerce products to Algolia
 		 *
@@ -396,6 +330,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					return;
 			}
 
+			/**
+			 * Initiate Algolia from Algolia client located inside Composer directory
+			 */
 			self::$algolia = \Algolia\AlgoliaSearch\SearchClient::create( $algolia_application_id, $algolia_api_key );
 
 			/**
@@ -551,15 +488,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				self::$instance = new Algolia_Woo_Indexer();
 			}
 			return self::$instance;
-		}
-
-		/**
-		 * Load plugin settings.
-		 *
-		 * @return void
-		 */
-		public static function load_settings() {
-			// TODO Load settings and get plugin options ?
 		}
 
 		/**
