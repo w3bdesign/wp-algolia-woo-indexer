@@ -218,7 +218,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public static function verify_settings_nonce() {	
+		public static function verify_settings_nonce() {
 
 			/**
 			 * Filter incoming nonces and values
@@ -256,6 +256,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 			/**
 			 * Filter the application id, api key, index name and verify that the input is an array
+			 *
 			 * @see https://www.php.net/manual/en/function.filter-input.php
 			 */
 			$post_application_id = filter_input( INPUT_POST, 'algolia_woo_indexer_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
@@ -264,6 +265,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 			/**
 			 * Properly sanitize text fields before updating data
+			 *
 			 * @see https://developer.wordpress.org/reference/functions/sanitize_text_field/
 			 */
 			$filtered_application_id = sanitize_text_field( $post_application_id['id'] );
@@ -273,6 +275,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			/**
 			 * Values have been filtered and sanitized
 			 * Check if set and update the database with update_option with the submitted values
+			 *
 			 * @see https://developer.wordpress.org/reference/functions/update_option/
 			 */
 			if ( isset( $filtered_application_id ) ) {
@@ -372,6 +375,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 						/**
 						 * Fetch all products from WooCommerce
+						 *
 						 * @see https://docs.woocommerce.com/wc-apidocs/function-wc_get_products.html
 						 */
 						$products = wc_get_products( $arguments );
