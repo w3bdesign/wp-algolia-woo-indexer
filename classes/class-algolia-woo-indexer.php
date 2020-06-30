@@ -70,7 +70,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		public static function setup_settings_sections() {
 			/**
 			* Setup arguments for settings sections and fields
-			* See https://developer.wordpress.org/reference/functions/register_setting/
+			*
+			* @see https://developer.wordpress.org/reference/functions/register_setting/
 			*/
 			if ( is_admin() ) {
 				$arguments = array(
