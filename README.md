@@ -16,6 +16,12 @@ As a result, this plugin requires SSH access to the server where Wordpress is in
 
 This is NOT a plugin for beginners.
 
+If for any reason you are unable to use Composer, I have created a version of the plugin with /vendor included, which should work without Composer.
+
+However, this is NOT the recommended method for deployment. Use at your own risk. 
+You can find it here: <a href="https://github.com/w3bdesign/algolia-woo-indexer/tree/version-without-composer">https://github.com/w3bdesign/algolia-woo-indexer/tree/version-without-composer</a>
+
+
 ## Requirements
 
 * Access to install and activate plugins (usually administrator rights)
