@@ -493,6 +493,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					 * Do not check if product is in stock if $index_in_stock is set to 0
 					 */
 					if ( '0' === $index_in_stock ) {
+
 						/**
 						 * Extract image from $product->get_image()
 						 */
@@ -517,11 +518,22 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			}
 
 			/**
-			 * Send the information to Algolia
+			 * Send the information to Algolia and save the result
+			 * If result is NullResponse, print an error message
 			 */
 			$result = $index->saveObjects( $records );
 
-			// print_r( $result );
+			if ( 'Algolia\AlgoliaSearch\Response\NullResponse' === get_class( $result ) ) {
+				add_action(
+					'admin_notices',
+					function () {
+						echo '<div class="error notice is-dismissible">
+							  <p>' . esc_html__( 'No response from the server. Please check your settings and try again ', 'algolia-woo-indexer' ) . '</p>
+							</div>';
+					}
+				);
+				return;
+			}
 
 			/**
 			 * Display success message
@@ -621,6 +633,51 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function activate_plugin() {
+
+			/**
+			 * Set default values for options if not already set
+			 */
+			$index_in_stock                  = get_option( ALGOWOO_DB_OPTION . '_index_in_stock' );
+			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );
+			$algolia_application_id          = get_option( ALGOWOO_DB_OPTION . '_application_id' );
+			$algolia_api_key                 = get_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
+			$algolia_index_name              = get_option( ALGOWOO_DB_OPTION . '_index_name' );
+
+			if ( empty( $index_in_stock ) ) {
+				add_option(
+					ALGOWOO_DB_OPTION . '_index_in_stock',
+					'0'
+				);
+			}
+
+			if ( empty( $automatically_send_new_products ) ) {
+				add_option(
+					ALGOWOO_DB_OPTION . '_automatically_send_new_products',
+					'0'
+				);
+			}
+
+			if ( empty( $algolia_application_id ) ) {
+				add_option(
+					ALGOWOO_DB_OPTION . '_application_id',
+					'Change me'
+				);
+			}
+
+			if ( empty( $algolia_api_key ) ) {
+				add_option(
+					ALGOWOO_DB_OPTION . '_admin_api_key',
+					'Change me'
+				);
+			}
+
+			if ( empty( $algolia_index_name ) ) {
+				add_option(
+					ALGOWOO_DB_OPTION . '_index_name',
+					'Change me'
+				);
+			}
+
 			set_transient( self::PLUGIN_TRANSIENT, true );
 		}
 
