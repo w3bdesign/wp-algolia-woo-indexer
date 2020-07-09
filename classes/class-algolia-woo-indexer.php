@@ -86,41 +86,41 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				 */
 				add_settings_section(
 					'algolia_woo_indexer_main',
-					'Algolia Woo Plugin Settings',
+					esc_html_e( 'Algolia Woo Plugin Settings', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algolia_woo_indexer_section_text' ),
 					'algolia_woo_indexer'
 				);
 				add_settings_field(
 					'algolia_woo_indexer_application_id',
-					'Application ID',
+					esc_html_e( 'Application ID', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algolia_woo_indexer_application_id_output' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
 				);
 				add_settings_field(
 					'algolia_woo_indexer_admin_api_key',
-					'Admin API Key',
+					esc_html_e( 'Admin API Key', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algolia_woo_indexer_admin_api_key_output' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
 				);
 				add_settings_field(
 					'algolia_woo_indexer_index_name',
-					'Index name (will be created if not existing)',
+					esc_html_e( 'Index name (will be created if not existing)', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algolia_woo_indexer_index_name_output' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
 				);
 				add_settings_field(
 					'algolia_woo_indexer_index_out_of_stock',
-					'Only index products in stock ',
+					esc_html_e( 'Only index products in stock', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algolia_woo_indexer_index_out_of_stock_output' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
 				);
 				add_settings_field(
 					'algolia_woo_indexer_automatically_send_new_products',
-					'Automatically index new products',
+					esc_html_e( 'Automatically index new products', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algolia_woo_indexer_automatically_send_new_products_output' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
@@ -211,7 +211,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_section_text() {
-			echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
+			echo esc_html_e( 'Enter your settings here', 'algolia-woo-indexer' );
 		}
 
 		/**
@@ -230,7 +230,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					'admin_notices',
 					function () {
 						echo '<div class="error notice">
-                                  <p>' . esc_html__( 'Please check the server requirements for Algolia Woo Indexer. <br/> It requires minimum PHP version 7.2 and WordPress version 5.0', 'algolia-woo-indexer' ) . '</p>
+                                  <p>' . esc_html_e( 'Please check the server requirements for Algolia Woo Indexer. <br/> It requires minimum PHP version 7.2 and WordPress version 5.0', 'algolia-woo-indexer' ) . '</p>
                                 </div>';
 					}
 				);
@@ -258,7 +258,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 						'admin_notices',
 						function () {
 							echo '<div class="error notice">
-								  <p>' . esc_html__( 'WooCommerce plugin must be enabled for Algolia Woo Indexer to work.', 'algolia-woo-indexer' ) . '</p>
+								  <p>' . esc_html_e( 'WooCommerce plugin must be enabled for Algolia Woo Indexer to work.', 'algolia-woo-indexer' ) . '</p>
 								</div>';
 						}
 					);
@@ -292,11 +292,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * Also check if the hidden value field send_products_to_algolia is set
 			 */
 			if ( ! wp_verify_nonce( $settings_nonce, 'algolia_woo_indexer_admin_api_nonce_action' ) && ! isset( $send_products_to_algolia ) ) {
-				wp_die( esc_html__( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html__( 'Error!', 'algolia-woo-indexer' ) );
+				wp_die( esc_html_e( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html_e( 'Error!', 'algolia-woo-indexer' ) );
 			}
 
 			if ( ! wp_verify_nonce( $send_products_nonce, 'send_products_to_algolia_nonce_action' ) && isset( $send_products_to_algolia ) ) {
-				wp_die( esc_html__( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html__( 'Error!', 'algolia-woo-indexer' ) );
+				wp_die( esc_html_e( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html_e( 'Error!', 'algolia-woo-indexer' ) );
 			}
 
 			/**
@@ -405,7 +405,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					'admin_notices',
 					function () {
 						echo '<div class="error notice">
-							  <p>' . esc_html__( 'All settings need to be set for the plugin to work.', 'algolia-woo-indexer' ) . '</p>
+							  <p>' . esc_html_e( 'All settings need to be set for the plugin to work.', 'algolia-woo-indexer' ) . '</p>
 							</div>';
 					}
 				);
@@ -427,7 +427,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					'admin_notices',
 					function () {
 						echo '<div class="error notice">
-							  <p>' . esc_html__( 'An error has been encountered. Please check your application ID and API key. ', 'algolia-woo-indexer' ) . '</p>
+							  <p>' . esc_html_e( 'An error has been encountered. Please check your application ID and API key. ', 'algolia-woo-indexer' ) . '</p>
 							</div>';
 					}
 				);
@@ -499,7 +499,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * Display success message
 			 */
 			echo '<div class="notice notice-success is-dismissible">
-					 	<p>' . esc_html__( 'Product(s) sent to Algolia.', 'algolia-woo-indexer' ) . '</p>
+					 	<p>' . esc_html_e( 'Product(s) sent to Algolia.', 'algolia-woo-indexer' ) . '</p>
 				  		</div>';
 		}
 
@@ -510,7 +510,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return array
 		 */
 		public static function settings_fields_validate_options( $input ) {
-			$valid        = array();
+			$valid         = array();
 			$valid['name'] = preg_replace(
 				'/[^a-zA-Z\s]/',
 				'',
@@ -536,8 +536,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		public static function admin_menu() {
 			add_submenu_page(
 				'options-general.php',
-				esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ),
-				esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ),
+				esc_html_e( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ),
+				esc_html_e( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ),
 				'manage_options',
 				'algolia-woo-indexer-settings',
 				array( get_called_class(), 'algolia_woo_indexer_settings' )
@@ -554,7 +554,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			* Verify that the user can access the settings page
 			*/
 			if ( ! current_user_can( 'manage_options' ) ) {
-				wp_die( esc_html__( 'Action not allowed.', 'algolia_woo_indexer_settings' ) );
+				wp_die( esc_html_e( 'Action not allowed.', 'algolia_woo_indexer_settings' ) );
 			}
 			?>
 			<div class="wrap">
@@ -569,7 +569,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 					<?php wp_nonce_field( 'send_products_to_algolia_nonce_action', 'send_products_to_algolia_nonce_name' ); ?>
 					<input type="hidden" name="send_products_to_algolia" id="send_products_to_algolia" value="true" />
-					<?php submit_button( esc_html__( 'Send products to Algolia', 'algolia_woo_indexer_settings' ), 'primary wide', '', false ); ?>
+					<?php submit_button( esc_html_e( 'Send products to Algolia', 'algolia_woo_indexer_settings' ), 'primary wide', '', false ); ?>
 				</form>
 			</div>
 			<?php
