@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Main Algolia Woo Indexer class
  * Called from main plugin file algolia-woo-indexer.php
@@ -21,6 +22,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 	 * Algolia WooIndexer main class
 	 */
 	class Algolia_Woo_Indexer {
+
 
 		const PLUGIN_NAME      = 'Algolia Woo Indexer';
 		const PLUGIN_TRANSIENT = 'algowoo-plugin-notice';
@@ -52,7 +54,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public function __construct() {
-			$this->init();
+			 $this->init();
 		}
 
 		/**
@@ -62,10 +64,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 */
 		public static function setup_settings_sections() {
 			/**
-			* Setup arguments for settings sections and fields
-			*
-			* @see https://developer.wordpress.org/reference/functions/register_setting/
-			*/
+			   * Setup arguments for settings sections and fields
+			   *
+			   * @see https://developer.wordpress.org/reference/functions/register_setting/
+			   */
 			if ( is_admin() ) {
 				$arguments = array(
 					'type'              => 'string',
@@ -132,7 +134,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_admin_api_key_output() {
-			$api_key = get_option( '_algolia_woo_indexer_admin_api_key' );
+			 $api_key = get_option( '_algolia_woo_indexer_admin_api_key' );
 
 			wp_nonce_field( 'algolia_woo_indexer_admin_api_nonce_action', 'algolia_woo_indexer_admin_api_nonce_name' );
 
@@ -172,20 +174,22 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		public static function algolia_woo_indexer_index_out_of_stock_output() {
 			$index_out_of_stock = get_option( '_algolia_woo_indexer_index_out_of_stock' );
 
-			echo "<input id='algolia_woo_indexer_index_out_of_stock' name='algolia_woo_indexer_index_out_of_stock[bool]'
-			type='checkbox' value='1' checked='" . esc_attr( $index_out_of_stock ) . "' />";
+			echo "<input id='algolia_woo_indexer_index_out_of_stock' name='algolia_woo_indexer_index_out_of_stock[checked]'
+			type='checkbox' checked='" . esc_attr( $index_out_of_stock ) . "' />";
+
 		}
 
 		/**
-		 * Output for checkbox to check if we automatically send new products with Algolia
+		 * Output for checkbox to check if we automatically send new products to Algolia
 		 *
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_automatically_send_new_products_output() {
 			$automatically_send_new_products = get_option( '_algolia_woo_indexer_automatically_send_new_products' );
 
-			echo "<input id='algolia_woo_indexer_automatically_send_new_products' name='algolia_woo_indexer_automatically_send_new_products[bool]'
-			type='checkbox' value='1' checked='" . esc_attr( $automatically_send_new_products ) . "' />";
+			echo "<input id='algolia_woo_indexer_automatically_send_new_products' name='algolia_woo_indexer_automatically_send_new_products[checked]'
+			type='checkbox' checked='" . esc_attr( $automatically_send_new_products ) . "' />";
+
 		}
 
 
@@ -195,7 +199,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_section_text() {
-			echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
+			 echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
 		}
 
 		/**
@@ -204,7 +208,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function init() {
-
 			/**
 			 * Check that we have the minimum versions required and all of the required PHP extensions
 			 */
@@ -258,7 +261,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function verify_settings_nonce() {
-
 			/**
 			 * Filter incoming nonces and values
 			 */
@@ -298,9 +300,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 *
 			 * @see https://www.php.net/manual/en/function.filter-input.php
 			 */
-			$post_application_id = filter_input( INPUT_POST, 'algolia_woo_indexer_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-			$post_api_key        = filter_input( INPUT_POST, 'algolia_woo_indexer_admin_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-			$post_index_name     = filter_input( INPUT_POST, 'algolia_woo_indexer_index_name', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+			$post_application_id             = filter_input( INPUT_POST, 'algolia_woo_indexer_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+			$post_api_key                    = filter_input( INPUT_POST, 'algolia_woo_indexer_admin_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+			$post_index_name                 = filter_input( INPUT_POST, 'algolia_woo_indexer_index_name', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+			$index_out_of_stock              = filter_input( INPUT_POST, 'algolia_woo_indexer_index_out_of_stock', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+			$automatically_send_new_products = filter_input( INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 
 			/**
 			 * Properly sanitize text fields before updating data
@@ -309,7 +313,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 */
 			$filtered_application_id = sanitize_text_field( $post_application_id['id'] );
 			$filtered_api_key        = sanitize_text_field( $post_api_key['key'] );
-			$filtered_index_name     = sanitize_text_field( $post_index_name ['name'] );
+			$filtered_index_name     = sanitize_text_field( $post_index_name['name'] );
+
+			/**
+			 * No need for sanitizing here as we set the value to either 1 or 0
+			 */
+			$filtered_index_out_of_stock              = ( ! empty( $index_out_of_stock ) ) ? 1 : 0;
+			$filtered_automatically_send_new_products = ( ! empty( $automatically_send_new_products ) ) ? 1 : 0;
 
 			/**
 			 * Values have been filtered and sanitized
@@ -337,6 +347,20 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					$filtered_index_name
 				);
 			}
+
+			if ( isset( $filtered_index_out_of_stock ) ) {
+				update_option(
+					ALGOWOO_DB_OPTION . '_index_out_of_stock',
+					$filtered_index_out_of_stock
+				);
+			}
+
+			if ( isset( $filtered_index_name ) ) {
+				update_option(
+					ALGOWOO_DB_OPTION . '_automatically_send_new_products',
+					$filtered_automatically_send_new_products
+				);
+			}
 		}
 
 		/**
@@ -345,7 +369,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function send_products_to_algolia() {
-
 			/**
 			 * Remove classes from plugin URL and autoload Algolia with Composer
 			 */
@@ -374,7 +397,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 							</div>';
 					}
 				);
-					return;
+				return;
 			}
 
 			/**
@@ -396,7 +419,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 							</div>';
 					}
 				);
-					return;
+				return;
 			}
 
 			/**
@@ -409,61 +432,61 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 *
 			 * Limit => -1 means we send all products
 			 */
-						$arguments = array(
-							'status'   => 'publish',
-							'limit'    => -1,
-							'paginate' => false,
-						);
+			$arguments = array(
+				'status'   => 'publish',
+				'limit'    => -1,
+				'paginate' => false,
+			);
+
+			/**
+			 * Fetch all products from WooCommerce
+			 *
+			 * @see https://docs.woocommerce.com/wc-apidocs/function-wc_get_products.html
+			 */
+			$products = wc_get_products( $arguments );
+
+			if ( $products ) {
+				$records = array();
+				$record  = array();
+
+				foreach ( $products as $product ) {
+					/**
+					 * Only index products that are in stock
+					 */
+					if ( $product->is_in_stock() ) {
+						/**
+						 * Extract image from $product->get_image()
+						 */
+						preg_match_all( '/<img.*?src=[\'"]( . * ? )[\'"].*?>/i', $product->get_image(), $matches );
+						$product_image = implode( $matches[1] );
 
 						/**
-						 * Fetch all products from WooCommerce
-						 *
-						 * @see https://docs.woocommerce.com/wc-apidocs/function-wc_get_products.html
+						 * Build the record array using the information from the WooCommerce product
 						 */
-						$products = wc_get_products( $arguments );
+						$record['objectID']          = $product->get_id();
+						$record['product_name']      = $product->get_name();
+						$record['product_image']     = $product_image;
+						$record['short_description'] = $product->get_short_description();
+						$record['regular_price']     = $product->get_regular_price();
+						$record['sale_price']        = $product->get_sale_price();
+						$record['on_sale']           = $product->is_on_sale();
+						$record['short_description'] = $product->get_short_description();
 
-						if ( $products ) {
-							$records = array();
-							$record  = array();
+						$records[] = $record;
+					}
+				}
+				wp_reset_postdata();
+			}
 
-							foreach ( $products as $product ) {
-								/**
-								 * Only index products that are in stock
-								 */
-								if ( $product->is_in_stock() ) {
-									/**
-									 * Extract image from $product->get_image()
-									 */
-									preg_match_all( '/<img.*?src=[\'"](.*?)[\'"].*?>/i', $product->get_image(), $matches );
-									$product_image = implode( $matches[1] );
+			/**
+			 * Send the information to Algolia
+			 */
+			$index->saveObjects( $records );
 
-									/**
-									 * Build the record array using the information from the WooCommerce product
-									 */
-									$record['objectID']          = $product->get_id();
-									$record['product_name']      = $product->get_name();
-									$record['product_image']     = $product_image;
-									$record['short_description'] = $product->get_short_description();
-									$record['regular_price']     = $product->get_regular_price();
-									$record['sale_price']        = $product->get_sale_price();
-									$record['on_sale']           = $product->is_on_sale();
-									$record['short_description'] = $product->get_short_description();
-
-									$records[] = $record;
-								}
-							}
-							wp_reset_postdata();
-						}
-
-						/**
-						 * Send the information to Algolia
-						 */
-						$index->saveObjects( $records );
-
-						/**
-						 * Display success message
-						 */
-						echo '<div class="notice notice-success is-dismissible">
+			/**
+			 * Display success message
+			 */
+			echo '<div class="notice notice-success is-dismissible">
 					 	<p>' . esc_html__( 'Product(s) sent to Algolia.', 'algolia-woo-indexer' ) . '</p>
 				  		</div>';
 		}
@@ -475,7 +498,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return array
 		 */
 		public static function settings_fields_validate_options( $input ) {
-			$valid         = array();
+			 $valid        = array();
 			$valid['name'] = preg_replace(
 				'/[^a-zA-Z\s]/',
 				'',
@@ -515,21 +538,21 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_settings() {
-			/**
-			* Verify that the user can access the settings page
-			*/
+			 /**
+			 * Verify that the user can access the settings page
+			 */
 			if ( ! current_user_can( 'manage_options' ) ) {
 				wp_die( esc_html__( 'Action not allowed.', 'algolia_woo_indexer_settings' ) );
 			} ?>
 			<div class="wrap">
 				<h1><?php esc_html_e( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
-					<?php
-					settings_fields( 'algolia_woo_options' );
-					do_settings_sections( 'algolia_woo_indexer' );
-					submit_button( '', 'primary wide' );
-					?>
-				</form>				
+			<?php
+			settings_fields( 'algolia_woo_options' );
+			do_settings_sections( 'algolia_woo_indexer' );
+			submit_button( '', 'primary wide' );
+			?>
+				</form>
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 					<?php wp_nonce_field( 'send_products_to_algolia_nonce_action', 'send_products_to_algolia_nonce_name' ); ?>
 					<input type="hidden" name="send_products_to_algolia" id="send_products_to_algolia" value="true" />
