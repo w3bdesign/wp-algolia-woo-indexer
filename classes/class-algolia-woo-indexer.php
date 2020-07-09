@@ -23,7 +23,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 	 */
 	class Algolia_Woo_Indexer {
 
-
 		const PLUGIN_NAME      = 'Algolia Woo Indexer';
 		const PLUGIN_TRANSIENT = 'algowoo-plugin-notice';
 
@@ -54,7 +53,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public function __construct() {
-			 $this->init();
+			$this->init();
 		}
 
 		/**
@@ -64,10 +63,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 */
 		public static function setup_settings_sections() {
 			/**
-			   * Setup arguments for settings sections and fields
-			   *
-			   * @see https://developer.wordpress.org/reference/functions/register_setting/
-			   */
+			* Setup arguments for settings sections and fields
+			*
+			* @see https://developer.wordpress.org/reference/functions/register_setting/
+			*/
 			if ( is_admin() ) {
 				$arguments = array(
 					'type'              => 'string',
@@ -82,6 +81,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				 */
 				$algowooindexer = self::get_instance();
 
+				/**
+				 * Add our necessary settings sections and fields
+				 */
 				add_settings_section(
 					'algolia_woo_indexer_main',
 					'Algolia Woo Plugin Settings',
@@ -134,7 +136,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_admin_api_key_output() {
-			 $api_key = get_option( '_algolia_woo_indexer_admin_api_key' );
+			$api_key = get_option( '_algolia_woo_indexer_admin_api_key' );
 
 			wp_nonce_field( 'algolia_woo_indexer_admin_api_nonce_action', 'algolia_woo_indexer_admin_api_nonce_name' );
 
@@ -172,11 +174,16 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_index_out_of_stock_output() {
+			/**
+			 * Sanitization is not really needed as the variable is not directly echoed
+			 * But I have still done it to be 100% safe
+			 */
 			$index_out_of_stock = get_option( '_algolia_woo_indexer_index_out_of_stock' );
-
-			echo "<input id='algolia_woo_indexer_index_out_of_stock' name='algolia_woo_indexer_index_out_of_stock[checked]'
-			type='checkbox' checked='" . esc_attr( $index_out_of_stock ) . "' />";
-
+			$index_out_of_stock = empty( $index_out_of_stock ) ? 0 : 1;
+			?>
+			<input id="algolia_woo_indexer_index_out_of_stock" name="algolia_woo_indexer_index_out_of_stock[checked]"
+			type="checkbox" <?php checked( 1, $index_out_of_stock ); ?> />
+			<?php
 		}
 
 		/**
@@ -185,11 +192,16 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_automatically_send_new_products_output() {
+			/**
+			 * Sanitization is not really needed as the variable is not directly echoed
+			 * But I have still done it to be 100% safe
+			 */
 			$automatically_send_new_products = get_option( '_algolia_woo_indexer_automatically_send_new_products' );
-
-			echo "<input id='algolia_woo_indexer_automatically_send_new_products' name='algolia_woo_indexer_automatically_send_new_products[checked]'
-			type='checkbox' checked='" . esc_attr( $automatically_send_new_products ) . "' />";
-
+			$automatically_send_new_products = empty( $automatically_send_new_products ) ? 0 : 1;
+			?>
+			<input id="algolia_woo_indexer_automatically_send_new_products" name="algolia_woo_indexer_automatically_send_new_products[checked]"
+			type="checkbox" <?php checked( 1, $automatically_send_new_products ); ?> />
+			<?php
 		}
 
 
@@ -199,7 +211,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_section_text() {
-			 echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
+			echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
 		}
 
 		/**
@@ -498,7 +510,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return array
 		 */
 		public static function settings_fields_validate_options( $input ) {
-			 $valid        = array();
+			$valid        = array();
 			$valid['name'] = preg_replace(
 				'/[^a-zA-Z\s]/',
 				'',
@@ -538,12 +550,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_settings() {
-			 /**
-			 * Verify that the user can access the settings page
-			 */
+			/**
+			* Verify that the user can access the settings page
+			*/
 			if ( ! current_user_can( 'manage_options' ) ) {
 				wp_die( esc_html__( 'Action not allowed.', 'algolia_woo_indexer_settings' ) );
-			} ?>
+			}
+			?>
 			<div class="wrap">
 				<h1><?php esc_html_e( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
