@@ -107,6 +107,20 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
 				);
+				add_settings_field(
+					'algolia_woo_indexer_index_out_of_stock',
+					'Only index products that are in stock ',
+					array( $algowooindexer, 'algolia_woo_indexer_index_out_of_stock_output' ),
+					'algolia_woo_indexer',
+					'algolia_woo_indexer_main'
+				);
+				add_settings_field(
+					'algolia_woo_indexer_automatically_send_new_products',
+					'Automatically index new products as they are created in WooCommerce ',
+					array( $algowooindexer, 'algolia_woo_indexer_automatically_send_new_products_output' ),
+					'algolia_woo_indexer',
+					'algolia_woo_indexer_main'
+				);
 			}
 		}
 
@@ -149,6 +163,31 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			echo "<input id='algolia_woo_indexer_index_name' name='algolia_woo_indexer_index_name[name]'
 				type='text' value='" . esc_attr( $index_name ) . "' />";
 		}
+
+		/**
+		 * Output for checkbox to check if we send products that are in stock
+		 *
+		 * @return void
+		 */
+		public static function algolia_woo_indexer_index_out_of_stock_output() {
+			$index_out_of_stock = get_option( '_algolia_woo_indexer_index_out_of_stock' );
+
+			echo "<input id='algolia_woo_indexer_index_out_of_stock' name='algolia_woo_indexer_index_out_of_stock[bool]'
+				type='text' value='" . esc_attr( $index_out_of_stock ) . "' />";
+		}
+
+		/**
+		 * Output for checkbox to check if we automatically send new products with Algolia
+		 *
+		 * @return void
+		 */
+		public static function algolia_woo_indexer_automatically_send_new_products_output() {
+			$automatically_send_new_products = get_option( '_algolia_woo_indexer_automatically_send_new_products' );
+
+			echo "<input id='algolia_woo_indexer_automatically_send_new_products' name='algolia_woo_indexer_automatically_send_new_products[bool]'
+				type='text' value='" . esc_attr( $automatically_send_new_products ) . "' />";
+		}
+
 
 		/**
 		 * Section text for plugin settings section text
