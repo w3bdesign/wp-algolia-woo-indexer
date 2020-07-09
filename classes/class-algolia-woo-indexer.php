@@ -102,21 +102,21 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				);
 				add_settings_field(
 					'algolia_woo_indexer_index_name',
-					'Index name (will be created if it does not exist)',
+					'Index name (will be created if not existing)',
 					array( $algowooindexer, 'algolia_woo_indexer_index_name_output' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
 				);
 				add_settings_field(
 					'algolia_woo_indexer_index_out_of_stock',
-					'Only index products that are in stock ',
+					'Only index products in stock ',
 					array( $algowooindexer, 'algolia_woo_indexer_index_out_of_stock_output' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
 				);
 				add_settings_field(
 					'algolia_woo_indexer_automatically_send_new_products',
-					'Automatically index new products as they are created in WooCommerce ',
+					'Automatically index new products',
 					array( $algowooindexer, 'algolia_woo_indexer_automatically_send_new_products_output' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
@@ -173,7 +173,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$index_out_of_stock = get_option( '_algolia_woo_indexer_index_out_of_stock' );
 
 			echo "<input id='algolia_woo_indexer_index_out_of_stock' name='algolia_woo_indexer_index_out_of_stock[bool]'
-				type='text' value='" . esc_attr( $index_out_of_stock ) . "' />";
+			type='checkbox' value='1' checked='" . esc_attr( $index_out_of_stock ) . "' />";
 		}
 
 		/**
@@ -185,7 +185,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$automatically_send_new_products = get_option( '_algolia_woo_indexer_automatically_send_new_products' );
 
 			echo "<input id='algolia_woo_indexer_automatically_send_new_products' name='algolia_woo_indexer_automatically_send_new_products[bool]'
-				type='text' value='" . esc_attr( $automatically_send_new_products ) . "' />";
+			type='checkbox' value='1' checked='" . esc_attr( $automatically_send_new_products ) . "' />";
 		}
 
 
