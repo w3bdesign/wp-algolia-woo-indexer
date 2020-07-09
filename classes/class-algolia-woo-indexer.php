@@ -112,9 +112,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					'algolia_woo_indexer_main'
 				);
 				add_settings_field(
-					'algolia_woo_indexer_index_out_of_stock',
+					'algolia_woo_indexer_index_in_stock',
 					esc_html__( 'Only index products in stock', 'algolia-woo-indexer' ),
-					array( $algowooindexer, 'algolia_woo_indexer_index_out_of_stock_output' ),
+					array( $algowooindexer, 'algolia_woo_indexer_index_in_stock_output' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
 				);
@@ -136,7 +136,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_admin_api_key_output() {
-			$api_key = get_option( '_algolia_woo_indexer_admin_api_key' );
+			$api_key = get_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
 
 			wp_nonce_field( 'algolia_woo_indexer_admin_api_nonce_action', 'algolia_woo_indexer_admin_api_nonce_name' );
 
@@ -150,7 +150,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_application_id_output() {
-			$application_id = get_option( '_algolia_woo_indexer_application_id' );
+			$application_id = get_option( ALGOWOO_DB_OPTION . '_application_id' );
 
 			echo "<input id='algolia_woo_indexer_application_id' name='algolia_woo_indexer_application_id[id]'
 				type='text' value='" . esc_attr( $application_id ) . "' />";
@@ -162,7 +162,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_index_name_output() {
-			$index_name = get_option( '_algolia_woo_indexer_index_name' );
+			$index_name = get_option( ALGOWOO_DB_OPTION . '_index_name' );
 
 			echo "<input id='algolia_woo_indexer_index_name' name='algolia_woo_indexer_index_name[name]'
 				type='text' value='" . esc_attr( $index_name ) . "' />";
@@ -173,16 +173,16 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public static function algolia_woo_indexer_index_out_of_stock_output() {
+		public static function algolia_woo_indexer_index_in_stock_output() {
 			/**
 			 * Sanitization is not really needed as the variable is not directly echoed
 			 * But I have still done it to be 100% safe
 			 */
-			$index_out_of_stock = get_option( '_algolia_woo_indexer_index_out_of_stock' );
-			$index_out_of_stock = empty( $index_out_of_stock ) ? 0 : 1;
+			$index_in_stock = get_option( ALGOWOO_DB_OPTION . '_index_in_stock' );
+			$index_in_stock = ( ! empty( $index_in_stock ) ) ? 1 : 0;
 			?>
-			<input id="algolia_woo_indexer_index_out_of_stock" name="algolia_woo_indexer_index_out_of_stock[checked]"
-			type="checkbox" <?php checked( 1, $index_out_of_stock ); ?> />
+			<input id="algolia_woo_indexer_index_in_stock" name="algolia_woo_indexer_index_in_stock[checked]"
+			type="checkbox" <?php checked( 1, $index_in_stock ); ?> />
 			<?php
 		}
 
@@ -196,8 +196,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * Sanitization is not really needed as the variable is not directly echoed
 			 * But I have still done it to be 100% safe
 			 */
-			$automatically_send_new_products = get_option( '_algolia_woo_indexer_automatically_send_new_products' );
-			$automatically_send_new_products = empty( $automatically_send_new_products ) ? 0 : 1;
+			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );
+			$automatically_send_new_products = ( ! empty( $automatically_send_new_products ) ) ? 1 : 0;
 			?>
 			<input id="algolia_woo_indexer_automatically_send_new_products" name="algolia_woo_indexer_automatically_send_new_products[checked]"
 			type="checkbox" <?php checked( 1, $automatically_send_new_products ); ?> />
@@ -315,7 +315,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$post_application_id             = filter_input( INPUT_POST, 'algolia_woo_indexer_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 			$post_api_key                    = filter_input( INPUT_POST, 'algolia_woo_indexer_admin_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 			$post_index_name                 = filter_input( INPUT_POST, 'algolia_woo_indexer_index_name', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-			$index_out_of_stock              = filter_input( INPUT_POST, 'algolia_woo_indexer_index_out_of_stock', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+			$index_in_stock                  = filter_input( INPUT_POST, 'algolia_woo_indexer_index_in_stock', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 			$automatically_send_new_products = filter_input( INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 
 			/**
@@ -330,7 +330,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			/**
 			 * No need for sanitizing here as we set the value to either 1 or 0
 			 */
-			$filtered_index_out_of_stock              = ( ! empty( $index_out_of_stock ) ) ? 1 : 0;
+			$filtered_index_in_stock                  = ( ! empty( $index_in_stock ) ) ? 1 : 0;
 			$filtered_automatically_send_new_products = ( ! empty( $automatically_send_new_products ) ) ? 1 : 0;
 
 			/**
@@ -360,10 +360,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				);
 			}
 
-			if ( isset( $filtered_index_out_of_stock ) ) {
+			if ( isset( $filtered_index_in_stock ) ) {
 				update_option(
-					ALGOWOO_DB_OPTION . '_index_out_of_stock',
-					$filtered_index_out_of_stock
+					ALGOWOO_DB_OPTION . '_index_in_stock',
+					$filtered_index_in_stock
 				);
 			}
 
@@ -396,6 +396,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$algolia_application_id = get_option( ALGOWOO_DB_OPTION . '_application_id' );
 			$algolia_api_key        = get_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
 			$algolia_index_name     = get_option( ALGOWOO_DB_OPTION . '_index_name' );
+
+			$index_in_stock                  = get_option( ALGOWOO_DB_OPTION . '_index_in_stock' );
+			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );
 
 			/**
 			 * Display admin notice and return if not all values have been set
@@ -463,15 +466,38 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 				foreach ( $products as $product ) {
 					/**
-					 * Only index products that are in stock
+					 * Check if product is in stock if $index_in_stock is set to 0
 					 */
-					if ( $product->is_in_stock() ) {
+					if ( '1' === $index_in_stock && $product->is_in_stock() ) {
+
 						/**
 						 * Extract image from $product->get_image()
 						 */
 						preg_match_all( '/<img.*?src=[\'"]( . * ? )[\'"].*?>/i', $product->get_image(), $matches );
 						$product_image = implode( $matches[1] );
+						/**
+						 * Build the record array using the information from the WooCommerce product
+						 */
+						$record['objectID']          = $product->get_id();
+						$record['product_name']      = $product->get_name();
+						$record['product_image']     = $product_image;
+						$record['short_description'] = $product->get_short_description();
+						$record['regular_price']     = $product->get_regular_price();
+						$record['sale_price']        = $product->get_sale_price();
+						$record['on_sale']           = $product->is_on_sale();
+						$record['short_description'] = $product->get_short_description();
 
+						$records[] = $record;
+					}
+					/**
+					 * Do not check if product is in stock if $index_in_stock is set to 0
+					 */
+					if ( '0' === $index_in_stock ) {
+						/**
+						 * Extract image from $product->get_image()
+						 */
+						preg_match_all( '/<img.*?src=[\'"]( . * ? )[\'"].*?>/i', $product->get_image(), $matches );
+						$product_image = implode( $matches[1] );
 						/**
 						 * Build the record array using the information from the WooCommerce product
 						 */
@@ -493,7 +519,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			/**
 			 * Send the information to Algolia
 			 */
-			$index->saveObjects( $records );
+			$result = $index->saveObjects( $records );
+
+			// print_r( $result );
 
 			/**
 			 * Display success message
