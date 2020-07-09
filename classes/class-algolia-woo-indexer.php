@@ -308,7 +308,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		public static function send_products_to_algolia() {
 
 			/**
-			 * Remove classes from plugin url and autoload Algolia with Composer
+			 * Remove classes from plugin URL and autoload Algolia with Composer
 			 */
 
 			$base_plugin_directory = str_replace( 'classes', '', dirname( __FILE__ ) );
@@ -339,7 +339,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			}
 
 			/**
-			 * Initiate Algolia from Algolia client located inside Composer directory
+			 * Initiate the Algolia client
 			 */
 			self::$algolia = \Algolia\AlgoliaSearch\SearchClient::create( $algolia_application_id, $algolia_api_key );
 
@@ -360,6 +360,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					return;
 			}
 
+			/**
+			 * Initialize the search index and set the name to the option from the database
+			 */
 			$index = self::$algolia->initIndex( $algolia_index_name );
 
 			/**
@@ -395,6 +398,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 									preg_match_all( '/<img.*?src=[\'"](.*?)[\'"].*?>/i', $product->get_image(), $matches );
 									$product_image = implode( $matches[1] );
 
+									/**
+									 * Build the record array using the information from the WooCommerce product
+									 */
 									$record['objectID']          = $product->get_id();
 									$record['product_name']      = $product->get_name();
 									$record['product_image']     = $product_image;
@@ -410,11 +416,17 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 							wp_reset_postdata();
 						}
 
+						/**
+						 * Send the information to Algolia
+						 */
 						$index->saveObjects( $records );
 
+						/**
+						 * Display success message
+						 */
 						echo '<div class="notice notice-success is-dismissible">
-					  <p>' . esc_html__( 'Product(s) sent to Algolia.', 'algolia-woo-indexer' ) . '</p>
-				  </div>';
+					 	<p>' . esc_html__( 'Product(s) sent to Algolia.', 'algolia-woo-indexer' ) . '</p>
+				  		</div>';
 		}
 
 		/**
@@ -434,7 +446,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		}
 
 		/**
-		 * Load text domain for internalization
+		 * Load text domain for translations
 		 *
 		 * @return void
 		 */
