@@ -47,8 +47,3 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 * Add the `Admin API Key` to the plugin settings page
 * Add the name of the index that should be used to index Woocommerce products
 * Click on the `Send products with Algolia` button to send the products to Algolia
-
-## TODO
-
-* Add option to choose if products that are out of stock should be submitted
-* Add option to choose if newly created products are automatically submitted
