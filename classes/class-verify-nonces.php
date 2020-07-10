@@ -68,17 +68,5 @@ if ( ! class_exists( 'Algolia_Verify_Nonces' ) ) {
 				return true;
 			}
 		}
-
-
-
-
-
-
-
-
-
-
-
-
 	}
 }
