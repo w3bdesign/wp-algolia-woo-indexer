@@ -8,7 +8,7 @@
 
 This plugin sends products from WooCommerce to Algolia.
 
-You need to add the Application ID and the Admin API Key from the `API keys` section in Algolia.
+You need to add the Application ID, the Admin API Key from the `API keys` section in Algolia as well as the index name.
 
 Note that this plugin is designed for developers developing headless Ecommerce solutions.
  
@@ -20,11 +20,25 @@ However, this is NOT the recommended method for deployment, so use it at your ow
 
 You can find it here: <a href="https://github.com/w3bdesign/algolia-woo-indexer/tree/version-without-composer">https://github.com/w3bdesign/algolia-woo-indexer/tree/version-without-composer</a>
 
+## Basic Features 
+
+* Manually or automatically submit WooCommerce products to Algolia
+* Option to submit only products that are in stock
+* Default options are added upon plugin activation
+* Options are deleted from database upon plugin uninstallation (not on deactivation)
+
+## Advanced Features
+
+* POT file for translations is included
+* All code scanned and verified with PHPCS
+* Code follows modern coding standards
+* All variables are properly sanitized to ensure that no security issues are present
 
 ## Requirements
 
 * Access to install and activate plugins (usually administrator rights)
 * Wordpress 5.4
+* WooCommerce 4.3.0
 * PHP 7.2
 * PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
 * SSH access to the server with Composer installed

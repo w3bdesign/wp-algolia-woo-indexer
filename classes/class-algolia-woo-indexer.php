@@ -713,7 +713,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					'Change me'
 				);
 			}
-
 			set_transient( self::PLUGIN_TRANSIENT, true );
 		}
 
