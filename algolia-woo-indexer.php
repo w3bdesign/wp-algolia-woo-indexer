@@ -6,7 +6,7 @@
  * Author:          Daniel F
  * WC requires at least: 4.0.0
  * WC tested up to: 4.3.0
- * Version:         1.0.0
+ * Version:         1.0.1
  *
  * @package         algolia-woo-indexer
  * @license         GNU version 3
