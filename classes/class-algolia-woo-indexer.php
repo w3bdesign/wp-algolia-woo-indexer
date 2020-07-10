@@ -285,12 +285,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function send_new_product_to_algolia( $post_id, $post, $update ) {
+			global $product;
 
-			if ( $post->post_status != 'publish' || $post->post_type != 'product' ) {
+			if ( 'publish' !== $post->post_status || 'product' !== $post->post_type ) {
 				return;
 			}
 
-			if ( ! $product = wc_get_product( $post ) ) {
+			if ( ! $product === wc_get_product( $post ) ) {
 				return;
 			}
 			self::send_products_to_algolia( $post_id );
@@ -408,6 +409,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Send WooCommerce products to Algolia
 		 *
+		 * @param Int $id Product to send to Algolia if we send only a single product
 		 * @return void
 		 */
 		public static function send_products_to_algolia( $id = '' ) {
