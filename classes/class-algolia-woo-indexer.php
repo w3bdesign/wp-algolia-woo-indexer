@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Main Algolia Woo Indexer class
  * Called from main plugin file algolia-woo-indexer.php
@@ -10,6 +9,14 @@
 namespace Algowoo;
 
 use \Algowoo\Algolia_Check_Requirements as Algolia_Check_Requirements;
+use \Algowoo\Algolia_Verify_Nonces as Algolia_Verify_Nonces;
+
+/**
+ * Abort if this file is called directly
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Define the plugin version and the database table name
@@ -214,6 +221,19 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		}
 
 		/**
+		 * Check if we are going to send products by verifying send products nonce
+		 *
+		 * @return void
+		 */
+		public static function maybe_send_products() {
+
+			if ( true === Algolia_Verify_Nonces::verify_send_products_nonce() ) {
+				self::send_products_to_algolia();
+				return;
+			}
+		}
+
+		/**
 		 * Initialize class, setup settings sections and fields
 		 *
 		 * @return void
@@ -254,7 +274,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			if ( is_admin() ) {
 				add_action( 'admin_menu', array( $ob_class, 'admin_menu' ) );
 				add_action( 'admin_init', array( $ob_class, 'setup_settings_sections' ) );
-				add_action( 'admin_init', array( $ob_class, 'verify_settings_nonce' ) );
+				add_action( 'admin_init', array( $ob_class, 'update_settings_options' ) );
+				add_action( 'admin_init', array( $ob_class, 'maybe_send_products' ) );
 
 				/**
 				 * Register hook to automatically send new products if the option is set
@@ -282,16 +303,15 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Send a single product to Algolia once a new product has been published
 		 *
+		 * @param int   $post_id ID of the product
+		 * @param array $post Post object
+		 * @param bool  $update Action is update
+		 *
 		 * @return void
 		 */
 		public static function send_new_product_to_algolia( $post_id, $post, $update ) {
-			global $product;
 
 			if ( 'publish' !== $post->post_status || 'product' !== $post->post_type ) {
-				return;
-			}
-
-			if ( ! $product === wc_get_product( $post ) ) {
 				return;
 			}
 			self::send_products_to_algolia( $post_id );
@@ -303,38 +323,14 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public static function verify_settings_nonce() {
-			/**
-			 * Filter incoming nonces and values
-			 */
-			$settings_nonce           = filter_input( INPUT_POST, 'algolia_woo_indexer_admin_api_nonce_name', FILTER_DEFAULT );
-			$send_products_nonce      = filter_input( INPUT_POST, 'send_products_to_algolia_nonce_name', FILTER_DEFAULT );
-			$send_products_to_algolia = filter_input( INPUT_POST, 'send_products_to_algolia', FILTER_DEFAULT );
+		public static function update_settings_options() {
+
+			Algolia_Verify_Nonces::verify_settings_nonce();
 
 			/**
-			 * Return if if no nonce has been set for either of the two forms
+			 * Do not proceed if we are going to send products
 			 */
-			if ( ! isset( $settings_nonce ) && ! isset( $send_products_nonce ) ) {
-				return;
-			}
-
-			/**
-			 * Display error and die if nonce is not verified and does not pass security check
-			 * Also check if the hidden value field send_products_to_algolia is set
-			 */
-			if ( ! wp_verify_nonce( $settings_nonce, 'algolia_woo_indexer_admin_api_nonce_action' ) && ! isset( $send_products_to_algolia ) ) {
-				wp_die( esc_html__( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html__( 'Error!', 'algolia-woo-indexer' ) );
-			}
-
-			if ( ! wp_verify_nonce( $send_products_nonce, 'send_products_to_algolia_nonce_action' ) && isset( $send_products_to_algolia ) ) {
-				wp_die( esc_html__( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html__( 'Error!', 'algolia-woo-indexer' ) );
-			}
-
-			/**
-			 * If we have verified the send_products_nonce and the send_products hidden field is set, call the function to send the products
-			 */
-			if ( wp_verify_nonce( $send_products_nonce, 'send_products_to_algolia_nonce_action' ) && isset( $send_products_to_algolia ) ) {
-				self::send_products_to_algolia();
+			if ( true === Algolia_Verify_Nonces::verify_send_products_nonce() ) {
 				return;
 			}
 
@@ -366,39 +362,39 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 			/**
 			 * Values have been filtered and sanitized
-			 * Check if set and update the database with update_option with the submitted values
+			 * Check if set and not empty and update the database
 			 *
 			 * @see https://developer.wordpress.org/reference/functions/update_option/
 			 */
-			if ( isset( $filtered_application_id ) ) {
+			if ( isset( $filtered_application_id ) && ( ! empty( $filtered_application_id ) ) ) {
 				update_option(
 					ALGOWOO_DB_OPTION . '_application_id',
 					$filtered_application_id
 				);
 			}
 
-			if ( isset( $filtered_api_key ) ) {
+			if ( isset( $filtered_api_key ) && ( ! empty( $filtered_api_key ) ) ) {
 				update_option(
 					ALGOWOO_DB_OPTION . '_admin_api_key',
 					$filtered_api_key
 				);
 			}
 
-			if ( isset( $filtered_index_name ) ) {
+			if ( isset( $filtered_index_name ) && ( ! empty( $filtered_index_name ) ) ) {
 				update_option(
 					ALGOWOO_DB_OPTION . '_index_name',
 					$filtered_index_name
 				);
 			}
 
-			if ( isset( $filtered_index_in_stock ) ) {
+			if ( isset( $filtered_index_in_stock ) && ( ! empty( $filtered_index_in_stock ) ) ) {
 				update_option(
 					ALGOWOO_DB_OPTION . '_index_in_stock',
 					$filtered_index_in_stock
 				);
 			}
 
-			if ( isset( $filtered_index_name ) ) {
+			if ( isset( $filtered_automatically_send_new_products ) && ( ! empty( $filtered_automatically_send_new_products ) ) ) {
 				update_option(
 					ALGOWOO_DB_OPTION . '_automatically_send_new_products',
 					$filtered_automatically_send_new_products

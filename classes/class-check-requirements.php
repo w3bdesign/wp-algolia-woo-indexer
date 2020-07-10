@@ -14,6 +14,13 @@ namespace Algowoo;
 define( 'ALGOLIA_MIN_PHP_VERSION', '7.2' );
 define( 'ALGOLIA_MIN_WP_VERSION', '5.4' );
 
+/**
+ * Abort if this file is called directly
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( ! class_exists( 'Algolia_Check_Requirements' ) ) {
 	/**
 	 * Check requirements for Algolia plugin
