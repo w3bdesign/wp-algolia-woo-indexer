@@ -10,7 +10,7 @@ This plugin sends products from WooCommerce to Algolia. You can choose if it onl
 
 You need to add the Application ID, the Admin API Key from the `API keys` section in Algolia as well as the Index Name.
 
-This plugin is designed for developers developing headless Ecommerce solutions that use WooCommerce as a backend.
+Note that this plugin is designed for developers developing headless Ecommerce solutions.
 
 ## Basic Features 
 
