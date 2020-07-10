@@ -2,7 +2,7 @@
 
 ![Screenshot](/screenshots/screenshot1.jpg)
 
-# Algolia Woocommerce Indexer
+# Algolia WooCommerce Indexer
 
 ## Description
 
