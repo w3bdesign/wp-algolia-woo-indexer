@@ -204,7 +204,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			<?php
 		}
 
-
 		/**
 		 * Section text for plugin settings section text
 		 *
@@ -220,6 +219,12 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function init() {
+
+			/**
+			 * Fetch the option to see if we are going to automatically send new products
+			 */
+			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );
+
 			/**
 			 * Check that we have the minimum versions required and all of the required PHP extensions
 			 */
@@ -251,6 +256,14 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				add_action( 'admin_init', array( $ob_class, 'setup_settings_sections' ) );
 				add_action( 'admin_init', array( $ob_class, 'verify_settings_nonce' ) );
 
+				/**
+				 * Register hook to automatically send new products if the option is set
+				 */
+
+				if ( '1' === $automatically_send_new_products ) {
+					add_action( 'save_post', array( $ob_class, 'send_new_product_to_algolia' ), 10, 3 );
+				}
+
 				self::$plugin_url = admin_url( 'options-general.php?page=algolia-woo-indexer-settings' );
 
 				if ( ! Algolia_Check_Requirements::is_woocommerce_plugin_active() ) {
@@ -264,6 +277,23 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					);
 				}
 			}
+		}
+
+		/**
+		 * Send a single product to Algolia once a new product has been published
+		 *
+		 * @return void
+		 */
+		public static function send_new_product_to_algolia( $post_id, $post, $update ) {
+
+			if ( $post->post_status != 'publish' || $post->post_type != 'product' ) {
+				return;
+			}
+
+			if ( ! $product = wc_get_product( $post ) ) {
+				return;
+			}
+			self::send_products_to_algolia( $post_id );
 		}
 
 		/**
@@ -328,7 +358,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$filtered_index_name     = sanitize_text_field( $post_index_name['name'] );
 
 			/**
-			 * No need for sanitizing here as we set the value to either 1 or 0
+			 * Sanitizing by setting the value to either 1 or 0
 			 */
 			$filtered_index_in_stock                  = ( ! empty( $index_in_stock ) ) ? 1 : 0;
 			$filtered_automatically_send_new_products = ( ! empty( $automatically_send_new_products ) ) ? 1 : 0;
@@ -380,13 +410,12 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public static function send_products_to_algolia() {
+		public static function send_products_to_algolia( $id = '' ) {
 			/**
 			 * Remove classes from plugin URL and autoload Algolia with Composer
 			 */
 
 			$base_plugin_directory = str_replace( 'classes', '', dirname( __FILE__ ) );
-
 			require_once $base_plugin_directory . '/vendor/autoload.php';
 
 			/**
@@ -397,8 +426,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$algolia_api_key        = get_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
 			$algolia_index_name     = get_option( ALGOWOO_DB_OPTION . '_index_name' );
 
-			$index_in_stock                  = get_option( ALGOWOO_DB_OPTION . '_index_in_stock' );
-			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );
+			$index_in_stock = get_option( ALGOWOO_DB_OPTION . '_index_in_stock' );
 
 			/**
 			 * Display admin notice and return if not all values have been set
@@ -452,6 +480,14 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				'limit'    => -1,
 				'paginate' => false,
 			);
+
+			if ( isset( $id ) && '' !== $id ) {
+				$arguments = array(
+					'status'   => 'publish',
+					'include'  => array( $id ),
+					'paginate' => false,
+				);
+			}
 
 			/**
 			 * Fetch all products from WooCommerce
