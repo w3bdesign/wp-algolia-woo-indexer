@@ -303,9 +303,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Send a single product to Algolia once a new product has been published
 		 *
-		 * @param int   $post_id ID of the product
-		 * @param array $post Post object
-		 * @param bool  $update Action is update
+		 * @param int   $post_id ID of the product.
+		 * @param array $post Post object.
+		 * @param bool  $update Action is update.
 		 *
 		 * @return void
 		 */
