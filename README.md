@@ -6,11 +6,11 @@
 
 ## Description
 
-This plugin sends products from WooCommerce to Algolia. By default it only sends products that are in stock, but I plan to add an option to choose this.
+This plugin sends products from WooCommerce to Algolia. You can choose if it only sends products that are in stock.
 
-You need to add the Application ID, the Admin API Key from the `API keys` section in Algolia as well as the index name.
+You need to add the Application ID, the Admin API Key from the `API keys` section in Algolia as well as the Index Name.
 
-Note that this plugin is designed for developers developing headless Ecommerce solutions. 
+Note that this plugin is designed for developers developing headless Ecommerce solutions.
 
 ## Basic Features 
 
