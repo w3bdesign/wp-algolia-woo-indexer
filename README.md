@@ -6,7 +6,7 @@
 
 ## Description
 
-This plugin sends products from WooCommerce to Algolia.
+This plugin sends products from WooCommerce to Algolia. By default it only sends products that are in stock, but I plan to add an option to choose this.
 
 You need to add the Application ID, the Admin API Key from the `API keys` section in Algolia as well as the index name.
 
@@ -41,7 +41,7 @@ You can find it here: <a href="https://github.com/w3bdesign/algolia-woo-indexer/
 * WooCommerce 4.3.0
 * PHP 7.2
 * PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
-* SSH access to the server with Composer installed
+* Preferably SSH access to the server with Composer installed, or if you have Composer installed locally, you can clone the plugin, run `composer install` locally and then upload the modified folder. 
 
 ## Installation
 
@@ -55,3 +55,8 @@ You can find it here: <a href="https://github.com/w3bdesign/algolia-woo-indexer/
 * Add the `Admin API Key` to the plugin settings page
 * Add the name of the index that should be used to index Woocommerce products
 * Click on the `Send products with Algolia` button to send the products to Algolia
+
+## TODO
+
+* Add option to choose if products that are out of stock should be submitted
+* Add option to choose if newly created products are automatically submitted
