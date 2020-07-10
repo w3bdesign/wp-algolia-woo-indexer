@@ -479,6 +479,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				'paginate' => false,
 			);
 
+			/**
+			* Setup arguments for sending only a single product
+			*/
 			if ( isset( $id ) && '' !== $id ) {
 				$arguments = array(
 					'status'   => 'publish',
