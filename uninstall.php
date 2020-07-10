@@ -9,4 +9,7 @@
 define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
 
 delete_option( ALGOWOO_DB_OPTION . '_application_id' );
-delete_option( ALGOWOO_DB_OPTION . '_api_search_key' );
+delete_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
+delete_option( ALGOWOO_DB_OPTION . '_index_name' );
+delete_option( ALGOWOO_DB_OPTION . '_index_in_stock' );
+delete_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );

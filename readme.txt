@@ -9,7 +9,8 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 
 == Description ==
-This plugin indexes products inside of Woocommerce and submits them to Algolia. You need to add the Application ID and the Search-Only API Key from the "API keys" section in Algolia.
+This plugin indexes products inside of Woocommerce and submits them to Algolia. 
+You need to add the Application ID, the Admin API Key from the `API keys` section in Algolia as well as the index name.
 
 
 == Installation ==
@@ -18,8 +19,8 @@ This plugin indexes products inside of Woocommerce and submits them to Algolia. 
 * Activate the plugin through the 'Plugins' menu in WordPress
 * Login to Algolia and go to "API keys"
 * Add the Application ID to the plugin settings page
-* Add the Search-Only API Key to the plugin settings page
-* Enter the name of the index that should be used to index Woocommerce products (default is wp_products)
+* Add the Admin API Key to the plugin settings page
+* Enter the name of the index that should be used to index Woocommerce products
 
 
 == Hooks ==

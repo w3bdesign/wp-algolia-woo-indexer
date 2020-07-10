@@ -3,6 +3,9 @@
  * Plugin Name:     Algolia Woocommerce Indexer
  * Description:     Implement Algolia indexing from Woocommerce
  * Text Domain:     algolia-woo-indexer
+ * Author:          Daniel F
+ * WC requires at least: 4.0.0
+ * WC tested up to: 4.3.0
  * Version:         1.0.0
  *
  * @package         algolia-woo-indexer
