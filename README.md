@@ -12,6 +12,8 @@ You need to add the Application ID, the Admin API Key from the `API keys` sectio
 
 Note that this plugin is designed for developers developing headless Ecommerce solutions.
 
+## Important notice: This plugin will NOT submit products without a category.
+
 ## Basic Features 
 
 * Manually or automatically submit WooCommerce products to Algolia
@@ -34,7 +36,7 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 * WooCommerce 4.3.0
 * PHP 7.2
 * PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
-* Preferably SSH access to the server with Composer installed, or if you have Composer installed locally, you can clone the plugin, run `composer install` locally and then upload the modified folder. 
+* All products need to have a category, or they will not be submitted
 
 ## Installation
 
