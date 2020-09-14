@@ -507,6 +507,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 						/**
 						 * Extract image from $product->get_image()
 						 */
+
+						print_r ( $product->get_image());
+
+
 						preg_match_all( '/<img.*?src=[\'"]( . * ? )[\'"].*?>/i', $product->get_image(), $matches );
 						$product_image = implode( $matches[1] );
 						/**
