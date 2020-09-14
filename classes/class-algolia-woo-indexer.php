@@ -540,11 +540,16 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 						
 						
 						preg_match_all( '/<img.*?src=[\'"]( . * ? )[\'"].*?>/i', $product->get_image(), $matches );
+
+
 						$product_image = implode( $matches[1] );
 
+						preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
+						$foo = array_pop($result);
 
-						echo "Matches: ";
-						print_r($matches);
+
+						echo "Foo Matches: ";
+						print_r($foo);
 
 						echo "Image: ";
 
