@@ -503,19 +503,14 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 				foreach ( $products as $product ) {
 					/**
-					 * Check if product is in stock if $index_in_stock is set to 0
+					 * Check if product is in stock if $index_in_stock is set to 1
 					 */
 					if ( '1' === $index_in_stock && $product->is_in_stock() ) {
-
 						/**
 						 * Extract image from $product->get_image()
 						 */
-
-						print_r ( $product->get_image());
-
-
-						preg_match_all( '/<img.*?src=[\'"]( . * ? )[\'"].*?>/i', $product->get_image(), $matches );
-						$product_image = implode( $matches[1] );
+						preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
+						$product_image = array_pop($result);
 						/**
 						 * Build the record array using the information from the WooCommerce product
 						 */
@@ -534,12 +529,12 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					 * Do not check if product is in stock if $index_in_stock is set to 0
 					 */
 					if ( '0' === $index_in_stock ) {
-
 						/**
 						 * Extract image from $product->get_image()
 						 */
-						preg_match_all( '/<img.*?src=[\'"]( . * ? )[\'"].*?>/i', $product->get_image(), $matches );
-						$product_image = implode( $matches[1] );
+						preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
+						$product_image = array_pop($result);
+
 						/**
 						 * Build the record array using the information from the WooCommerce product
 						 */
