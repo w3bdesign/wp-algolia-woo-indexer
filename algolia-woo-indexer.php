@@ -5,11 +5,11 @@
  * Text Domain:     algolia-woo-indexer
  * Author:          Daniel F
  * Requires at least: 5.3
- * Tested up to: 5.4
- * Requires PHP: 7.2
- * WC requires at least: 4.2.0
- * WC tested up to: 4.3.0
- * Version:         1.0.1
+ * Tested up to: 5.5
+ * Requires PHP: 7.3
+ * WC requires at least: 4.5.0
+ * WC tested up to: 4.5.2
+ * Version:         1.0.2
  *
  * @package         algolia-woo-indexer
  * @license         GNU version 3

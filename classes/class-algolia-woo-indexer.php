@@ -546,6 +546,14 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 						echo "Matches: ";
 						print_r($matches);
 
+						echo "Image: ";
+
+						print_r($product->get_image());
+
+						echo ($product->get_image());
+
+						echo "Matches: ";
+
 
 
 
