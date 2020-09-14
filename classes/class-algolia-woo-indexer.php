@@ -536,12 +536,24 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 						 */
 
 						 
-						print_r ( $product->get_image());
-						die("Images");
-						wp_die("Images");
+						
+						
 						
 						preg_match_all( '/<img.*?src=[\'"]( . * ? )[\'"].*?>/i', $product->get_image(), $matches );
 						$product_image = implode( $matches[1] );
+
+
+						echo "Matches: ";
+						print_r($matches);
+
+
+
+
+
+
+						die("Images");
+						wp_die("Images");
+
 						/**
 						 * Build the record array using the information from the WooCommerce product
 						 */
