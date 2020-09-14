@@ -503,17 +503,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 				foreach ( $products as $product ) {
 					/**
-					 * Check if product is in stock if $index_in_stock is set to 0
+					 * Check if product is in stock if $index_in_stock is set to 1
 					 */
 					if ( '1' === $index_in_stock && $product->is_in_stock() ) {
 
 						/**
 						 * Extract image from $product->get_image()
 						 */
-
-						print_r ( $product->get_image());
-
-
 						preg_match_all( '/<img.*?src=[\'"]( . * ? )[\'"].*?>/i', $product->get_image(), $matches );
 						$product_image = implode( $matches[1] );
 						/**
@@ -538,6 +534,12 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 						/**
 						 * Extract image from $product->get_image()
 						 */
+
+						 
+						print_r ( $product->get_image());
+						die("Images");
+						wp_die("Images");
+						
 						preg_match_all( '/<img.*?src=[\'"]( . * ? )[\'"].*?>/i', $product->get_image(), $matches );
 						$product_image = implode( $matches[1] );
 						/**
