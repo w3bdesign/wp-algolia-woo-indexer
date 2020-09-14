@@ -510,8 +510,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 						/**
 						 * Extract image from $product->get_image()
 						 */
-						preg_match_all( '/<img.*?src=[\'"]( . * ? )[\'"].*?>/i', $product->get_image(), $matches );
-						$product_image = implode( $matches[1] );
+						preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
+						$product_image = array_pop($result);
 						/**
 						 * Build the record array using the information from the WooCommerce product
 						 */
@@ -533,39 +533,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 						/**
 						 * Extract image from $product->get_image()
-						 */
-
-						 
-						
-						
-						
-						preg_match_all( '/<img.*?src=[\'"]( . * ? )[\'"].*?>/i', $product->get_image(), $matches );
-
-
-						$product_image = implode( $matches[1] );
+						 */							
 
 						preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
-						$foo = array_pop($result);
-
-
-						echo "Foo Matches: ";
-						print_r($foo);
-
-						echo "Image: ";
-
-						print_r($product->get_image());
-
-						echo ($product->get_image());
-
-						echo "Matches: ";
-
-
-
-
-
-
-						die("Images");
-						wp_die("Images");
+						$product_image = array_pop($result);
 
 						/**
 						 * Build the record array using the information from the WooCommerce product
