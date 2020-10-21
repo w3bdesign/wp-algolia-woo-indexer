@@ -14,3 +14,4 @@ jobs:
           installComposer: 1
           phpstanVersion: ^0.12
           level: 5
+          paths: classes

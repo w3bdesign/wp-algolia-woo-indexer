@@ -8,4 +8,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run check
-      uses: symfonycorp/security-checker-action@v2      
+      uses: symfonycorp/security-checker-action@v2
