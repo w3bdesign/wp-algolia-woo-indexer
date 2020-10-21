@@ -11,10 +11,6 @@ jobs:
       - name: Run phpstan
         uses: actions-x/phpstan@v1
         with:
-          installComposer: 0
+          installComposer: 1
           phpstanVersion: ^0.12
           level: 5
-          paths: src tests
-          configPath: custom-phpstan-config.neon
-          useBundled: 1
-          arguments: --autoload-file my-custom-autoload.php
