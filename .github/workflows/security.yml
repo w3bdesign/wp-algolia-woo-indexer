@@ -1,0 +1,11 @@
+on: pull_request
+
+name: Security check
+jobs:
+  runSecurityInspection:
+    name: Run security check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run check
+      uses: symfonycorp/security-checker-action@v2
