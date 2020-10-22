@@ -409,17 +409,16 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function send_products_to_algolia( $id = '' ) {
+			
 			/**
 			 * Remove classes from plugin URL and autoload Algolia with Composer
 			 */
-
 			$base_plugin_directory = str_replace( 'classes', '', dirname( __FILE__ ) );
 			require_once $base_plugin_directory . '/vendor/autoload.php';
 
 			/**
 			 * Fetch the required variables from the Settings API
 			 */
-
 			$algolia_application_id = get_option( ALGOWOO_DB_OPTION . '_application_id' );
 			$algolia_api_key        = get_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
 			$algolia_index_name     = get_option( ALGOWOO_DB_OPTION . '_index_name' );
@@ -525,6 +524,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 						$records[] = $record;
 					}
+					
 					/**
 					 * Do not check if product is in stock if $index_in_stock is set to 0
 					 */
