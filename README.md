@@ -33,7 +33,7 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 
 * An account at www.algolia.com (can be a free community plan)
 * Access to install and activate plugins (usually administrator rights)
-* Wordpress 5.5
+* WordPress 5.5
 * WooCommerce 4.5.0
 * PHP 7.3
 * PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
@@ -41,15 +41,15 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 
 ## Installation
 
-* Login to Wordpress as Admin
+* Login to WordPress as Admin
 * Upload `Algolia Woo Indexer` to the `/wp-content/plugins/` directory of your application
 * SSH to the server and navigate to the folder where the plugin is installed and do a `composer install` to properly setup all required dependencies
 * Activate the plugin through the `Plugins` menu in WordPress
 * Login to Algolia and go to `API keys` and copy or write down the Application ID and the `Admin API Key`
-* Go back to Wordpress and access plugin settings under `Settings->Algolia Woo Indexer`
+* Go back to WordPress and access plugin settings under `Settings->Algolia Woo Indexer`
 * Add the `Application ID` to the plugin settings page
 * Add the `Admin API Key` to the plugin settings page
-* Add the name of the index that should be used to index Woocommerce products
+* Add the name of the index that should be used to index WooCommerce products
 * Click on the `Send products with Algolia` button to send the products to Algolia
 
 ### TODO
