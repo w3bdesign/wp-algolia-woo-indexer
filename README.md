@@ -37,7 +37,7 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 * WooCommerce 4.5.0
 * PHP 7.3
 * PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
-* All products need to have a category, or they will not be submitted
+* All products MUST have a category assigned (Uncategorized is not a category), or they will not be submitted
 
 ## Installation
 
@@ -50,6 +50,12 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 * Add the `Admin API Key` to the plugin settings page
 * Add the name of the index that should be used to index WooCommerce products
 * Click on the `Send products with Algolia` button to send the products to Algolia
+
+## Troubleshooting
+
+If you encounter any errors, first of all make sure that your hosting environment meets the requirements listed under Requirements.
+
+Feel free to <a href="https://github.com/w3bdesign/algolia-woo-indexer/issues">open an issue</> and I will do my best to troubleshoot and assist.
 
 ### TODO
 
