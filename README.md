@@ -43,7 +43,6 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 
 * Login to WordPress as Admin
 * Upload `Algolia Woo Indexer` to the `/wp-content/plugins/` directory of your application
-* SSH to the server and navigate to the folder where the plugin is installed and do a `composer install` to properly setup all required dependencies
 * Activate the plugin through the `Plugins` menu in WordPress
 * Login to Algolia and go to `API keys` and copy or write down the Application ID and the `Admin API Key`
 * Go back to WordPress and access plugin settings under `Settings->Algolia Woo Indexer`
