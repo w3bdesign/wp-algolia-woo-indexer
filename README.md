@@ -55,7 +55,7 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 
 If you encounter any errors, first of all make sure that your hosting environment meets the requirements listed under Requirements.
 
-Feel free to <a href="https://github.com/w3bdesign/algolia-woo-indexer/issues">open an issue</> and I will do my best to troubleshoot and assist.
+Feel free to <a href="https://github.com/w3bdesign/algolia-woo-indexer/issues">open an issue</a> and I will do my best to troubleshoot and assist.
 
 ### TODO
 
