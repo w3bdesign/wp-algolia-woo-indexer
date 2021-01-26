@@ -59,4 +59,5 @@ Feel free to <a href="https://github.com/w3bdesign/algolia-woo-indexer/issues">o
 
 ### TODO
 
+- Refactor and restructure the code to reduce complexity and increase maintainability (see PHPMD report)
 - Upgrade Algolia package and check that it works correctly
