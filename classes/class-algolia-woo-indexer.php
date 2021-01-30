@@ -24,11 +24,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
 define( 'ALGOWOO_CURRENT_DB_VERSION', '0.3' );
 
-if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
+if ( ! class_exists( 'AlgoliaWooIndexer' ) ) {
 	/**
 	 * Algolia WooIndexer main class
 	 */
-	class Algolia_Woo_Indexer {
+	class AlgoliaWooIndexer {
 
 		const PLUGIN_NAME      = 'Algolia Woo Indexer';
 		const PLUGIN_TRANSIENT = 'algowoo-plugin-notice';
@@ -658,7 +658,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 */
 		public static function get_instance() {
 			if ( ! self::$instance ) {
-				self::$instance = new Algolia_Woo_Indexer();
+				self::$instance = new AlgoliaWooIndexer();
 			}
 			return self::$instance;
 		}
