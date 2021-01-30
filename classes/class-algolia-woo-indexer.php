@@ -520,8 +520,7 @@ if ( ! class_exists( 'AlgoliaWooIndexer' ) ) {
 						$record['short_description'] = $product->get_short_description();
 						$record['regular_price']     = $product->get_regular_price();
 						$record['sale_price']        = $product->get_sale_price();
-						$record['on_sale']           = $product->is_on_sale();
-						$record['short_description'] = $product->get_short_description();
+						$record['on_sale']           = $product->is_on_sale();						
 
 						$records[] = $record;
 					}
