@@ -1,12 +1,13 @@
 {
-    "name": "daniel/algolia-woo-indexer",
-    "authors": [
-        {
-            "name": "w3bdesign",
-            "email": "45217974+w3bdesign@users.noreply.github.com"
-        }
-    ],
-    "require": {
-        "algolia/algoliasearch-client-php": "^2.6"
+  "name": "daniel/algolia-woo-indexer",
+  "description": "WordPress plugin that sends WooCommerce products to Algolia",
+  "authors": [
+    {
+      "name": "w3bdesign",
+      "email": "45217974+w3bdesign@users.noreply.github.com"
     }
+  ],
+  "require": {
+    "algolia/algoliasearch-client-php": "^2.6"
+  }
 }
