@@ -71,7 +71,7 @@ if ( ! class_exists( 'AlgoliaWooIndexer' ) ) {
 		 * @return void
 		 */
 		public function __construct() {
-			 $this->init();
+			$this->init();
 		}
 
 		/**
@@ -80,11 +80,11 @@ if ( ! class_exists( 'AlgoliaWooIndexer' ) ) {
 		 * @return void
 		 */
 		public static function setup_settings_sections() {
-			/**
-				 * Setup arguments for settings sections and fields
-				 *
-				 * @see https://developer.wordpress.org/reference/functions/register_setting/
-				 */
+					/**
+					* Setup arguments for settings sections and fields
+					*
+					* @see https://developer.wordpress.org/reference/functions/register_setting/
+					*/
 			if ( is_admin() ) {
 				$arguments = array(
 					'type'              => 'string',
@@ -154,7 +154,7 @@ if ( ! class_exists( 'AlgoliaWooIndexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_admin_api_key_output() {
-			 $api_key = get_option( ALGOWOO_DB_OPTION . ADMIN_API_KEY );
+				$api_key = get_option( ALGOWOO_DB_OPTION . ADMIN_API_KEY );
 
 			wp_nonce_field( 'algolia_woo_indexer_admin_api_nonce_action', 'algolia_woo_indexer_admin_api_nonce_name' );
 
@@ -209,9 +209,9 @@ if ( ! class_exists( 'AlgoliaWooIndexer' ) ) {
 		 */
 		public static function algolia_woo_indexer_automatically_send_new_products_output() {
 			/**
-			   * Sanitization is not really needed as the variable is not directly echoed
-			   * But I have still done it to be 100% safe
-			   */
+				* Sanitization is not really needed as the variable is not directly echoed
+				* But I have still done it to be 100% safe
+				*/
 			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
 			$automatically_send_new_products = ( ! empty( $automatically_send_new_products ) ) ? 1 : 0;
 			?>
@@ -225,7 +225,7 @@ if ( ! class_exists( 'AlgoliaWooIndexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_section_text() {
-			 echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
+				echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
 		}
 
 		/**
@@ -246,9 +246,9 @@ if ( ! class_exists( 'AlgoliaWooIndexer' ) ) {
 		 * @return void
 		 */
 		public static function init() {
-			 /**
-			 * Fetch the option to see if we are going to automatically send new products
-			 */
+			/**
+			* Fetch the option to see if we are going to automatically send new products
+			*/
 			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
 
 			/**
@@ -406,15 +406,15 @@ if ( ! class_exists( 'AlgoliaWooIndexer' ) ) {
 		}
 
 
-
 		/**
-		 * Sanitize input in settings fields and filter through regex to accept only a-z and A-Z
+		 * Sanitize input in settings fields and filter through regex to accept only a-z and A-Z.
 		 *
-		 * @param string $input Settings text data
+		 * @param string $input Settings text data.
+		 *
 		 * @return array
 		 */
 		public static function settings_fields_validate_options( $input ) {
-			 $valid        = array();
+			$valid         = array();
 			$valid['name'] = preg_replace(
 				'/[^a-zA-Z\s]/',
 				'',
@@ -454,7 +454,7 @@ if ( ! class_exists( 'AlgoliaWooIndexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_settings() {
-			 /**
+			/**
 			* Verify that the user can access the settings page
 			*/
 			if ( ! current_user_can( 'manage_options' ) ) {
@@ -498,8 +498,8 @@ if ( ! class_exists( 'AlgoliaWooIndexer' ) ) {
 		 */
 		public static function activate_plugin() {
 			/**
-			   * Set default values for options if not already set
-			   */
+				 * Set default values for options if not already set
+				 */
 			$index_in_stock                  = get_option( ALGOWOO_DB_OPTION . INDEX_IN_STOCK );
 			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
 			$algolia_application_id          = get_option( ALGOWOO_DB_OPTION . APPLICATION_ID );
