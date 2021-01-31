@@ -18,6 +18,10 @@ class ComposerStaticInitbce9b933f47489f033642d61ab974c81
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
         ),
+        'D' => 
+        array (
+            'Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\' => 55,
+        ),
         'A' => 
         array (
             'Algolia\\AlgoliaSearch\\' => 22,
@@ -37,10 +41,18 @@ class ComposerStaticInitbce9b933f47489f033642d61ab974c81
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
+        'Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/dealerdirect/phpcodesniffer-composer-installer/src',
+        ),
         'Algolia\\AlgoliaSearch\\' => 
         array (
             0 => __DIR__ . '/..' . '/algolia/algoliasearch-client-php/src',
         ),
+    );
+
+    public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
@@ -48,6 +60,7 @@ class ComposerStaticInitbce9b933f47489f033642d61ab974c81
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInitbce9b933f47489f033642d61ab974c81::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInitbce9b933f47489f033642d61ab974c81::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitbce9b933f47489f033642d61ab974c81::$classMap;
 
         }, null, ClassLoader::class);
     }
