@@ -321,12 +321,11 @@ if (! class_exists('AlgoliaWooIndexer')) {
          * Send a single product to Algolia once a new product has been published
          *
          * @param int   $post_id ID of the product.
-         * @param array $post Post object.
-         * @param bool  $update Action is update.
+         * @param array $post Post object.     
          *
          * @return void
          */
-        public static function send_new_product_to_algolia($post_id, $post, $update)
+        public static function send_new_product_to_algolia($post_id, $post)
         {
             if ('publish' !== $post->post_status || 'product' !== $post->post_type) {
                 return;
