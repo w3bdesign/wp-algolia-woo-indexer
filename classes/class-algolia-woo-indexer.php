@@ -245,7 +245,7 @@ if (! class_exists('AlgoliaWooIndexer')) {
         {
             if (true === Algolia_Verify_Nonces::verify_send_products_nonce()) {
                 self::send_products_to_algolia();
-                return;
+                // return;
             }
         }
 
