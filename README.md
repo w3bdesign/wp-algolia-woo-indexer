@@ -1,4 +1,4 @@
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=w3bdesign_algolia-woo-indexer&metric=alert_status)](https://sonarcloud.io/dashboard?id=w3bdesign_algolia-woo-indexer) ![Inspections](https://github.com/w3bdesign/algolia-woo-indexer/workflows/Inspections/badge.svg) ![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green)
+![Inspections](https://github.com/w3bdesign/algolia-woo-indexer/workflows/Inspections/badge.svg) ![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green)
 
 ![Screenshot](/screenshots/screenshot1.jpg)
 
