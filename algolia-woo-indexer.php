@@ -37,7 +37,7 @@ require_once plugin_dir_path( __FILE__ ) . '/classes/class-check-requirements.ph
  */
 require_once plugin_dir_path( __FILE__ ) . '/classes/class-verify-nonces.php';
 
-$algowooindexer = \Algowoo\AlgoliaWooIndexer::get_instance();
+$algowooindexer = \Algowoo\Algolia_Woo_Indexer::get_instance();
 
 register_activation_hook( __FILE__, array( $algowooindexer, 'activate_plugin' ) );
 register_deactivation_hook( __FILE__, array( $algowooindexer, 'deactivate_plugin' ) );
