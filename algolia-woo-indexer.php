@@ -25,7 +25,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Main class file
  */
-require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-woo-indexer.php';
+require_once plugin_dir_path( __FILE__ ) . '/classes/class-algoliawooindexer.php';
+
+/**
+ * Class for sending Algolia products
+ */
+require_once plugin_dir_path( __FILE__ ) . '/classes/class-send-products-to-algolia.php';
 
 /**
  * Class for checking plugin requirements
