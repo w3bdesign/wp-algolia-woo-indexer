@@ -209,9 +209,9 @@ if ( ! class_exists( 'AlgoliaWooIndexer' ) ) {
 		 */
 		public static function algolia_woo_indexer_automatically_send_new_products_output() {
 			/**
-				* Sanitization is not really needed as the variable is not directly echoed
-				* But I have still done it to be 100% safe
-				*/
+			* Sanitization is not really needed as the variable is not directly echoed
+			* But I have still done it to be 100% safe
+			*/
 			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
 			$automatically_send_new_products = ( ! empty( $automatically_send_new_products ) ) ? 1 : 0;
 			?>
