@@ -59,5 +59,5 @@ Feel free to <a href="https://github.com/w3bdesign/algolia-woo-indexer/issues">o
 
 ### TODO
 
-- Refactor and restructure the code to reduce complexity and increase maintainability according to code quality reports and Clean Code principles (see SonarCloud report)
+- Refactor and restructure the code to reduce complexity and increase maintainability according to code quality reports and Clean Code principles (see SonarCloud and Scrutinizer report)
 - Upgrade Algolia package and check that it works correctly
