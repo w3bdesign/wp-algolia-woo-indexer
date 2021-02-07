@@ -8,8 +8,5 @@
     ],
     "require": {
         "algolia/algoliasearch-client-php": "^2.6"
-    },
-    "require-dev": {
-        "johnpbloch/wordpress": "^5.6"
     }
 }
