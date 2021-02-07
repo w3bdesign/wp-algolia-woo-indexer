@@ -34,7 +34,7 @@ if ( ! class_exists( 'Algolia_Verify_Nonces' ) ) {
 			/**
 			 * Return if if no nonce has been set for either of the two forms
 			 */
-			if ( ! isset( $settings_nonce ) && ! isset( $send_products_nonce ) ) {
+			if ( ! isset( $settings_nonce ) ) {
 				return;
 			}
 
