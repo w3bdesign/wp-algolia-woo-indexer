@@ -41,6 +41,29 @@ if (! class_exists('Algolia_Check_Requirements')) {
             return true;
         }
 
+		/**
+		 * Check if values are empty and display error notice if not all values have been set
+		 *
+		 *  @param string $algolia_application_id Algolia application ID.
+		 * 	@param string $algolia_api_key Algolia API key.
+		 * 	@param string $algolia_index_name Algolia index name.
+		 * 
+		 */
+		public static function check_algolia_input_values($algolia_application_id, $algolia_api_key, $algolia_index_name )
+		{	
+			if (empty($algolia_application_id) || empty($algolia_api_key || empty($algolia_index_name))) {
+                add_action(
+                    'admin_notices',
+                    function () {
+                        echo '<div class="error notice">
+							  <p>' . esc_html__('All settings need to be set for the plugin to work.', 'algolia-woo-indexer') . '</p>
+							</div>';
+                    }
+                );
+                return;
+            }
+        }
+
         /**
          * Check for required WordPress version.
          *

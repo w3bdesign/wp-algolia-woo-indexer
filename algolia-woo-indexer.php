@@ -9,7 +9,7 @@
  * Requires PHP: 7.3
  * WC requires at least: 4.6.1
  * WC tested up to: 4.6.1
- * Version:         1.0.43
+ * Version:         1.0.44
  *
  * @package         algolia-woo-indexer
  * @license         GNU version 3
@@ -36,6 +36,11 @@ require_once plugin_dir_path( __FILE__ ) . '/classes/class-check-requirements.ph
  * Class for verifying nonces
  */
 require_once plugin_dir_path( __FILE__ ) . '/classes/class-verify-nonces.php';
+
+/**
+ * Class for sending products
+ */
+require_once plugin_dir_path( __FILE__ ) . '/classes/class-send-products.php';
 
 $algowooindexer = \Algowoo\Algolia_Woo_Indexer::get_instance();
 
