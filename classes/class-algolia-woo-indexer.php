@@ -458,8 +458,13 @@ if (! class_exists('Algolia_Woo_Indexer')) {
              */
 
             $algolia_application_id = get_option(ALGOWOO_DB_OPTION . ALGOLIA_APPLICATION_ID);
+			$algolia_application_id = is_string($algolia_application_id) ? $algolia_application_id : CHANGE_ME;
+
             $algolia_api_key        = get_option(ALGOWOO_DB_OPTION . ALGOLIA_API_KEY);
+			$algolia_api_key		= is_string($algolia_api_key) ?$algolia_api_key : CHANGE_ME;
+
             $algolia_index_name     = get_option(ALGOWOO_DB_OPTION . INDEX_NAME);
+			$algolia_index_name		= is_string($algolia_index_name) ? $algolia_index_name : CHANGE_ME;
 
 			/**
              * Display admin notice and return if not all values have been set
