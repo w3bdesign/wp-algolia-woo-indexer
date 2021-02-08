@@ -68,9 +68,9 @@ if (! class_exists('Algolia_Woo_Indexer')) {
         private static $plugin_url = '';
 
         /**
-         * The Algolia instance
+         * The Algolia static instance
          *
-         * @var string
+         * @var static
          */
         private static $algolia = null;
 
