@@ -70,7 +70,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
         /**
          * The Algolia instance
          *
-         * @var Algolia\AlgoliaSearch\SearchClient
+         * @var \Algolia\AlgoliaSearch\SearchClient
          */
         private static $algolia = null;
 
