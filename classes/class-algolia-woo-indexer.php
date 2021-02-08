@@ -674,5 +674,3 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		public static function deactivate_plugin() {
 			delete_transient( self::PLUGIN_TRANSIENT, true );
 		}
-	}
-}
