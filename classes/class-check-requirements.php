@@ -59,8 +59,7 @@ if (! class_exists('Algolia_Check_Requirements')) {
 							  <p>' . esc_html__('All settings need to be set for the plugin to work.', 'algolia-woo-indexer') . '</p>
 							</div>';
                     }
-                );
-                return;
+                );    
             }
         }
 
