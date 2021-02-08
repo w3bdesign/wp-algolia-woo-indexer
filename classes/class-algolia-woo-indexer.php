@@ -31,6 +31,11 @@ if (! function_exists('is_plugin_active')) {
 define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
 define( 'ALGOWOO_CURRENT_DB_VERSION', '0.3' );
 
+/**
+ * Define application constants
+ */
+define( 'CHANGE_ME', 'change me' );
+
 if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 	/**
 	 * Algolia WooIndexer main class
@@ -151,7 +156,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 */
 		public static function algolia_woo_indexer_admin_api_key_output() {
 			$api_key = get_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
-			$api_key = is_string($api_key) ? $api_key : "change me";
+			$api_key = is_string($api_key) ? $api_key : CHANGE_ME;
 
 			wp_nonce_field( 'algolia_woo_indexer_admin_api_nonce_action', 'algolia_woo_indexer_admin_api_nonce_name' );
 
@@ -166,7 +171,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 */
 		public static function algolia_woo_indexer_application_id_output() {
 			$application_id = get_option( ALGOWOO_DB_OPTION . '_application_id' );
-			$application_id = is_string($application_id) ? $application_id : "change me";
+			$application_id = is_string($application_id) ? $application_id : CHANGE_ME;
 
 			echo "<input id='algolia_woo_indexer_application_id' name='algolia_woo_indexer_application_id[id]'
 				type='text' value='" . esc_attr( $application_id ) . "' />";
@@ -179,7 +184,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 */
 		public static function algolia_woo_indexer_index_name_output() {
 			$index_name = get_option( ALGOWOO_DB_OPTION . '_index_name' );
-			$index_name = is_string($index_name) ? $index_name : "change me";
+			$index_name = is_string($index_name) ? $index_name : CHANGE_ME;
 
 			echo "<input id='algolia_woo_indexer_index_name' name='algolia_woo_indexer_index_name[name]'
 				type='text' value='" . esc_attr( $index_name ) . "' />";
