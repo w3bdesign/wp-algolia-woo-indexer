@@ -9,7 +9,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 
 == Description ==
-This plugin indexes products inside of Woocommerce and submits them to Algolia. 
+This plugin indexes products inside of WooCommerce and submits them to Algolia. 
 You need to add the Application ID, the Admin API Key from the `API keys` section in Algolia as well as the index name.
 
 

@@ -18,7 +18,6 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 ## Basic Features 
 
 * Manually or automatically submit WooCommerce products to Algolia
-* Option to submit only products that are in stock
 * Default options are added upon plugin activation
 * Options are deleted from database upon plugin uninstallation (not on deactivation)
 
