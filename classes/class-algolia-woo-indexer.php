@@ -166,6 +166,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 */
 		public static function algolia_woo_indexer_application_id_output() {
 			$application_id = get_option( ALGOWOO_DB_OPTION . '_application_id' );
+			$application_id = is_string($application_id) ? $application_id : "change me";
 
 			echo "<input id='algolia_woo_indexer_application_id' name='algolia_woo_indexer_application_id[id]'
 				type='text' value='" . esc_attr( $application_id ) . "' />";
@@ -178,6 +179,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 */
 		public static function algolia_woo_indexer_index_name_output() {
 			$index_name = get_option( ALGOWOO_DB_OPTION . '_index_name' );
+			$index_name = is_string($index_name) ? $index_name : "change me";
 
 			echo "<input id='algolia_woo_indexer_index_name' name='algolia_woo_indexer_index_name[name]'
 				type='text' value='" . esc_attr( $index_name ) . "' />";
