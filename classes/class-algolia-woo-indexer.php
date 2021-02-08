@@ -396,6 +396,48 @@ if (! class_exists('Algolia_Woo_Indexer')) {
             }
         }
 
+		/**
+		 * Check if values are empty and display error notice if not all values have been set
+		 *
+		 *  @param string $algolia_application_id Algolia application ID.
+		 * 	@param string $algolia_api_key Algolia API key.
+		 * 	@param string $algolia_index_name Algolia index name.
+		 * 
+		 */
+		public static function check_algolia_input_values($algolia_application_id, $algolia_api_key, $algolia_index_name )
+		{	
+			if (empty($algolia_application_id) || empty($algolia_api_key || empty($algolia_index_name))) {
+                add_action(
+                    'admin_notices',
+                    function () {
+                        echo '<div class="error notice">
+							  <p>' . esc_html__('All settings need to be set for the plugin to work.', 'algolia-woo-indexer') . '</p>
+							</div>';
+                    }
+                );
+                return;
+            }
+        }
+
+		/**
+		 * Check if we can connect to Algolia, if not, handle the exception, display an error and then return
+		 */
+		public static function can_connect_to_algolia() {
+            try {
+                self::$algolia->listApiKeys();
+            } catch (\Algolia\AlgoliaSearch\Exceptions\UnreachableException $error) {
+                add_action(
+                    'admin_notices',
+                    function () {
+                        echo '<div class="error notice">
+							  <p>' . esc_html__('An error has been encountered. Please check your application ID and API key. ', 'algolia-woo-indexer') . '</p>
+							</div>';
+                    }
+                );
+                return;
+            }
+		}
+
         /**
          * Send WooCommerce products to Algolia
          *
@@ -419,44 +461,23 @@ if (! class_exists('Algolia_Woo_Indexer')) {
             $algolia_api_key        = get_option(ALGOWOO_DB_OPTION . ALGOLIA_API_KEY);
             $algolia_index_name     = get_option(ALGOWOO_DB_OPTION . INDEX_NAME);
 
-            /**
+			/**
              * Display admin notice and return if not all values have been set
              */
-            if (empty($algolia_application_id) || empty($algolia_api_key || empty($algolia_index_name))) {
-                add_action(
-                    'admin_notices',
-                    function () {
-                        echo '<div class="error notice">
-							  <p>' . esc_html__('All settings need to be set for the plugin to work.', 'algolia-woo-indexer') . '</p>
-							</div>';
-                    }
-                );
-                return;
-            }
+
+			self::check_algolia_input_values($algolia_application_id, $algolia_api_key, $algolia_index_name);
 
             /**
              * Initiate the Algolia client
              */
             self::$algolia = \Algolia\AlgoliaSearch\SearchClient::create($algolia_application_id, $algolia_api_key);
 
-            /**
+			/**
              * Check if we can connect, if not, handle the exception, display an error and then return
              */
-            try {
-                self::$algolia->listApiKeys();
-            } catch (\Algolia\AlgoliaSearch\Exceptions\UnreachableException $error) {
-                add_action(
-                    'admin_notices',
-                    function () {
-                        echo '<div class="error notice">
-							  <p>' . esc_html__('An error has been encountered. Please check your application ID and API key. ', 'algolia-woo-indexer') . '</p>
-							</div>';
-                    }
-                );
-                return;
-            }
-
-            /**
+			self::can_connect_to_algolia();
+			
+			/**
              * Initialize the search index and set the name to the option from the database
              */
             $index = self::$algolia->initIndex($algolia_index_name);
