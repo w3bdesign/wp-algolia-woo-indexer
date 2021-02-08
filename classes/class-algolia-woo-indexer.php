@@ -316,7 +316,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public static function send_new_product_to_algolia( $post_id, $post, $update ) {
+		public static function send_new_product_to_algolia( $post_id, $post ) {
 
 			if ( 'publish' !== $post->post_status || 'product' !== $post->post_type ) {
 				return;
