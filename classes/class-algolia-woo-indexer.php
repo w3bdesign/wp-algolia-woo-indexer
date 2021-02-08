@@ -501,7 +501,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 *
 			 * @see https://docs.woocommerce.com/wc-apidocs/function-wc_get_products.html
 			 */
-			$products = wc_get_products( $arguments );
+			$products = /** @scrutinizer ignore-call */ wc_get_products( $arguments );
 
 			if ( $products ) {
 				$records = array();
