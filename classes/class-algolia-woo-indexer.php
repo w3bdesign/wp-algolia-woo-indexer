@@ -36,6 +36,13 @@ define( 'ALGOWOO_CURRENT_DB_VERSION', '0.3' );
  */
 define( 'CHANGE_ME', 'change me' );
 
+/**
+ * Database table names
+ */
+define('INDEX_NAME', '_index_name');
+define('INDEX_IN_STOCK', '_index_in_stock');
+define('AUTOMATICALLY_SEND_NEW_PRODUCTS', '_automatically_send_new_products');
+
 if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 	/**
 	 * Algolia WooIndexer main class
@@ -183,7 +190,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_index_name_output() {
-			$index_name = get_option( ALGOWOO_DB_OPTION . '_index_name' );
+			$index_name = get_option( ALGOWOO_DB_OPTION . INDEX_NAME );
 			$index_name = is_string($index_name) ? $index_name : CHANGE_ME;
 
 			echo "<input id='algolia_woo_indexer_index_name' name='algolia_woo_indexer_index_name[name]'
@@ -200,7 +207,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * Sanitization is not really needed as the variable is not directly echoed
 			 * But I have still done it to be 100% safe
 			 */
-			$index_in_stock = get_option( ALGOWOO_DB_OPTION . '_index_in_stock' );
+			$index_in_stock = get_option( ALGOWOO_DB_OPTION . INDEX_IN_STOCK );
 			$index_in_stock = ( ! empty( $index_in_stock ) ) ? 1 : 0;
 			?>
 			<input id="algolia_woo_indexer_index_in_stock" name="algolia_woo_indexer_index_in_stock[checked]"
@@ -218,7 +225,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * Sanitization is not really needed as the variable is not directly echoed
 			 * But I have still done it to be 100% safe
 			 */
-			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );
+			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
 			$automatically_send_new_products = ( ! empty( $automatically_send_new_products ) ) ? 1 : 0;
 			?>
 			<input id="algolia_woo_indexer_automatically_send_new_products" name="algolia_woo_indexer_automatically_send_new_products[checked]"
@@ -257,7 +264,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			/**
 			 * Fetch the option to see if we are going to automatically send new products
 			 */
-			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );
+			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
 
 			/**
 			 * Check that we have the minimum versions required and all of the required PHP extensions
@@ -720,7 +727,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 			if ( empty( $algolia_index_name ) ) {
 				add_option(
-					ALGOWOO_DB_OPTION . '_index_name',
+					ALGOWOO_DB_OPTION . INDEX_NAME,
 					'Change me'
 				);
 			}
