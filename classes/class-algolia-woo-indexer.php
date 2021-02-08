@@ -490,7 +490,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
              */
             $products = /** @scrutinizer ignore-call */ wc_get_products($arguments);
 
-            if (! $products) {
+            if ( empty( $products ) ) {
                 return;
             }
             $records = array();
@@ -524,15 +524,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
             $result = $index->saveObjects($records);
 
             if ('Algolia\AlgoliaSearch\Response\NullResponse' === get_class($result)) {
-                add_action(
-                    'admin_notices',
-                    function () {
-                        echo '<div class="error notice is-dismissible">
-							  <p>' . esc_html__('No response from the server. Please check your settings and try again ', 'algolia-woo-indexer') . '</p>
-							</div>';
-                    }
-                );
-                return;
+				wp_die(esc_html__('No response from the server. Please check your settings and try again', 'algolia_woo_indexer_settings'));    
             }
 
             /**
