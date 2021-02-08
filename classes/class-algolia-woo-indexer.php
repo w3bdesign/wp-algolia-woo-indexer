@@ -36,6 +36,15 @@ define( 'ALGOWOO_CURRENT_DB_VERSION', '0.3' );
  */
 define( 'CHANGE_ME', 'change me' );
 
+/**
+ * Database table names
+ */
+define('INDEX_NAME', '_index_name');
+define('INDEX_IN_STOCK', '_index_in_stock');
+define('AUTOMATICALLY_SEND_NEW_PRODUCTS', '_automatically_send_new_products');
+define('ALGOLIA_APPLICATION_ID', '_application_id');
+define('ALGOLIA_API_KEY', '_admin_api_key');
+
 if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 	/**
 	 * Algolia WooIndexer main class
@@ -155,7 +164,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_admin_api_key_output() {
-			$api_key = get_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
+			$api_key = get_option( ALGOWOO_DB_OPTION . ALGOLIA_API_KEY );
 			$api_key = is_string($api_key) ? $api_key : CHANGE_ME;
 
 			wp_nonce_field( 'algolia_woo_indexer_admin_api_nonce_action', 'algolia_woo_indexer_admin_api_nonce_name' );
@@ -170,7 +179,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_application_id_output() {
-			$application_id = get_option( ALGOWOO_DB_OPTION . '_application_id' );
+			$application_id = get_option( ALGOWOO_DB_OPTION . ALGOLIA_APPLICATION_ID );
 			$application_id = is_string($application_id) ? $application_id : CHANGE_ME;
 
 			echo "<input id='algolia_woo_indexer_application_id' name='algolia_woo_indexer_application_id[id]'
@@ -183,7 +192,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_index_name_output() {
-			$index_name = get_option( ALGOWOO_DB_OPTION . '_index_name' );
+			$index_name = get_option( ALGOWOO_DB_OPTION . INDEX_NAME );
 			$index_name = is_string($index_name) ? $index_name : CHANGE_ME;
 
 			echo "<input id='algolia_woo_indexer_index_name' name='algolia_woo_indexer_index_name[name]'
@@ -200,7 +209,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * Sanitization is not really needed as the variable is not directly echoed
 			 * But I have still done it to be 100% safe
 			 */
-			$index_in_stock = get_option( ALGOWOO_DB_OPTION . '_index_in_stock' );
+			$index_in_stock = get_option( ALGOWOO_DB_OPTION . INDEX_IN_STOCK );
 			$index_in_stock = ( ! empty( $index_in_stock ) ) ? 1 : 0;
 			?>
 			<input id="algolia_woo_indexer_index_in_stock" name="algolia_woo_indexer_index_in_stock[checked]"
@@ -218,7 +227,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * Sanitization is not really needed as the variable is not directly echoed
 			 * But I have still done it to be 100% safe
 			 */
-			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );
+			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
 			$automatically_send_new_products = ( ! empty( $automatically_send_new_products ) ) ? 1 : 0;
 			?>
 			<input id="algolia_woo_indexer_automatically_send_new_products" name="algolia_woo_indexer_automatically_send_new_products[checked]"
@@ -257,7 +266,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			/**
 			 * Fetch the option to see if we are going to automatically send new products
 			 */
-			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );
+			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
 
 			/**
 			 * Check that we have the minimum versions required and all of the required PHP extensions
@@ -381,35 +390,35 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 */
 			if ( isset( $filtered_application_id ) && ( ! empty( $filtered_application_id ) ) ) {
 				update_option(
-					ALGOWOO_DB_OPTION . '_application_id',
+					ALGOWOO_DB_OPTION . ALGOLIA_APPLICATION_ID,
 					$filtered_application_id
 				);
 			}
 
 			if ( isset( $filtered_api_key ) && ( ! empty( $filtered_api_key ) ) ) {
 				update_option(
-					ALGOWOO_DB_OPTION . '_admin_api_key',
+					ALGOWOO_DB_OPTION . ALGOLIA_API_KEY,
 					$filtered_api_key
 				);
 			}
 
 			if ( isset( $filtered_index_name ) && ( ! empty( $filtered_index_name ) ) ) {
 				update_option(
-					ALGOWOO_DB_OPTION . '_index_name',
+					ALGOWOO_DB_OPTION . INDEX_NAME,
 					$filtered_index_name
 				);
 			}
 
 			if ( isset( $filtered_index_in_stock ) && ( ! empty( $filtered_index_in_stock ) ) ) {
 				update_option(
-					ALGOWOO_DB_OPTION . '_index_in_stock',
+					ALGOWOO_DB_OPTION . INDEX_IN_STOCK,
 					$filtered_index_in_stock
 				);
 			}
 
 			if ( isset( $filtered_automatically_send_new_products ) && ( ! empty( $filtered_automatically_send_new_products ) ) ) {
 				update_option(
-					ALGOWOO_DB_OPTION . '_automatically_send_new_products',
+					ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS,
 					$filtered_automatically_send_new_products
 				);
 			}
@@ -433,11 +442,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * Fetch the required variables from the Settings API
 			 */
 
-			$algolia_application_id = get_option( ALGOWOO_DB_OPTION . '_application_id' );
-			$algolia_api_key        = get_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
-			$algolia_index_name     = get_option( ALGOWOO_DB_OPTION . '_index_name' );
+			$algolia_application_id = get_option( ALGOWOO_DB_OPTION . ALGOLIA_APPLICATION_ID );
+			$algolia_api_key        = get_option( ALGOWOO_DB_OPTION . ALGOLIA_API_KEY );
+			$algolia_index_name     = get_option( ALGOWOO_DB_OPTION . INDEX_NAME );
 
-			$index_in_stock = get_option( ALGOWOO_DB_OPTION . '_index_in_stock' );
+			$index_in_stock = get_option( ALGOWOO_DB_OPTION . INDEX_IN_STOCK );
 
 			/**
 			 * Display admin notice and return if not all values have been set
@@ -684,43 +693,43 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			/**
 			 * Set default values for options if not already set
 			 */
-			$index_in_stock                  = get_option( ALGOWOO_DB_OPTION . '_index_in_stock' );
-			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );
-			$algolia_application_id          = get_option( ALGOWOO_DB_OPTION . '_application_id' );
-			$algolia_api_key                 = get_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
-			$algolia_index_name              = get_option( ALGOWOO_DB_OPTION . '_index_name' );
+			$index_in_stock                  = get_option( ALGOWOO_DB_OPTION . INDEX_IN_STOCK );
+			$automatically_send_new_products = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
+			$algolia_application_id          = get_option( ALGOWOO_DB_OPTION . ALGOLIA_APPLICATION_ID );
+			$algolia_api_key                 = get_option( ALGOWOO_DB_OPTION . ALGOLIA_API_KEY );
+			$algolia_index_name              = get_option( ALGOWOO_DB_OPTION . INDEX_NAME );
 
 			if ( empty( $index_in_stock ) ) {
 				add_option(
-					ALGOWOO_DB_OPTION . '_index_in_stock',
+					ALGOWOO_DB_OPTION . INDEX_IN_STOCK,
 					'0'
 				);
 			}
 
 			if ( empty( $automatically_send_new_products ) ) {
 				add_option(
-					ALGOWOO_DB_OPTION . '_automatically_send_new_products',
+					ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS,
 					'0'
 				);
 			}
 
 			if ( empty( $algolia_application_id ) ) {
 				add_option(
-					ALGOWOO_DB_OPTION . '_application_id',
+					ALGOWOO_DB_OPTION . ALGOLIA_APPLICATION_ID,
 					'Change me'
 				);
 			}
 
 			if ( empty( $algolia_api_key ) ) {
 				add_option(
-					ALGOWOO_DB_OPTION . '_admin_api_key',
+					ALGOWOO_DB_OPTION . ALGOLIA_API_KEY,
 					'Change me'
 				);
 			}
 
 			if ( empty( $algolia_index_name ) ) {
 				add_option(
-					ALGOWOO_DB_OPTION . '_index_name',
+					ALGOWOO_DB_OPTION . INDEX_NAME,
 					'Change me'
 				);
 			}
