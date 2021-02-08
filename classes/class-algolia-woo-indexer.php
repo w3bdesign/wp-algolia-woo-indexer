@@ -19,6 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Include plugin file if function is_plugin_active does not exist
+ */
+if (! function_exists('is_plugin_active')) {
+    require_once(ABSPATH . '/wp-admin/includes/plugin.php');
+}
+
+/**
  * Define the plugin version and the database table name
  */
 define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
@@ -287,7 +294,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 				self::$plugin_url = admin_url( 'options-general.php?page=algolia-woo-indexer-settings' );
 
-				if ( ! Algolia_Check_Requirements::is_woocommerce_plugin_active() ) {
+				if ( ! is_plugin_active('woocommerce/woocommerce.php') ) {
 					add_action(
 						'admin_notices',
 						function () {
