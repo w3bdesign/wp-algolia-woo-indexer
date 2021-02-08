@@ -151,6 +151,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 */
 		public static function algolia_woo_indexer_admin_api_key_output() {
 			$api_key = get_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
+			$api_key = is_string($api_key) ? $api_key : "change me";
 
 			wp_nonce_field( 'algolia_woo_indexer_admin_api_nonce_action', 'algolia_woo_indexer_admin_api_nonce_name' );
 
