@@ -236,8 +236,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		public static function maybe_send_products() {
 
 			if ( true === Algolia_Verify_Nonces::verify_send_products_nonce() ) {
-				self::send_products_to_algolia();
-				return;
+				self::send_products_to_algolia();	
 			}
 		}
 
