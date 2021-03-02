@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Algolia Woo Indexer class for sending products
  * Called from main plugin file algolia-woo-indexer.php
@@ -13,27 +14,27 @@ use \Algowoo\Algolia_Check_Requirements as Algolia_Check_Requirements;
 /**
  * Abort if this file is called directly
  */
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (!defined('ABSPATH')) {
+    exit;
 }
 
 /**
  * Include plugin file if function is_plugin_active does not exist
  */
-if (! function_exists('is_plugin_active')) {
+if (!function_exists('is_plugin_active')) {
     require_once(ABSPATH . '/wp-admin/includes/plugin.php');
 }
 
 /**
  * Define the plugin version and the database table name
  */
-define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
-define( 'ALGOWOO_CURRENT_DB_VERSION', '0.3' );
+define('ALGOWOO_DB_OPTION', '_algolia_woo_indexer');
+define('ALGOWOO_CURRENT_DB_VERSION', '0.3');
 
 /**
  * Define application constants
  */
-define( 'CHANGE_ME', 'change me' );
+define('CHANGE_ME', 'change me');
 
 /**
  * Database table names
@@ -43,7 +44,7 @@ define('AUTOMATICALLY_SEND_NEW_PRODUCTS', '_automatically_send_new_products');
 define('ALGOLIA_APPLICATION_ID', '_application_id');
 define('ALGOLIA_API_KEY', '_admin_api_key');
 
-if (! class_exists('Algolia_Send_Products')) {
+if (!class_exists('Algolia_Send_Products')) {
     /**
      * Algolia WooIndexer main class
      */
@@ -80,11 +81,11 @@ if (! class_exists('Algolia_Send_Products')) {
         }
 
         /**
-        * Send WooCommerce products to Algolia
-        *
-        * @param Int $id Product to send to Algolia if we send only a single product
-        * @return void
-        */
+         * Send WooCommerce products to Algolia
+         *
+         * @param Int $id Product to send to Algolia if we send only a single product
+         * @return void
+         */
         public static function send_products_to_algolia($id = '')
         {
             /**
@@ -102,10 +103,10 @@ if (! class_exists('Algolia_Send_Products')) {
             $algolia_application_id = is_string($algolia_application_id) ? $algolia_application_id : CHANGE_ME;
 
             $algolia_api_key        = get_option(ALGOWOO_DB_OPTION . ALGOLIA_API_KEY);
-            $algolia_api_key		= is_string($algolia_api_key) ?$algolia_api_key : CHANGE_ME;
+            $algolia_api_key        = is_string($algolia_api_key) ? $algolia_api_key : CHANGE_ME;
 
             $algolia_index_name     = get_option(ALGOWOO_DB_OPTION . INDEX_NAME);
-            $algolia_index_name		= is_string($algolia_index_name) ? $algolia_index_name : CHANGE_ME;
+            $algolia_index_name        = is_string($algolia_index_name) ? $algolia_index_name : CHANGE_ME;
 
             /**
              * Display admin notice and return if not all values have been set
@@ -122,7 +123,7 @@ if (! class_exists('Algolia_Send_Products')) {
              * Check if we can connect, if not, handle the exception, display an error and then return
              */
             self::can_connect_to_algolia();
-            
+
             /**
              * Initialize the search index and set the name to the option from the database
              */
@@ -140,12 +141,12 @@ if (! class_exists('Algolia_Send_Products')) {
             );
 
             /**
-            * Setup arguments for sending only a single product
-            */
+             * Setup arguments for sending only a single product
+             */
             if (isset($id) && '' !== $id) {
                 $arguments = array(
                     'status'   => 'publish',
-                    'include'  => array( $id ),
+                    'include'  => array($id),
                     'paginate' => false,
                 );
             }
@@ -155,7 +156,9 @@ if (! class_exists('Algolia_Send_Products')) {
              *
              * @see https://docs.woocommerce.com/wc-apidocs/function-wc_get_products.html
              */
-            $products = /** @scrutinizer ignore-call */ wc_get_products($arguments);
+            $products =
+                /** @scrutinizer ignore-call */
+                wc_get_products($arguments);
 
             if (empty($products)) {
                 return;
@@ -165,6 +168,17 @@ if (! class_exists('Algolia_Send_Products')) {
 
             foreach ($products as $product) {
                 /**
+                 * Set sale price or regular price based on product type
+                 */
+                if ($product->is_type('simple')) {
+                    $sale_price     =  $product->get_sale_price();
+                    $regular_price  =  $product->get_regular_price();
+                } elseif ($product->is_type('variable')) {
+                    $sale_price     =  $product->get_variation_sale_price('min', true);
+                    $regular_price  =  $product->get_variation_regular_price('max', true);
+                }
+
+                /**
                  * Extract image from $product->get_image()
                  */
                 preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
@@ -172,14 +186,13 @@ if (! class_exists('Algolia_Send_Products')) {
                 /**
                  * Build the record array using the information from the WooCommerce product
                  */
-                $record['objectID']          = $product->get_id();
-                $record['product_name']      = $product->get_name();
-                $record['product_image']     = $product_image;
-                $record['short_description'] = $product->get_short_description();
-                $record['regular_price']     = $product->get_regular_price();
-                $record['sale_price']        = $product->get_sale_price();
-                $record['on_sale']           = $product->is_on_sale();
-
+                $record['objectID']                      = $product->get_id();
+                $record['product_name']                  = $product->get_name();
+                $record['product_image']                 = $product_image;
+                $record['short_description']             = $product->get_short_description();
+                $record['regular_price']                 = $regular_price;
+                $record['sale_price']                    = $sale_price;
+                $record['on_sale']                       = $product->is_on_sale();
                 $records[] = $record;
             }
             wp_reset_postdata();
