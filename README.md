@@ -35,7 +35,7 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 * An account at www.algolia.com (can be a free community plan)
 * Access to install and activate plugins (usually administrator rights)
 * WordPress 5.5
-* WooCommerce 4.5.0
+* WooCommerce 5.0.0
 * PHP 7.3
 * PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
 * All products MUST have a category assigned (Uncategorized is not a category), or they will not be submitted
