@@ -81,6 +81,30 @@ if (!class_exists('Algolia_Send_Products')) {
         }
 
         /**
+         * Get sale price or regular price based on product type
+         *
+         * @param  mixed $product Product to check
+         * @return int $sale_price Sale price
+         * @return int $regular_price Regular price
+         */
+        public static function get_product_type_price($product)
+        {
+            $sale_price = 0;
+            $regular_price = 0;
+            if ($product->is_type('simple')) {
+                $sale_price     =  $product->get_sale_price();
+                $regular_price  =  $product->get_regular_price();
+            } elseif ($product->is_type('variable')) {
+                $sale_price     =  $product->get_variation_sale_price('min', true);
+                $regular_price  =  $product->get_variation_regular_price('max', true);
+            }
+            return array(
+                'sale_price' => $sale_price,
+                'regular_price' => $regular_price
+            );
+        }
+
+        /**
          * Send WooCommerce products to Algolia
          *
          * @param Int $id Product to send to Algolia if we send only a single product
@@ -165,18 +189,30 @@ if (!class_exists('Algolia_Send_Products')) {
             }
             $records = array();
             $record  = array();
+            $sale_price     =  0;
+            $regular_price  =  0;
 
             foreach ($products as $product) {
                 /**
                  * Set sale price or regular price based on product type
                  */
-                if ($product->is_type('simple')) {
+                $product_type_price = self::get_product_type_price($product);
+                $sale_price = $product_type_price['sale_price'];
+                $regular_price = $product_type_price['regular_price'];
+
+                /*if ($product->is_type('simple')) {
                     $sale_price     =  $product->get_sale_price();
                     $regular_price  =  $product->get_regular_price();
                 } elseif ($product->is_type('variable')) {
                     $sale_price     =  $product->get_variation_sale_price('min', true);
                     $regular_price  =  $product->get_variation_regular_price('max', true);
-                }
+                }*/
+
+
+
+
+
+                // $sale_price = self::get_product_type_price($product)
 
                 /**
                  * Extract image from $product->get_image()
