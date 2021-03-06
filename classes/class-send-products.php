@@ -198,21 +198,7 @@ if (!class_exists('Algolia_Send_Products')) {
                  */
                 $product_type_price = self::get_product_type_price($product);
                 $sale_price = $product_type_price['sale_price'];
-                $regular_price = $product_type_price['regular_price'];
-
-                /*if ($product->is_type('simple')) {
-                    $sale_price     =  $product->get_sale_price();
-                    $regular_price  =  $product->get_regular_price();
-                } elseif ($product->is_type('variable')) {
-                    $sale_price     =  $product->get_variation_sale_price('min', true);
-                    $regular_price  =  $product->get_variation_regular_price('max', true);
-                }*/
-
-
-
-
-
-                // $sale_price = self::get_product_type_price($product)
+                $regular_price = $product_type_price['regular_price']; 
 
                 /**
                  * Extract image from $product->get_image()
