@@ -16,41 +16,40 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 
 ### Important notice: This plugin will NOT submit products without a category.
 
+## Basic Features
 
-## Basic Features 
-
-* Manually or automatically submit WooCommerce products to Algolia
-* Default options are added upon plugin activation
-* Options are deleted from database upon plugin uninstallation (not on deactivation)
+-   Manually or automatically submit WooCommerce products to Algolia
+-   Default options are added upon plugin activation
+-   Options are deleted from database upon plugin uninstallation (not on deactivation)
 
 ## Advanced Features
 
-* POT file for translations is included
-* All code scanned and verified with PHPCS
-* Code follows modern coding standards
-* All variables are properly sanitized to ensure that no security issues are present
+-   POT file for translations is included
+-   All code scanned and verified with PHPCS
+-   Code follows modern coding standards
+-   All variables are properly sanitized to ensure that no security issues are present
 
 ## Requirements
 
-* An account at www.algolia.com (can be a free community plan)
-* Access to install and activate plugins (usually administrator rights)
-* WordPress 5.5
-* WooCommerce 5.0.0
-* PHP 7.3
-* PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
-* All products MUST have a category assigned (Uncategorized is not a category), or they will not be submitted
+-   An account at www.algolia.com (can be a free community plan)
+-   Access to install and activate plugins (usually administrator rights)
+-   WordPress 5.5
+-   WooCommerce 5.0.0
+-   PHP 7.3
+-   PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
+-   All products MUST have a category assigned (Uncategorized is not a category), or they will not be submitted
 
 ## Installation
 
-* Login to WordPress as Admin
-* Upload `Algolia Woo Indexer` to the `/wp-content/plugins/` directory of your application
-* Activate the plugin through the `Plugins` menu in WordPress
-* Login to Algolia and go to `API keys` and copy or write down the Application ID and the `Admin API Key`
-* Go back to WordPress and access plugin settings under `Settings->Algolia Woo Indexer`
-* Add the `Application ID` to the plugin settings page
-* Add the `Admin API Key` to the plugin settings page
-* Add the name of the index that should be used to index WooCommerce products
-* Click on the `Send products with Algolia` button to send the products to Algolia
+-   Login to WordPress as Admin
+-   Upload `Algolia Woo Indexer` to the `/wp-content/plugins/` directory of your application
+-   Activate the plugin through the `Plugins` menu in WordPress
+-   Login to Algolia and go to `API keys` and copy or write down the Application ID and the `Admin API Key`
+-   Go back to WordPress and access plugin settings under `Settings->Algolia Woo Indexer`
+-   Add the `Application ID` to the plugin settings page
+-   Add the `Admin API Key` to the plugin settings page
+-   Add the name of the index that should be used to index WooCommerce products
+-   Click on the `Send products with Algolia` button to send the products to Algolia
 
 ## Troubleshooting
 
@@ -60,5 +59,5 @@ Feel free to <a href="https://github.com/w3bdesign/algolia-woo-indexer/issues">o
 
 ### TODO
 
-- Fix bug with variable product price not being sent over
-- Upgrade Algolia package and check that it works correctly
+-   Fix bug with variable product price not being sent over
+-   Upgrade Algolia package and check that it works correctly
