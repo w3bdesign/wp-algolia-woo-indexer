@@ -83,9 +83,8 @@ if (!class_exists('Algolia_Send_Products')) {
         /**
          * Get sale price or regular price based on product type
          *
-         * @param  mixed $product Product to check
-         * @return int $sale_price Sale price
-         * @return int $regular_price Regular price
+         * @param  mixed $product Product to check   
+         * @return array ['sale_price' => $sale_price,'regular_price' => $regular_price] Array with regular price and sale price
          */
         public static function get_product_type_price($product)
         {
@@ -189,8 +188,6 @@ if (!class_exists('Algolia_Send_Products')) {
             }
             $records = array();
             $record  = array();
-            $sale_price     =  0;
-            $regular_price  =  0;
 
             foreach ($products as $product) {
                 /**
