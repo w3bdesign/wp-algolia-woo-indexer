@@ -59,5 +59,4 @@ Feel free to <a href="https://github.com/w3bdesign/algolia-woo-indexer/issues">o
 
 ### TODO
 
--   Fix bug with variable product price not being sent over
 -   Upgrade Algolia package and check that it works correctly
