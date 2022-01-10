@@ -3,7 +3,7 @@
  * Plugin Name:     Algolia WooCommerce Indexer
  * Description:     Implement Algolia indexing from WooCommerce
  * Text Domain:     algolia-woo-indexer
- * Author:          Daniel F
+ * Author:          Daniel Fjeldstad
  * Requires at least: 5.5
  * Tested up to: 5.5
  * Requires PHP: 7.3
