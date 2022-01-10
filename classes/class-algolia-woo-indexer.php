@@ -30,7 +30,8 @@ if (! class_exists('Algolia_Woo_Indexer')) {
     /**
      * Algolia WooIndexer main class
      */
-    class Algolia_Woo_Indexer
+    // TODO Rename class "Algolia_Woo_Indexer" to match the regular expression ^[A-Z][a-zA-Z0-9]*$.
+     class Algolia_Woo_Indexer
     {
         const PLUGIN_NAME      = 'Algolia Woo Indexer';
         const PLUGIN_TRANSIENT = 'algowoo-plugin-notice';
