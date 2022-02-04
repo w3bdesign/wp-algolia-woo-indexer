@@ -14,7 +14,7 @@ You need to add the Application ID, the Admin API Key from the `API keys` sectio
 
 Note that this plugin is designed for developers developing headless Ecommerce solutions.
 
-### Important notice: This plugin will NOT submit products without a category
+### This plugin will NOT submit products without a category
 
 ## Basic Features
 
