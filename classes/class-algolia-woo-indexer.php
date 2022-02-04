@@ -335,7 +335,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
             /**
              * Sanitizing by setting the value to either 1 or 0
              */
-            $filtered_new_products = (! empty($auto_send)) ? 1 : 0;
+            $filtered_product = (! empty($auto_send)) ? 1 : 0;
 
             /**
              * Values have been filtered and sanitized
@@ -364,10 +364,10 @@ if (! class_exists('Algolia_Woo_Indexer')) {
                 );
             }
 
-            if (isset($filtered_new_products) && (! empty($filtered_new_products))) {
+            if (isset($filtered_product) && (! empty($filtered_product))) {
                 update_option(
                     ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS,
-                    $filtered_new_products
+                    $filtered_product
                 );
             }
         }
