@@ -151,7 +151,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
          */
         public static function algolia_woo_indexer_application_id_output()
         {
-            $application_id = get_option(ALGOWOO_DB_OPTION . ALGOLIA_APPLICATION_ID);
+            $application_id = get_option(ALGOWOO_DB_OPTION . ALGOLIA_APP_ID);
             $application_id = is_string($application_id) ? $application_id : CHANGE_ME;
 
             echo "<input id='algolia_woo_indexer_application_id' name='algolia_woo_indexer_application_id[id]'
@@ -335,7 +335,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
             /**
              * Sanitizing by setting the value to either 1 or 0
              */
-            $filtered_automatically_send_new_products = (! empty($auto_send_new_products)) ? 1 : 0;
+            $filtered_new_products = (! empty($auto_send_new_products)) ? 1 : 0;
 
             /**
              * Values have been filtered and sanitized
@@ -345,7 +345,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
              */
             if (isset($filtered_application_id) && (! empty($filtered_application_id))) {
                 update_option(
-                    ALGOWOO_DB_OPTION . ALGOLIA_APPLICATION_ID,
+                    ALGOWOO_DB_OPTION . ALGOLIA_APP_ID,
                     $filtered_application_id
                 );
             }
@@ -364,10 +364,10 @@ if (! class_exists('Algolia_Woo_Indexer')) {
                 );
             }
 
-            if (isset($filtered_automatically_send_new_products) && (! empty($filtered_automatically_send_new_products))) {
+            if (isset($filtered_new_products) && (! empty($filtered_new_products))) {
                 update_option(
                     ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS,
-                    $filtered_automatically_send_new_products
+                    $filtered_new_products
                 );
             }
         }
@@ -471,7 +471,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
              * Set default values for options if not already set
              */
             $auto_send_new_products = get_option(ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS);
-            $algolia_application_id          = get_option(ALGOWOO_DB_OPTION . ALGOLIA_APPLICATION_ID);
+            $algolia_application_id          = get_option(ALGOWOO_DB_OPTION . ALGOLIA_APP_ID);
             $algolia_api_key                 = get_option(ALGOWOO_DB_OPTION . ALGOLIA_API_KEY);
             $algolia_index_name              = get_option(ALGOWOO_DB_OPTION . INDEX_NAME);
             
@@ -484,7 +484,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
 
             if (empty($algolia_application_id)) {
                 add_option(
-                    ALGOWOO_DB_OPTION . ALGOLIA_APPLICATION_ID,
+                    ALGOWOO_DB_OPTION . ALGOLIA_APP_ID,
                     'Change me'
                 );
             }
