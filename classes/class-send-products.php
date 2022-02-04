@@ -41,7 +41,7 @@ define('CHANGE_ME', 'change me');
  */
 define('INDEX_NAME', '_index_name');
 define('AUTOMATICALLY_SEND_NEW_PRODUCTS', '_automatically_send_new_products');
-define('ALGOLIA_APPLICATION_ID', '_application_id');
+define('ALGOLIA_APP_ID', '_application_id');
 define('ALGOLIA_API_KEY', '_admin_api_key');
 
 if (!class_exists('Algolia_Send_Products')) {
@@ -124,7 +124,7 @@ if (!class_exists('Algolia_Send_Products')) {
              * Fetch the required variables from the Settings API
              */
 
-            $algolia_application_id = get_option(ALGOWOO_DB_OPTION . ALGOLIA_APPLICATION_ID);
+            $algolia_application_id = get_option(ALGOWOO_DB_OPTION . ALGOLIA_APP_ID);
             $algolia_application_id = is_string($algolia_application_id) ? $algolia_application_id : CHANGE_ME;
 
             $algolia_api_key        = get_option(ALGOWOO_DB_OPTION . ALGOLIA_API_KEY);
