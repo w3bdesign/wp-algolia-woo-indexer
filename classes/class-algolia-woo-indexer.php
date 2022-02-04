@@ -183,10 +183,10 @@ if (! class_exists('Algolia_Woo_Indexer')) {
              * Sanitization is not really needed as the variable is not directly echoed
              * But I have still done it to be 100% safe
              */
-            $automatically_send_new_products = get_option(ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS);
-            $automatically_send_new_products = (! empty($automatically_send_new_products)) ? 1 : 0; ?>
+            $auto_send_new_products = get_option(ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS);
+            $auto_send_new_products = (! empty($auto_send_new_products)) ? 1 : 0; ?>
 			<input id="algolia_woo_indexer_automatically_send_new_products" name="algolia_woo_indexer_automatically_send_new_products[checked]"
-			type="checkbox" <?php checked(1, $automatically_send_new_products); ?> />
+			type="checkbox" <?php checked(1, $auto_send_new_products); ?> />
 			<?php
         }
 
@@ -223,7 +223,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
             /**
              * Fetch the option to see if we are going to automatically send new products
              */
-            $automatically_send_new_products = get_option(ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS);
+            $auto_send_new_products = get_option(ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS);
 
             /**
              * Check that we have the minimum versions required and all of the required PHP extensions
@@ -261,7 +261,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
                  * Register hook to automatically send new products if the option is set
                  */
 
-                if ('1' === $automatically_send_new_products) {
+                if ('1' === $auto_send_new_products) {
                     add_action('save_post', array( $ob_class, 'send_new_product_to_algolia' ), 10, 3);
                 }
 
@@ -321,7 +321,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
             $post_application_id             = filter_input(INPUT_POST, 'algolia_woo_indexer_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $post_api_key                    = filter_input(INPUT_POST, 'algolia_woo_indexer_admin_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $post_index_name                 = filter_input(INPUT_POST, 'algolia_woo_indexer_index_name', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-            $automatically_send_new_products = filter_input(INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $auto_send_new_products = filter_input(INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 
             /**
              * Properly sanitize text fields before updating data
@@ -335,7 +335,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
             /**
              * Sanitizing by setting the value to either 1 or 0
              */
-            $filtered_automatically_send_new_products = (! empty($automatically_send_new_products)) ? 1 : 0;
+            $filtered_automatically_send_new_products = (! empty($auto_send_new_products)) ? 1 : 0;
 
             /**
              * Values have been filtered and sanitized
@@ -470,12 +470,12 @@ if (! class_exists('Algolia_Woo_Indexer')) {
             /**
              * Set default values for options if not already set
              */
-            $automatically_send_new_products = get_option(ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS);
+            $auto_send_new_products = get_option(ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS);
             $algolia_application_id          = get_option(ALGOWOO_DB_OPTION . ALGOLIA_APPLICATION_ID);
             $algolia_api_key                 = get_option(ALGOWOO_DB_OPTION . ALGOLIA_API_KEY);
             $algolia_index_name              = get_option(ALGOWOO_DB_OPTION . INDEX_NAME);
             
-            if (empty($automatically_send_new_products)) {
+            if (empty($auto_send_new_products)) {
                 add_option(
                     ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS,
                     '0'
