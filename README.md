@@ -1,4 +1,5 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/w3bdesign/algolia-woo-indexer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/w3bdesign/algolia-woo-indexer/?branch=master)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/bfe1f91c2d3a40e6953baabeee88f781)](https://www.codacy.com/gh/w3bdesign/algolia-woo-indexer/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=w3bdesign/algolia-woo-indexer&amp;utm_campaign=Badge_Grade)
 ![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green)
 
 ![Screenshot](/screenshots/screenshot1.jpg)
@@ -13,7 +14,7 @@ You need to add the Application ID, the Admin API Key from the `API keys` sectio
 
 Note that this plugin is designed for developers developing headless Ecommerce solutions.
 
-### Important notice: This plugin will NOT submit products without a category.
+### Important notice: This plugin will NOT submit products without a category
 
 ## Basic Features
 
