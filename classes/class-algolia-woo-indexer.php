@@ -328,7 +328,7 @@ if (! class_exists('Algolia_Woo_Indexer')) {
              *
              * @see https://developer.wordpress.org/reference/functions/sanitize_text_field/
              */
-            $filtered_application_id = sanitize_text_field($post_application_id['id']);
+            $filtered_app_id = sanitize_text_field($post_application_id['id']);
             $filtered_api_key        = sanitize_text_field($post_api_key['key']);
             $filtered_index_name     = sanitize_text_field($post_index_name['name']);
 
@@ -343,10 +343,10 @@ if (! class_exists('Algolia_Woo_Indexer')) {
              *
              * @see https://developer.wordpress.org/reference/functions/update_option/
              */
-            if (isset($filtered_application_id) && (! empty($filtered_application_id))) {
+            if (isset($filtered_app_id) && (! empty($filtered_app_id))) {
                 update_option(
                     ALGOWOO_DB_OPTION . ALGOLIA_APP_ID,
-                    $filtered_application_id
+                    $filtered_app_id
                 );
             }
 
