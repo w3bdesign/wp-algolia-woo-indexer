@@ -39,7 +39,20 @@ define('CHANGE_ME', 'change me');
 /**
  * Define list of fields available to index
  */
-define('INDEX_FIELDS', ['permalink', 'tags', 'categories', 'short_description', 'product_name', 'product_image', 'regular_price', 'sale_price', 'on_sale', 'attributes']);
+define('INDEX_FIELDS', array(
+    'permalink', 
+    'tags', 
+    'categories', 
+    'short_description', 
+    'product_name', 
+    'product_image', 
+    'regular_price', 
+    'sale_price', 
+    'on_sale', 
+    'attributes',
+    "stock_quantity",
+    "stock_status"
+));
 
 /**
  * Database table names
@@ -85,6 +98,35 @@ if (!class_exists('Algolia_Send_Products')) {
                 );
                 return;
             }
+        }
+
+        /**
+         * check if the field is enabled and shall be sent
+         *
+         * @param  mixed $field name of field to be checked according to INDEX_FIELDS 
+         * @return boolean true if enable, false is not enabled
+         */
+        public static function is_field_enabled($field)
+        {
+            $fieldValue = get_option(ALGOWOO_DB_OPTION . FIELD_PREFIX . $field);
+            return $fieldValue;
+        }
+
+        /**
+         * helper function to add a field to a record while checking their state
+         *
+         * @param  array $record existing record where the field and value shall be added to 
+         * @param  string $field name of field to be checked according to INDEX_FIELDS 
+         * @param  mixed $value data to be added to the record array named to $field
+         * @return array $record previous passed $record with added field data
+         */
+        public static function add_to_record($record, $field, $value)
+        {
+            if (!self::is_field_enabled($field)) {
+                return $record;
+            }
+            $record[$field] = $value;
+            return $record;
         }
 
         /**
@@ -308,39 +350,51 @@ if (!class_exists('Algolia_Send_Products')) {
                 $product_type_price = self::get_product_type_price($product);
                 $sale_price = $product_type_price['sale_price'];
                 $regular_price = $product_type_price['regular_price'];
+                
+
+
+
+                /**
+                 * always add objectID (mandatory field for algolia)
+                 */
+                $record['objectID'] = $product->get_id();
+
                 /**
                  * Extract image from $product->get_image()
                  */
-                preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
-                $product_image = array_pop($result);
+                if (self::is_field_enabled("product_image")) {
+                    preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
+                    $record["product_image"] = array_pop($result);
+                }
 
-                /**
-                 * Build the record array using the information from the WooCommerce product
-                 */
-                $record['objectID']                      = $product->get_id();
-                $record['product_name']                  = $product->get_name();
-                $record['product_image']                 = $product_image;
-                $record['short_description']             = $product->get_short_description();
-                $record['regular_price']                 = $regular_price;
-                $record['sale_price']                    = $sale_price;
-                $record['on_sale']                       = $product->is_on_sale();
-                $record['permalink']                     = $product->get_permalink();
-                $record['categories']                    = self::get_product_categories($product);
-                $record['tags']                          = self::get_product_tags($product);
-                $record['attributes']                    = self::get_product_attributes($product);
+                $record = self::add_to_record($record, 'product_name', $product->get_name());
+                $record = self::add_to_record($record, 'short_description', $product->get_short_description());
+                $record = self::add_to_record($record, 'regular_price', $regular_price);
+                $record = self::add_to_record($record, 'sale_price', $sale_price);
+                $record = self::add_to_record($record, 'on_sale', $product->is_on_sale());
+                $record = self::add_to_record($record, 'permalink', $product->get_permalink());
+                $record = self::add_to_record($record, 'categories', self::get_product_categories($product));
+                $record = self::add_to_record($record, 'tags', self::get_product_tags($product));
+                $record = self::add_to_record($record, 'attributes', self::get_product_attributes($product));
+            
 
 
                 /**
                  * Add stock information if stock management is on
                  */
                 $stock_data = self::get_product_stock_data($product);
-                if ($stock_data) {
-                    $record = array_merge($record, $stock_data);
+                if (is_array($stock_data)) {
+                    $record = self::add_to_record($record, 'stock_quantity', $stock_data['stock_quantity']);
+                    $record = self::add_to_record($record, 'stock_status', $stock_data['stock_status']);
                 }
-
 
                 $records[] = $record;
             }
+            
+            echo "<pre>";
+            var_dump($records);
+            echo "</pre>";
+            die();
             wp_reset_postdata();
 
             /**
