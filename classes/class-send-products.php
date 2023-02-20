@@ -40,15 +40,15 @@ define('CHANGE_ME', 'change me');
  * Define list of fields available to index
  */
 define('BASIC_FIELDS', array(
-    'permalink', 
-    'tags', 
-    'categories', 
-    'short_description', 
-    'product_name', 
-    'product_image', 
-    'regular_price', 
-    'sale_price', 
-    'on_sale', 
+    'permalink',
+    'tags',
+    'categories',
+    'short_description',
+    'product_name',
+    'product_image',
+    'regular_price',
+    'sale_price',
+    'on_sale',
     'attributes',
     "stock_quantity",
     "stock_status"
@@ -117,7 +117,7 @@ if (!class_exists('Algolia_Send_Products')) {
          * @param  mixed $field name of field to be checked according to BASIC_FIELDS 
          * @return boolean true if enable, false is not enabled
          */
-        public static function is_field_enabled($field)
+        public static function is_basic_field_enabled($field)
         {
             $fieldValue = get_option(ALGOWOO_DB_OPTION . BASIC_FIELD_PREFIX . $field);
             return $fieldValue;
@@ -129,13 +129,18 @@ if (!class_exists('Algolia_Send_Products')) {
          * @param  array $record existing record where the field and value shall be added to 
          * @param  string $field name of field to be checked according to BASIC_FIELDS 
          * @param  mixed $value data to be added to the record array named to $field
+         * @param  boolean $skip_basic_field_validation set to true if it is not a basic field to skip validation 
          * @return array $record previous passed $record with added field data
          */
-        public static function add_to_record($record, $field, $value)
+        public static function add_to_record($record, $field, $value, $skip_basic_field_validation = false)
         {
-            if (!self::is_field_enabled($field)) {
+            /**
+             *  only if enabled or validation skipped and not empty
+             */
+            if ((!self::is_basic_field_enabled($field) && !$skip_basic_field_validation) || empty($value)) {
                 return $record;
             }
+
             $record[$field] = $value;
             return $record;
         }
@@ -230,7 +235,23 @@ if (!class_exists('Algolia_Send_Products')) {
          */
         public static function get_product_attributes($product)
         {
-            $rawAttributes = $product->get_attributes();
+            /**
+             * ensure that attrobutes are actually enabled
+             */
+            $attributes_enabled = (int) get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED);
+            if ($attributes_enabled !== 1) {
+                return false;
+            }
+
+            /**
+             * gather data and settings
+             */
+            $rawAttributes = $product->get_attributes("edit");
+            $setting_visibility = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
+            $setting_variation = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
+            $setting_ids = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
+            $setting_ids = explode(",", $setting_ids);
+
             $numericRangeAttributes = ["pa_height", "pa_flowermonth"];
             if (!$rawAttributes) {
                 return false;
@@ -238,9 +259,43 @@ if (!class_exists('Algolia_Send_Products')) {
 
             $attributes = [];
             foreach ($rawAttributes as $attribute) {
+                /**
+                 * skip variation attributes
+                 */
                 if ($attribute->get_variation()) {
                     continue;
                 }
+
+                /**
+                 * ensure that the setting_visibility is respected
+                 */
+                $visibility = $attribute["visible"];
+                if (
+                    ($setting_visibility ===  "visible" && $visibility === false) ||
+                    ($setting_visibility ===  "hidden" && $visibility === true)
+                ) {
+                    continue;
+                }
+
+                /**
+                 * ensure that the variation is respected
+                 */
+                $variation = $attribute["variation"];
+                if (
+                    ($setting_variation ===  "used" && $variation === false) ||
+                    ($setting_variation ===  "notused" && $variation === true)
+                ) {
+                    continue;
+                }
+
+                /**
+                 * ensure that taxonomy is whitelisted
+                 */
+                $id = $attribute->get_id();
+                if(!in_array($id, $setting_ids)) {
+                    continue;
+                }
+
                 $name = $attribute->get_name();
                 if ($attribute->is_taxonomy()) {
                     $terms = wp_get_post_terms($product->get_id(), $name, 'all');
@@ -361,7 +416,7 @@ if (!class_exists('Algolia_Send_Products')) {
                 $product_type_price = self::get_product_type_price($product);
                 $sale_price = $product_type_price['sale_price'];
                 $regular_price = $product_type_price['regular_price'];
-                
+
 
 
 
@@ -373,7 +428,7 @@ if (!class_exists('Algolia_Send_Products')) {
                 /**
                  * Extract image from $product->get_image()
                  */
-                if (self::is_field_enabled("product_image")) {
+                if (self::is_basic_field_enabled("product_image")) {
                     preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
                     $record["product_image"] = array_pop($result);
                 }
@@ -386,8 +441,8 @@ if (!class_exists('Algolia_Send_Products')) {
                 $record = self::add_to_record($record, 'permalink', $product->get_permalink());
                 $record = self::add_to_record($record, 'categories', self::get_product_categories($product));
                 $record = self::add_to_record($record, 'tags', self::get_product_tags($product));
-                $record = self::add_to_record($record, 'attributes', self::get_product_attributes($product));
-            
+                $record = self::add_to_record($record, 'attributes', self::get_product_attributes($product), true);
+
 
 
                 /**
@@ -401,7 +456,7 @@ if (!class_exists('Algolia_Send_Products')) {
 
                 $records[] = $record;
             }
-            
+
             echo "<pre>";
             var_dump($records);
             echo "</pre>";
