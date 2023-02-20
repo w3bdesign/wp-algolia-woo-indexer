@@ -113,6 +113,7 @@ if (!class_exists('Algolia_Send_Products')) {
         public static function get_product_attributes($product)
         {
             $attributes = $product->get_attributes();
+            $numericRangeAttributes = ["pa_height", "pa_flowermonth"];
 
             if (!$attributes) {
                 return false;
@@ -126,16 +127,6 @@ if (!class_exists('Algolia_Send_Products')) {
                 $name = $attribute->get_name();
                 if ($attribute->is_taxonomy()) {
                     $terms = wp_get_post_terms($product->get_id(), $name, 'all');
-                    $cwtax = $terms[0]->taxonomy;
-                    $cw_object_taxonomy = get_taxonomy($cwtax);
-                    if (isset($cw_object_taxonomy->labels->singular_name)) {
-                        $tax_label = $cw_object_taxonomy->labels->singular_name;
-                    } elseif (isset($cw_object_taxonomy->label)) {
-                        $tax_label = $cw_object_taxonomy->label;
-                        if (0 === strpos($tax_label, 'Product ')) {
-                            $tax_label = substr($tax_label, 8);
-                        }
-                    }
                     $tax_terms = array();
                     foreach ($terms as $term) {
                         $single_term = esc_html($term->name);
