@@ -228,7 +228,9 @@ if (!class_exists('Algolia_Woo_Indexer')) {
         public static function algolia_woo_indexer_field_output($args)
         {
             $value = get_option(ALGOWOO_DB_OPTION . FIELD_PREFIX . $args["name"]);
-            $isChecked = (!empty($value)) ? 1 : 0; ?>
+            $isChecked = (!empty($value)) ? 1 : 0;
+        ?>
+
             <input id="<?php echo $args["label_for"] ?>" name="<?php echo $args["label_for"] ?>[checked]" type="checkbox" <?php checked(1, $isChecked); ?> />
         <?php
         }
@@ -271,7 +273,6 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          */
         public static function init()
         {
-
             /**
              * Fetch the option to see if we are going to automatically send new products
              */
@@ -380,9 +381,14 @@ if (!class_exists('Algolia_Woo_Indexer')) {
              *
              * @see https://developer.wordpress.org/reference/functions/sanitize_text_field/
              */
-            $filtered_app_id = sanitize_text_field($post_application_id['id']);
-            $filtered_api_key        = sanitize_text_field($post_api_key['key']);
-            $filtered_index_name     = sanitize_text_field($post_index_name['name']);
+            $filtered_app_id         = is_array($post_application_id) ? sanitize_text_field($post_application_id['id']) : null;
+            $filtered_api_key        = is_array($post_api_key) ? sanitize_text_field($post_api_key['key']) : null;
+            $filtered_index_name     = is_array($post_index_name) ? sanitize_text_field($post_index_name['name']) : null;
+
+            /**
+             * Sanitizing by setting the value to either 1 or 0
+             */
+            $filtered_product = (!empty($auto_send)) ? 1 : 0;
 
             /**
              * Filter the data fields checkboxes and verify that the input is an array and assigned it to an associative array
@@ -392,14 +398,10 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $filtered_fields = array();
             foreach (INDEX_FIELDS as $field) {
                 $raw_field = filter_input(INPUT_POST, 'algolia_woo_indexer_field_' . $field, FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-                $filtered_field = (!empty($raw_field)) ? 1 : 0;
-                $filtered_fields[$field] = $filtered_field;
+                if (!empty($raw_field)) {
+                    $filtered_fields[$field] = $raw_field;
+                }
             }
-
-            /**
-             * Sanitizing by setting the value to either 1 or 0
-             */
-            $filtered_product = (!empty($auto_send)) ? 1 : 0;
 
             /**
              * Values have been filtered and sanitized
