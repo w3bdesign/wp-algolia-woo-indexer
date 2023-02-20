@@ -301,13 +301,13 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 $id = 'algolia_woo_indexer_attributes_visibility_' . $state;
             ?>
 
-                <p><input id="<?php echo $id; ?>" name="algolia_woo_indexer_attributes_visibility" type="radio" value="<?php echo $state; ?>" <?php checked($state, $value); ?> /><label for="<?php echo $id; ?>"><?php echo esc_html__($state, 'algolia-woo-indexer'); ?></label></p>
+                <p><input id="<?php echo $id; ?>" name="algolia_woo_indexer_attributes_visibility[value]" type="radio" value="<?php echo $state; ?>" <?php checked($state, $value); ?> /><label for="<?php echo $id; ?>"><?php echo esc_html__($state, 'algolia-woo-indexer'); ?></label></p>
             <?php
             }
         }
 
         /**
-         * Output for attributes how to handle visibility setting
+         * Output for attributes how to handle variant setting
          *
          * @return void
          */
@@ -318,13 +318,13 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 $id = 'algolia_woo_indexer_attributes_variation_' . $state;
             ?>
 
-                <p><input id="<?php echo $id; ?>" name="algolia_woo_indexer_attributes_variation" type="radio" value="<?php echo $state; ?>" <?php checked($state, $value); ?> /><label for="<?php echo $id; ?>"><?php echo esc_html__($state, 'algolia-woo-indexer'); ?></label></p>
+                <p><input id="<?php echo $id; ?>" name="algolia_woo_indexer_attributes_variation[value]" type="radio" value="<?php echo $state; ?>" <?php checked($state, $value); ?> /><label for="<?php echo $id; ?>"><?php echo esc_html__($state, 'algolia-woo-indexer'); ?></label></p>
             <?php
             }
         }
 
         /**
-         * Output for attributes how to handle visibility setting
+         * Output for attributes list which attributes are whitelisted
          *
          * @return void
          */
@@ -333,15 +333,14 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
             $selectedIds = explode(",", $value);
             $attribute_taxonomies = wc_get_attribute_taxonomies();
-            $taxonomy_terms = array();
 
             if ($attribute_taxonomies) {
             ?>
-                <select multiple="multiple" name="algolia_woo_indexer_attributes_list[categorychoice][]">
+                <select multiple="multiple" name="algolia_woo_indexer_attributes_list[list][]" size="<?php echo count($attribute_taxonomies); ?>">
                     <?php
                     foreach ($attribute_taxonomies as $tax) {
 
-                        $id = 'algolia_woo_indexer_attributes_variation_' . $tax->attribute_id;
+                        $id = $tax->attribute_id;
                         $label = $tax->attribute_label;
                         $name = $tax->attribute_name;
                         $selected = in_array( $id, $selectedIds ) ? ' selected="selected" ' : '';
@@ -513,6 +512,10 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $post_api_key                    = filter_input(INPUT_POST, 'algolia_woo_indexer_admin_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $post_index_name                 = filter_input(INPUT_POST, 'algolia_woo_indexer_index_name', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $auto_send                       = filter_input(INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $attributes_enabled              = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_enabled', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $attributes_visibility           = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_visibility', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $attributes_variation            = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_variation', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $attributes_list                 = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_list', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 
             /**
              * Properly sanitize text fields before updating data
@@ -522,11 +525,24 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $filtered_app_id         = sanitize_text_field($post_application_id['id']);
             $filtered_api_key        = sanitize_text_field($post_api_key['key']);
             $filtered_index_name     = sanitize_text_field($post_index_name['name']);
+            $filtered_attributes_visibility     = sanitize_text_field($attributes_visibility['value']);
+            $filtered_attributes_variation     = sanitize_text_field($attributes_variation['value']);
+            
+            /**
+             * sanitize select list of id's by getting integers and them implode seperated with comma
+             */
+
+            $attributes_list_integers = [];
+            foreach($attributes_list['list'] as $id) {
+                array_push($attributes_list_integers, (int) $id);
+            }
+            $filtered_attributes_list = implode(',',$attributes_list_integers);
 
             /**
              * Sanitizing by setting the value to either 1 or 0
              */
             $filtered_product = (!empty($auto_send)) ? 1 : 0;
+            $filtered_attributes_enabled = (!empty($attributes_enabled)) ? 1 : 0;
 
             /**
              * Filter the data fields checkboxes and verify that the input is an array and assign it to an associative array
@@ -571,6 +587,40 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 update_option(
                     ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS,
                     $filtered_product
+                );
+            }
+
+            if (isset($filtered_attributes_enabled) && (!empty($filtered_attributes_enabled))) {
+                update_option(
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED,
+                    $filtered_attributes_enabled
+                );
+            }
+
+            if (isset($filtered_attributes_enabled) && (!empty($filtered_attributes_enabled))) {
+                update_option(
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED,
+                    $filtered_attributes_enabled
+                );
+            }
+
+            if (isset($filtered_attributes_visibility) && (!empty($filtered_attributes_visibility))) {
+                update_option(
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY,
+                    $filtered_attributes_visibility
+                );
+            }
+
+            if (isset($filtered_attributes_variation) && (!empty($filtered_attributes_variation))) {
+                update_option(
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION,
+                    $filtered_attributes_variation
+                );
+            }
+            if (isset($filtered_attributes_list) && (!empty($filtered_attributes_list))) {
+                update_option(
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_LIST,
+                    $filtered_attributes_list
                 );
             }
 
@@ -686,7 +736,10 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $algolia_application_id          = get_option(ALGOWOO_DB_OPTION . ALGOLIA_APP_ID);
             $algolia_api_key                 = get_option(ALGOWOO_DB_OPTION . ALGOLIA_API_KEY);
             $algolia_index_name              = get_option(ALGOWOO_DB_OPTION . INDEX_NAME);
-            $algolia_index_name              = get_option(ALGOWOO_DB_OPTION . INDEX_NAME);
+            $attributes_enabled              = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED);
+            $attributes_visibility              = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
+            $attributes_variation              = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
+            $attributes_list              = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
 
             if (empty($auto_send)) {
                 add_option(
@@ -713,6 +766,32 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 add_option(
                     ALGOWOO_DB_OPTION . INDEX_NAME,
                     'Change me'
+                );
+            }
+
+            if (empty($attributes_enabled)) {
+                add_option(
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED,
+                    0
+                );
+            }
+
+            if (empty($attributes_visibility)) {
+                add_option(
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY,
+                    ATTRIBUTES_VISIBILITY_STATES[1]
+                );
+            }
+            if (empty($attributes_variation)) {
+                add_option(
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION,
+                    ATTRIBUTES_VARIATION_STATES[0]
+                );
+            }
+            if (empty($attributes_list)) {
+                add_option(
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_LIST,
+                    ''
                 );
             }
 
