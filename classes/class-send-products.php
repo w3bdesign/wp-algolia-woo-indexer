@@ -124,6 +124,44 @@ if (!class_exists('Algolia_Send_Products')) {
         }
 
         /**
+         * Get product tags
+         *
+         * @param  mixed $product Product to check   
+         * @return array ['tag1', 'tag2', ...] simple array with associated tags
+         */
+        public static function get_product_tags($product)
+        {
+            $tags = get_the_terms($product->get_id(), 'product_tag');
+            $term_array = array();
+            foreach ($tags as $tag) {
+                $name = get_term($tag)->name;
+                array_push($term_array, $name);
+            }
+            return $term_array;
+        }
+
+        /**
+         * Get product categories
+         *
+         * @param  mixed $product Product to check   
+         * @return array ['tag1', 'tag2', ...] simple array with associated categories
+         */
+        public static function get_product_categories($product)
+        {
+            $categories = get_the_terms($product->get_id(), 'product_cat');
+            $term_array = array();
+            foreach ($categories as $category) {
+                $name = get_term($category)->name;
+                $slug = get_term($category)->slug;
+                array_push($term_array, array(
+                    "name" => $name, 
+                    "slug" => $slug
+                ));
+            }
+            return $term_array;
+        }
+
+        /**
          * Get attributes from product
          *
          * @param  mixed $product Product to check   
@@ -146,7 +184,7 @@ if (!class_exists('Algolia_Send_Products')) {
                 if ($attribute->is_taxonomy()) {
                     $terms = wp_get_post_terms($product->get_id(), $name, 'all');
                     $tax_terms = array();
-                    
+
                     // interpolate all values when found in numericRangeAttributes
                     if (array_search($name, $numericRangeAttributes, true) !== false) {
                         $integers = array();
@@ -278,6 +316,9 @@ if (!class_exists('Algolia_Send_Products')) {
                 $record['regular_price']                 = $regular_price;
                 $record['sale_price']                    = $sale_price;
                 $record['on_sale']                       = $product->is_on_sale();
+                $record['permalink']                     = $product->get_permalink();
+                $record['categories']                    = self::get_product_categories($product);
+                $record['tags']                          = self::get_product_tags($product);
                 $record['attributes']                    = self::get_product_attributes($product);
 
 
@@ -285,11 +326,11 @@ if (!class_exists('Algolia_Send_Products')) {
                  * Add stock information if stock management is on
                  */
                 $stock_data = self::get_product_stock_data($product);
-                if($stock_data) {
+                if ($stock_data) {
                     $record = array_merge($record, $stock_data);
                 }
 
-                
+
                 $records[] = $record;
             }
             wp_reset_postdata();
