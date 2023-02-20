@@ -113,7 +113,7 @@ if (!class_exists('Algolia_Send_Products')) {
         public static function get_product_attributes($product)
         {
             $rawAttributes = $product->get_attributes();
-
+            $numericRangeAttributes = ["pa_height", "pa_flowermonth"];
             if (!$rawAttributes) {
                 return false;
             }
@@ -127,12 +127,25 @@ if (!class_exists('Algolia_Send_Products')) {
                 if ($attribute->is_taxonomy()) {
                     $terms = wp_get_post_terms($product->get_id(), $name, 'all');
                     $tax_terms = array();
-                    foreach ($terms as $term) {
-                        $single_term = esc_html($term->name);
-                        array_push($tax_terms, $single_term);
+                    
+                    // interpolate all values when found in numericRangeAttributes
+                    if (array_search($name, $numericRangeAttributes, true) !== false) {
+                        $integers = array();
+                        foreach ($terms as $term) {
+                            array_push($integers, (int) $term->name);
+                        }
+                        for ($i = min($integers); $i <= max($integers); $i++) {
+                            array_push($tax_terms, $i);
+                        }
+                    } else {
+                        // strings
+                        foreach ($terms as $term) {
+                            $single_term = esc_html($term->name);
+                            array_push($tax_terms, $single_term);
+                        }
                     }
-                    $attributes[$name] = $tax_terms; 
                 }
+                $attributes[$name] = $tax_terms;
             }
             return $attributes;
         }
