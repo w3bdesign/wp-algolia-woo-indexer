@@ -112,15 +112,14 @@ if (!class_exists('Algolia_Send_Products')) {
          */
         public static function get_product_attributes($product)
         {
-            $attributes = $product->get_attributes();
-            $numericRangeAttributes = ["pa_height", "pa_flowermonth"];
+            $rawAttributes = $product->get_attributes();
 
-            if (!$attributes) {
+            if (!$rawAttributes) {
                 return false;
             }
 
-            $output = [];
-            foreach ($attributes as $attribute) {
+            $attributes = [];
+            foreach ($rawAttributes as $attribute) {
                 if ($attribute->get_variation()) {
                     continue;
                 }
@@ -132,10 +131,10 @@ if (!class_exists('Algolia_Send_Products')) {
                         $single_term = esc_html($term->name);
                         array_push($tax_terms, $single_term);
                     }
-                    $output[$name] = $tax_terms; 
+                    $attributes[$name] = $tax_terms; 
                 }
             }
-            return $output;
+            return $attributes;
         }
 
         /**
