@@ -269,7 +269,6 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $value = get_option(ALGOWOO_DB_OPTION . BASIC_FIELD_PREFIX . $args["name"]);
             $isChecked = (!empty($value)) ? 1 : 0;
         ?>
-
             <input id="<?php echo $args["label_for"] ?>" name="<?php echo $args["label_for"] ?>[checked]" type="checkbox" <?php checked(1, $isChecked); ?> />
         <?php
         }
@@ -284,7 +283,6 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED);
             $isChecked = (!empty($value)) ? 1 : 0;
         ?>
-
             <input id="algolia_woo_indexer_attributes_enabled" name="algolia_woo_indexer_attributes_enabled[checked]" type="checkbox" <?php checked(1, $isChecked); ?> />
             <?php
         }
@@ -300,7 +298,6 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             foreach (ATTRIBUTES_VISIBILITY_STATES as $state) {
                 $id = 'algolia_woo_indexer_attributes_visibility_' . $state;
             ?>
-
                 <p><input id="<?php echo $id; ?>" name="algolia_woo_indexer_attributes_visibility[value]" type="radio" value="<?php echo $state; ?>" <?php checked($state, $value); ?> /><label for="<?php echo $id; ?>"><?php echo esc_html__($state, 'algolia-woo-indexer'); ?></label></p>
             <?php
             }
@@ -317,7 +314,6 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             foreach (ATTRIBUTES_VARIATION_STATES as $state) {
                 $id = 'algolia_woo_indexer_attributes_variation_' . $state;
             ?>
-
                 <p><input id="<?php echo $id; ?>" name="algolia_woo_indexer_attributes_variation[value]" type="radio" value="<?php echo $state; ?>" <?php checked($state, $value); ?> /><label for="<?php echo $id; ?>"><?php echo esc_html__($state, 'algolia-woo-indexer'); ?></label></p>
             <?php
             }
@@ -343,7 +339,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                         $id = $tax->attribute_id;
                         $label = $tax->attribute_label;
                         $name = $tax->attribute_name;
-                        $selected = in_array( $id, $selectedIds ) ? ' selected="selected" ' : '';
+                        $selected = in_array($id, $selectedIds) ? ' selected="selected" ' : '';
                     ?>
                         <option value="<?php echo $id; ?>" <?php echo $selected; ?>>
                             <?php echo $label . ' (' . $name . ')'; ?>
@@ -527,16 +523,16 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $filtered_index_name     = sanitize_text_field($post_index_name['name']);
             $filtered_attributes_visibility     = sanitize_text_field($attributes_visibility['value']);
             $filtered_attributes_variation     = sanitize_text_field($attributes_variation['value']);
-            
+
             /**
              * sanitize select list of id's by getting integers and them implode seperated with comma
              */
 
             $attributes_list_integers = [];
-            foreach($attributes_list['list'] as $id) {
+            foreach ($attributes_list['list'] as $id) {
                 array_push($attributes_list_integers, (int) $id);
             }
-            $filtered_attributes_list = implode(',',$attributes_list_integers);
+            $filtered_attributes_list = implode(',', $attributes_list_integers);
 
             /**
              * Sanitizing by setting the value to either 1 or 0
@@ -583,21 +579,14 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 );
             }
 
-            if (isset($filtered_product) && (!empty($filtered_product))) {
+            if (isset($filtered_product)) {
                 update_option(
                     ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS,
                     $filtered_product
                 );
             }
 
-            if (isset($filtered_attributes_enabled) && (!empty($filtered_attributes_enabled))) {
-                update_option(
-                    ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED,
-                    $filtered_attributes_enabled
-                );
-            }
-
-            if (isset($filtered_attributes_enabled) && (!empty($filtered_attributes_enabled))) {
+            if (isset($filtered_attributes_enabled)) {
                 update_option(
                     ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED,
                     $filtered_attributes_enabled
@@ -617,6 +606,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                     $filtered_attributes_variation
                 );
             }
+
             if (isset($filtered_attributes_list) && (!empty($filtered_attributes_list))) {
                 update_option(
                     ALGOWOO_DB_OPTION . ATTRIBUTES_LIST,
@@ -737,9 +727,9 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $algolia_api_key                 = get_option(ALGOWOO_DB_OPTION . ALGOLIA_API_KEY);
             $algolia_index_name              = get_option(ALGOWOO_DB_OPTION . INDEX_NAME);
             $attributes_enabled              = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED);
-            $attributes_visibility              = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
-            $attributes_variation              = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
-            $attributes_list              = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
+            $attributes_visibility           = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
+            $attributes_variation            = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
+            $attributes_list                 = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
 
             if (empty($auto_send)) {
                 add_option(
