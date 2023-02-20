@@ -133,18 +133,18 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 );
 
                 /**
-                 * Add sections and fields for the data fields
+                 * Add sections and fields for the basic fields
                  */
                 add_settings_section(
                     'algolia_woo_indexer_fields',
-                    esc_html__('Fields to be indexed', 'algolia-woo-indexer'),
+                    esc_html__('Fields indexing settings', 'algolia-woo-indexer'),
                     array($algowooindexer, 'algolia_woo_indexer_fields_section_text'),
                     'algolia_woo_indexer'
                 );
-                foreach (INDEX_FIELDS as $field) {
+                foreach (BASIC_FIELDS as $field) {
                     add_settings_field(
                         'algolia_woo_indexer_field_' . $field,
-                        esc_html__('Field ' . $field, 'algolia-woo-indexer'),
+                        esc_html__($field, 'algolia-woo-indexer'),
                         array($algowooindexer, 'algolia_woo_indexer_field_output'),
                         'algolia_woo_indexer',
                         'algolia_woo_indexer_fields',
@@ -154,6 +154,45 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                         )
                     );
                 }
+
+                /**
+                 * Add sections and fields for the attributes
+                 */
+                add_settings_section(
+                    'algolia_woo_indexer_attributes',
+                    esc_html__('Attributes indexing settings', 'algolia-woo-indexer'),
+                    array($algowooindexer, 'algolia_woo_indexer_attributes_section_text'),
+                    'algolia_woo_indexer'
+                );
+                add_settings_field(
+                    'algolia_woo_indexer_attributes_enabled',
+                    esc_html__('Enable indexing of attributes', 'algolia-woo-indexer'),
+                    array($algowooindexer, 'algolia_woo_indexer_attributes_enabled_output'),
+                    'algolia_woo_indexer',
+                    'algolia_woo_indexer_attributes'
+                );
+                add_settings_field(
+                    'algolia_woo_indexer_attributes_visibility',
+                    esc_html__('Visibility', 'algolia-woo-indexer'),
+                    array($algowooindexer, 'algolia_woo_indexer_attributes_visibility_output'),
+                    'algolia_woo_indexer',
+                    'algolia_woo_indexer_attributes'
+                );
+
+                add_settings_field(
+                    'algolia_woo_indexer_attributes_variation',
+                    esc_html__('Used for variations', 'algolia-woo-indexer'),
+                    array($algowooindexer, 'algolia_woo_indexer_attributes_variation_output'),
+                    'algolia_woo_indexer',
+                    'algolia_woo_indexer_attributes'
+                );
+                add_settings_field(
+                    'algolia_woo_indexer_attributes_list',
+                    esc_html__('Valid Attributes', 'algolia-woo-indexer'),
+                    array($algowooindexer, 'algolia_woo_indexer_attributes_list_output'),
+                    'algolia_woo_indexer',
+                    'algolia_woo_indexer_attributes'
+                );
             }
         }
 
@@ -227,12 +266,95 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          */
         public static function algolia_woo_indexer_field_output($args)
         {
-            $value = get_option(ALGOWOO_DB_OPTION . FIELD_PREFIX . $args["name"]);
+            $value = get_option(ALGOWOO_DB_OPTION . BASIC_FIELD_PREFIX . $args["name"]);
             $isChecked = (!empty($value)) ? 1 : 0;
         ?>
 
             <input id="<?php echo $args["label_for"] ?>" name="<?php echo $args["label_for"] ?>[checked]" type="checkbox" <?php checked(1, $isChecked); ?> />
         <?php
+        }
+
+        /**
+         * Output for attributes if functionality is enabled
+         *
+         * @return void
+         */
+        public static function algolia_woo_indexer_attributes_enabled_output($args)
+        {
+            $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED);
+            $isChecked = (!empty($value)) ? 1 : 0;
+        ?>
+
+            <input id="algolia_woo_indexer_attributes_enabled" name="algolia_woo_indexer_attributes_enabled[checked]" type="checkbox" <?php checked(1, $isChecked); ?> />
+            <?php
+        }
+
+        /**
+         * Output for attributes how to handle visibility setting
+         *
+         * @return void
+         */
+        public static function algolia_woo_indexer_attributes_visibility_output($args)
+        {
+            $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
+            foreach (ATTRIBUTES_VISIBILITY_STATES as $state) {
+                $id = 'algolia_woo_indexer_attributes_visibility_' . $state;
+            ?>
+
+                <p><input id="<?php echo $id; ?>" name="algolia_woo_indexer_attributes_visibility" type="radio" value="<?php echo $state; ?>" <?php checked($state, $value); ?> /><label for="<?php echo $id; ?>"><?php echo esc_html__($state, 'algolia-woo-indexer'); ?></label></p>
+            <?php
+            }
+        }
+
+        /**
+         * Output for attributes how to handle visibility setting
+         *
+         * @return void
+         */
+        public static function algolia_woo_indexer_attributes_variation_output($args)
+        {
+            $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
+            foreach (ATTRIBUTES_VARIATION_STATES as $state) {
+                $id = 'algolia_woo_indexer_attributes_variation_' . $state;
+            ?>
+
+                <p><input id="<?php echo $id; ?>" name="algolia_woo_indexer_attributes_variation" type="radio" value="<?php echo $state; ?>" <?php checked($state, $value); ?> /><label for="<?php echo $id; ?>"><?php echo esc_html__($state, 'algolia-woo-indexer'); ?></label></p>
+            <?php
+            }
+        }
+
+        /**
+         * Output for attributes how to handle visibility setting
+         *
+         * @return void
+         */
+        public static function algolia_woo_indexer_attributes_list_output($args)
+        {
+            $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
+            $selectedIds = explode(",", $value);
+            $attribute_taxonomies = wc_get_attribute_taxonomies();
+            $taxonomy_terms = array();
+
+            if ($attribute_taxonomies) {
+            ?>
+                <select multiple="multiple" name="algolia_woo_indexer_attributes_list[categorychoice][]">
+                    <?php
+                    foreach ($attribute_taxonomies as $tax) {
+
+                        $id = 'algolia_woo_indexer_attributes_variation_' . $tax->attribute_id;
+                        $label = $tax->attribute_label;
+                        $name = $tax->attribute_name;
+                        $selected = in_array( $id, $selectedIds ) ? ' selected="selected" ' : '';
+                    ?>
+                        <option value="<?php echo $id; ?>" <?php echo $selected; ?>>
+                            <?php echo $label . ' (' . $name . ')'; ?>
+                        </option>
+                    <?php
+                    }
+                    ?>
+                </select>
+            <?php
+            }
         }
 
         /**
@@ -242,16 +364,27 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          */
         public static function algolia_woo_indexer_section_text()
         {
-            echo esc_html__('Enter your settings here', 'algolia-woo-indexer');
+            echo esc_html__('Enter your API settings here.', 'algolia-woo-indexer');
         }
+
         /**
-         * Section text for fields settings section text
+         * Section text for basic fields settings section text
          *
          * @return void
          */
         public static function algolia_woo_indexer_fields_section_text()
         {
-            echo esc_html__('Choose which fields shall be sent to Algolia.', 'algolia-woo-indexer');
+            echo esc_html__('Choose which basic fields shall be indexed.', 'algolia-woo-indexer');
+        }
+
+        /**
+         * Section text for attributes settings section text
+         *
+         * @return void
+         */
+        public static function algolia_woo_indexer_attributes_section_text()
+        {
+            echo esc_html__('Control if and how the attributes shall be indexed.', 'algolia-woo-indexer');
         }
 
         /**
@@ -401,7 +534,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
              * @see https://www.php.net/manual/en/function.filter-input.php
              */
             $filtered_fields = array();
-            foreach (INDEX_FIELDS as $field) {
+            foreach (BASIC_FIELDS as $field) {
                 $raw_field = filter_input(INPUT_POST, 'algolia_woo_indexer_field_' . $field, FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
                 $filtered_field = (!empty($raw_field)) ? 1 : 0;
                 $filtered_fields[$field] = $filtered_field;
@@ -444,7 +577,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             if (isset($filtered_fields) && (!empty($filtered_fields))) {
                 foreach ($filtered_fields as $key => $value) {
                     update_option(
-                        ALGOWOO_DB_OPTION . FIELD_PREFIX . $key,
+                        ALGOWOO_DB_OPTION . BASIC_FIELD_PREFIX . $key,
                         $value
                     );
                 }
@@ -586,11 +719,11 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             /**
              * Set default values for index fields if not already set
              */
-            foreach (INDEX_FIELDS as $field) {
-                $value = get_option(ALGOWOO_DB_OPTION . FIELD_PREFIX . $field);
+            foreach (BASIC_FIELDS as $field) {
+                $value = get_option(ALGOWOO_DB_OPTION . BASIC_FIELD_PREFIX . $field);
                 if (empty($value)) {
                     update_option(
-                        ALGOWOO_DB_OPTION . FIELD_PREFIX . $field,
+                        ALGOWOO_DB_OPTION . BASIC_FIELD_PREFIX . $field,
                         '1'
                     );
                 }

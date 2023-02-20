@@ -39,7 +39,7 @@ define('CHANGE_ME', 'change me');
 /**
  * Define list of fields available to index
  */
-define('INDEX_FIELDS', array(
+define('BASIC_FIELDS', array(
     'permalink', 
     'tags', 
     'categories', 
@@ -59,9 +59,20 @@ define('INDEX_FIELDS', array(
  */
 define('INDEX_NAME', '_index_name');
 define('AUTOMATICALLY_SEND_NEW_PRODUCTS', '_automatically_send_new_products');
-define('FIELD_PREFIX', '_field_');
+define('BASIC_FIELD_PREFIX', '_field_');
 define('ALGOLIA_APP_ID', '_application_id');
 define('ALGOLIA_API_KEY', '_admin_api_key');
+
+/**
+ * constants for attributes
+ */
+define('ATTRIBUTES_ENABLED', '_attributes_enabled');
+define('ATTRIBUTES_VISIBILITY', '_attributes_visibility');
+define('ATTRIBUTES_VISIBILITY_STATES', array('both', 'visible', 'hidden'));
+define('ATTRIBUTES_VARIATION', '_attributes_variation');
+define('ATTRIBUTES_VARIATION_STATES', array('both', 'used', 'notused'));
+define('ATTRIBUTES_LIST', '_attributes_list');
+
 
 if (!class_exists('Algolia_Send_Products')) {
     /**
@@ -103,12 +114,12 @@ if (!class_exists('Algolia_Send_Products')) {
         /**
          * check if the field is enabled and shall be sent
          *
-         * @param  mixed $field name of field to be checked according to INDEX_FIELDS 
+         * @param  mixed $field name of field to be checked according to BASIC_FIELDS 
          * @return boolean true if enable, false is not enabled
          */
         public static function is_field_enabled($field)
         {
-            $fieldValue = get_option(ALGOWOO_DB_OPTION . FIELD_PREFIX . $field);
+            $fieldValue = get_option(ALGOWOO_DB_OPTION . BASIC_FIELD_PREFIX . $field);
             return $fieldValue;
         }
 
@@ -116,7 +127,7 @@ if (!class_exists('Algolia_Send_Products')) {
          * helper function to add a field to a record while checking their state
          *
          * @param  array $record existing record where the field and value shall be added to 
-         * @param  string $field name of field to be checked according to INDEX_FIELDS 
+         * @param  string $field name of field to be checked according to BASIC_FIELDS 
          * @param  mixed $value data to be added to the record array named to $field
          * @return array $record previous passed $record with added field data
          */
