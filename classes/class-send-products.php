@@ -48,7 +48,6 @@ if (!class_exists('Algolia_Send_Products')) {
     /**
      * Algolia WooIndexer main class
      */
-    
     // TODO Rename class "Algolia_Send_Products" to match the regular expression ^[A-Z][a-zA-Z0-9]*$.
     class Algolia_Send_Products
     {
@@ -103,6 +102,49 @@ if (!class_exists('Algolia_Send_Products')) {
                 'sale_price' => $sale_price,
                 'regular_price' => $regular_price
             );
+        }
+
+        /**
+         * Get attributes from product
+         *
+         * @param  mixed $product Product to check   
+         * @return array ['pa_name' => ['value1', 'value2']] Array with key set to the product attribute internal name and values as array. returns false if not attributes found.
+         */
+        public static function get_product_attributes($product)
+        {
+            $attributes = $product->get_attributes();
+
+            if (!$attributes) {
+                return false;
+            }
+
+            $output = [];
+            foreach ($attributes as $attribute) {
+                if ($attribute->get_variation()) {
+                    continue;
+                }
+                $name = $attribute->get_name();
+                if ($attribute->is_taxonomy()) {
+                    $terms = wp_get_post_terms($product->get_id(), $name, 'all');
+                    $cwtax = $terms[0]->taxonomy;
+                    $cw_object_taxonomy = get_taxonomy($cwtax);
+                    if (isset($cw_object_taxonomy->labels->singular_name)) {
+                        $tax_label = $cw_object_taxonomy->labels->singular_name;
+                    } elseif (isset($cw_object_taxonomy->label)) {
+                        $tax_label = $cw_object_taxonomy->label;
+                        if (0 === strpos($tax_label, 'Product ')) {
+                            $tax_label = substr($tax_label, 8);
+                        }
+                    }
+                    $tax_terms = array();
+                    foreach ($terms as $term) {
+                        $single_term = esc_html($term->name);
+                        array_push($tax_terms, $single_term);
+                    }
+                    $output[$name] = $tax_terms; 
+                }
+            }
+            return $output;
         }
 
         /**
@@ -197,13 +239,14 @@ if (!class_exists('Algolia_Send_Products')) {
                  */
                 $product_type_price = self::get_product_type_price($product);
                 $sale_price = $product_type_price['sale_price'];
-                $regular_price = $product_type_price['regular_price']; 
+                $regular_price = $product_type_price['regular_price'];
 
                 /**
                  * Extract image from $product->get_image()
                  */
                 preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
                 $product_image = array_pop($result);
+
                 /**
                  * Build the record array using the information from the WooCommerce product
                  */
@@ -214,6 +257,7 @@ if (!class_exists('Algolia_Send_Products')) {
                 $record['regular_price']                 = $regular_price;
                 $record['sale_price']                    = $sale_price;
                 $record['on_sale']                       = $product->is_on_sale();
+                $record['attributes']                    = self::get_product_attributes($product);
                 $records[] = $record;
             }
             wp_reset_postdata();
