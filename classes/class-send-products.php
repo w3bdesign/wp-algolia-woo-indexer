@@ -48,7 +48,6 @@ if (!class_exists('Algolia_Send_Products')) {
     /**
      * Algolia WooIndexer main class
      */
-
     // TODO Rename class "Algolia_Send_Products" to match the regular expression ^[A-Z][a-zA-Z0-9]*$.
     class Algolia_Send_Products
     {
@@ -104,7 +103,6 @@ if (!class_exists('Algolia_Send_Products')) {
                 'regular_price' => $regular_price
             );
         }
-
 
         /**
          * Get attributes from product
@@ -248,8 +246,6 @@ if (!class_exists('Algolia_Send_Products')) {
                  */
                 preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
                 $product_image = array_pop($result);
-
-
 
                 /**
                  * Build the record array using the information from the WooCommerce product
