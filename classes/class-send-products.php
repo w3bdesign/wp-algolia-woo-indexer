@@ -37,10 +37,16 @@ define('ALGOWOO_CURRENT_DB_VERSION', '0.3');
 define('CHANGE_ME', 'change me');
 
 /**
+ * Define list of fields available to index
+ */
+define('INDEX_FIELDS', ['permalink', 'tags', 'categories', 'short_description', 'product_name', 'product_image', 'regular_price', 'sale_price', 'on_sale', 'attributes']);
+
+/**
  * Database table names
  */
 define('INDEX_NAME', '_index_name');
 define('AUTOMATICALLY_SEND_NEW_PRODUCTS', '_automatically_send_new_products');
+define('FIELD_PREFIX', '_field_');
 define('ALGOLIA_APP_ID', '_application_id');
 define('ALGOLIA_API_KEY', '_admin_api_key');
 
@@ -133,9 +139,11 @@ if (!class_exists('Algolia_Send_Products')) {
         {
             $tags = get_the_terms($product->get_id(), 'product_tag');
             $term_array = array();
-            foreach ($tags as $tag) {
-                $name = get_term($tag)->name;
-                array_push($term_array, $name);
+            if (is_array($tags)) {
+                foreach ($tags as $tag) {
+                    $name = get_term($tag)->name;
+                    array_push($term_array, $name);
+                }
             }
             return $term_array;
         }
@@ -154,7 +162,7 @@ if (!class_exists('Algolia_Send_Products')) {
                 $name = get_term($category)->name;
                 $slug = get_term($category)->slug;
                 array_push($term_array, array(
-                    "name" => $name, 
+                    "name" => $name,
                     "slug" => $slug
                 ));
             }
