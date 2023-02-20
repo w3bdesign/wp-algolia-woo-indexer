@@ -104,6 +104,25 @@ if (!class_exists('Algolia_Send_Products')) {
             );
         }
 
+
+        /**
+         * Checks if stock management is enabled and if so, returns quantity and status
+         *
+         * @param  mixed $product Product to check   
+         * @return array ['stock_quantity' => $stock_quantity,'stock_status' => $stock_status] Array with quantity and status. if stock management is disabled, false will be returned,
+         */
+        public static function get_product_stock_data($product)
+        {
+            if ($product->get_manage_stock()) {
+                return array(
+                    'stock_quantity' => $product->get_stock_quantity(),
+                    'stock_status' => $product->get_stock_status()
+                );
+            } else {
+                return false;
+            }
+        }
+
         /**
          * Get attributes from product
          *
@@ -230,7 +249,6 @@ if (!class_exists('Algolia_Send_Products')) {
                 $product_type_price = self::get_product_type_price($product);
                 $sale_price = $product_type_price['sale_price'];
                 $regular_price = $product_type_price['regular_price'];
-
                 /**
                  * Extract image from $product->get_image()
                  */
@@ -248,6 +266,17 @@ if (!class_exists('Algolia_Send_Products')) {
                 $record['sale_price']                    = $sale_price;
                 $record['on_sale']                       = $product->is_on_sale();
                 $record['attributes']                    = self::get_product_attributes($product);
+
+
+                /**
+                 * Add stock information if stock management is on
+                 */
+                $stock_data = self::get_product_stock_data($product);
+                if($stock_data) {
+                    $record = array_merge($record, $stock_data);
+                }
+
+                
                 $records[] = $record;
             }
             wp_reset_postdata();
