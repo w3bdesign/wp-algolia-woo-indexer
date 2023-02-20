@@ -357,7 +357,12 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          */
         public static function update_settings_options()
         {
-            Algolia_Verify_Nonces::verify_settings_nonce();
+            /**
+             * Do not proceed if nonce for settings is not set
+             */
+            if (false === Algolia_Verify_Nonces::verify_settings_nonce()) {
+                return;
+            }
 
             /**
              * Do not proceed if we are going to send products
@@ -381,9 +386,9 @@ if (!class_exists('Algolia_Woo_Indexer')) {
              *
              * @see https://developer.wordpress.org/reference/functions/sanitize_text_field/
              */
-            $filtered_app_id         = is_array($post_application_id) ? sanitize_text_field($post_application_id['id']) : null;
-            $filtered_api_key        = is_array($post_api_key) ? sanitize_text_field($post_api_key['key']) : null;
-            $filtered_index_name     = is_array($post_index_name) ? sanitize_text_field($post_index_name['name']) : null;
+            $filtered_app_id         = sanitize_text_field($post_application_id['id']);
+            $filtered_api_key        = sanitize_text_field($post_api_key['key']);
+            $filtered_index_name     = sanitize_text_field($post_index_name['name']);
 
             /**
              * Sanitizing by setting the value to either 1 or 0
@@ -391,16 +396,15 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $filtered_product = (!empty($auto_send)) ? 1 : 0;
 
             /**
-             * Filter the data fields checkboxes and verify that the input is an array and assigned it to an associative array
+             * Filter the data fields checkboxes and verify that the input is an array and assign it to an associative array
              *
              * @see https://www.php.net/manual/en/function.filter-input.php
              */
             $filtered_fields = array();
             foreach (INDEX_FIELDS as $field) {
                 $raw_field = filter_input(INPUT_POST, 'algolia_woo_indexer_field_' . $field, FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-                if (!empty($raw_field)) {
-                    $filtered_fields[$field] = $raw_field;
-                }
+                $filtered_field = (!empty($raw_field)) ? 1 : 0;
+                $filtered_fields[$field] = $filtered_field;
             }
 
             /**
