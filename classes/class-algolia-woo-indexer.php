@@ -124,13 +124,6 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                     'algolia_woo_indexer',
                     'algolia_woo_indexer_main'
                 );
-                add_settings_field(
-                    'algolia_woo_indexer_automatically_send_new_products',
-                    esc_html__('Automatically index new products', 'algolia-woo-indexer'),
-                    array($algowooindexer, 'algolia_woo_indexer_automatically_send_new_products_output'),
-                    'algolia_woo_indexer',
-                    'algolia_woo_indexer_main'
-                );
 
                 /**
                  * Add sections and fields for the basic fields
@@ -271,7 +264,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          *
          * @return void
          */
-        public static function algolia_woo_indexer_field_output($args)
+        public static function algolia_woo_indexer_field_output()
         {
             $value = get_option(ALGOWOO_DB_OPTION . BASIC_FIELD_PREFIX . $args["name"]);
             $isChecked = (!empty($value)) ? 1 : 0;
@@ -285,7 +278,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          *
          * @return void
          */
-        public static function algolia_woo_indexer_attributes_enabled_output($args)
+        public static function algolia_woo_indexer_attributes_enabled_output()
         {
             $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED);
             $isChecked = (!empty($value)) ? 1 : 0;
@@ -299,7 +292,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          *
          * @return void
          */
-        public static function algolia_woo_indexer_attributes_visibility_output($args)
+        public static function algolia_woo_indexer_attributes_visibility_output()
         {
             $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
             foreach (ATTRIBUTES_VISIBILITY_STATES as $state) {
@@ -315,7 +308,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          *
          * @return void
          */
-        public static function algolia_woo_indexer_attributes_variation_output($args)
+        public static function algolia_woo_indexer_attributes_variation_output()
         {
             $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
             foreach (ATTRIBUTES_VARIATION_STATES as $state) {
@@ -331,7 +324,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          *
          * @return void
          */
-        public static function algolia_woo_indexer_attributes_list_output($args)
+        public static function algolia_woo_indexer_attributes_list_output()
         {
             $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
             $selectedIds = explode(",", $value);
@@ -345,7 +338,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          *
          * @return void
          */
-        public static function algolia_woo_indexer_attributes_list_interpolate_output($args)
+        public static function algolia_woo_indexer_attributes_list_interpolate_output()
         {
             $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE);
             $selectedIds = explode(",", $value);
@@ -571,11 +564,11 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 array_push($attributes_list_integers, (int) $id);
             }
             $filtered_attributes_list = implode(',', $attributes_list_integers);
-            $attributes_list_interpolate_integers = [];
+            $attributes_list_interp_int = [];
             foreach ($attributes_list_interpolate['list'] as $id) {
-                array_push($attributes_list_interpolate_integers, (int) $id);
+                array_push($attributes_list_interp_int, (int) $id);
             }
-            $filtered_attributes_list_interpolate = implode(',', $attributes_list_interpolate_integers);
+            $clean_attributes_list_interp = implode(',', $attributes_list_interp_int);
 
             /**
              * Sanitizing by setting the value to either 1 or 0
@@ -657,10 +650,10 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 );
             }
 
-            if (isset($filtered_attributes_list_interpolate) && (!empty($filtered_attributes_list_interpolate))) {
+            if (isset($clean_attributes_list_interp) && (!empty($clean_attributes_list_interp))) {
                 update_option(
                     ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE,
-                    $filtered_attributes_list_interpolate
+                    $clean_attributes_list_interp
                 );
             }
 
