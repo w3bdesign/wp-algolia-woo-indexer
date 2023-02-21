@@ -10,6 +10,7 @@
 namespace Algowoo;
 
 use \Algowoo\Algolia_Check_Requirements as Algolia_Check_Requirements;
+use \Algowoo\Algolia_Attributes as Algolia_Attributes;
 
 /**
  * Abort if this file is called directly
@@ -63,36 +64,8 @@ define('AUTOMATICALLY_SEND_NEW_PRODUCTS', '_automatically_send_new_products');
 define('BASIC_FIELD_PREFIX', '_field_');
 define('ALGOLIA_APP_ID', '_application_id');
 define('ALGOLIA_API_KEY', '_admin_api_key');
-
-/**
- * constants for attributes
- */
-define('ATTRIBUTES_SETTINGS', array(
-    'enabled' => 'Enable indexing of attributes',
-    'visibility' => 'Visibility',
-    'variation' => 'Used for variations',
-    'list' => 'Valid Attributes',
-    'interp' => 'Numeric Interpolation',
-    'tax_fields' => 'Content of each attribute term'
-));
 define('CUSTOM_FIELDS', '_custom_fields');
-define('ATTRIBUTES_ENABLED', '_attributes_enabled');
-define('ATTRIBUTES_VISIBILITY', '_attributes_visibility');
-define('ATTRIBUTES_VISIBILITY_STATES', array('all', 'visible', 'hidden'));
-define('ATTRIBUTES_VARIATION', '_attributes_variation');
-define('ATTRIBUTES_VARIATION_STATES', array('all', 'used', 'notused'));
-define('ATTRIBUTES_LIST', '_attributes_list');
-define('ATTRIBUTES_INTERP', '_attributes_interp');
-define('ATTRIBUTES_TAX_FIELDS', '_attributes_tax_fields');
-define('ALLOWED_TAXONOMIES', array(
-    'term_id',
-    'name',
-    'slug',
-    'term_group',
-    'description',
-    'count',
-    'filter'
-));
+
 
 if (!class_exists('Algolia_Send_Products')) {
     /**
@@ -266,108 +239,6 @@ if (!class_exists('Algolia_Send_Products')) {
             return $term_array;
         }
 
-        /**
-         * Get attributes from product
-         *
-         * @param  mixed $attribute woocommerce attribute taxonomy
-         * @return array Array with fields set in config as defined in ATTRIBUTEX_TAX_FIELDS.
-         */
-        public static function format_product_attribute_terms($terms, $interpolateValues)
-        {
-            $allowed_keys_raw = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_TAX_FIELDS);
-            $allowed_keys = explode(',', $allowed_keys_raw);
-            $final_terms = array();
-           
-            switch ($interpolateValues) {
-                case true:
-                    $integers = array();
-                    foreach ($terms as $term) {
-                        array_push($integers, (int) $term->name);
-                    }
-                    if (count($integers) > 0) {
-                        for ($i = min($integers); $i <= max($integers); $i++) {
-                            array_push($final_terms, $i);
-                        }
-                    }
-                    break;
-                    /**
-                     * normal mixed content case 
-                     */
-                default:
-                    foreach ($terms as $term) {
-                        $final_term = array();
-                        foreach ($allowed_keys as $key) {
-                            $final_term[$key] = esc_html($term->{$key});
-                        }
-                        array_push($final_terms, $final_term);
-                    }
-            }
-            return $final_terms;
-        }
-        /**
-         * Get attributes from product
-         *
-         * @param  mixed $product Product to check   
-         * @return array ['pa_name' => ['value1', 'value2']] Array with key set to the product attribute internal name and values as array. returns false if not attributes found.
-         */
-        public static function get_product_attributes($product)
-        {
-            /**
-             * ensure that attrobutes are actually enabled
-             */
-            $attributes_enabled = (int) get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED);
-            if ($attributes_enabled !== 1) {
-                return false;
-            }
-
-            /**
-             * gather data and settings
-             */
-            $rawAttributes = $product->get_attributes("edit");
-            $setting_visibility = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
-            $setting_variation = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
-            $setting_ids = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
-            $setting_ids = explode(",", $setting_ids);
-            $setting_ids_interp = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_INTERP);
-            $setting_ids_interp = explode(",", $setting_ids_interp);
-
-            if (!$rawAttributes) {
-                return false;
-            }
-
-            $attributes = [];
-            foreach ($rawAttributes as $attribute) {
-
-                $visibility = $attribute["visible"];
-                $variation = $attribute["variation"];
-                $id = $attribute->get_id();
-                /**
-                 * skip variable related attributes,
-                 * ensure that taxonomy is whitelisted and
-                 * ensure that the visibility and variation is respected
-                 */
-                if (
-                    $attribute->get_variation() ||
-                    !in_array($id, $setting_ids) ||
-                    ($setting_visibility ===  "visible" && $visibility === false) ||
-                    ($setting_visibility ===  "hidden" && $visibility === true) ||
-                    ($setting_variation ===  "used" && $variation === false) ||
-                    ($setting_variation ===  "notused" && $variation === true)
-                ) {
-                    continue;
-                }
-
-
-                $name = $attribute->get_name();
-                if ($attribute->is_taxonomy()) {
-                    $terms = wp_get_post_terms($product->get_id(), $name, 'all');
-                    $is_interpolation = in_array($id, $setting_ids_interp);
-                    $attributes[$name] = self::format_product_attribute_terms($terms, $is_interpolation);
-                }
-                
-            }
-            return $attributes;
-        }
 
         /**
          * Send WooCommerce products to Algolia
@@ -489,7 +360,7 @@ if (!class_exists('Algolia_Send_Products')) {
                 $record = self::add_to_record($record, 'permalink', $product->get_permalink());
                 $record = self::add_to_record($record, 'categories', self::get_product_categories($product));
                 $record = self::add_to_record($record, 'tags', self::get_product_tags($product));
-                $record = self::add_to_record($record, 'attributes', self::get_product_attributes($product), true);
+                $record = self::add_to_record($record, 'attributes', Algolia_Attributes::get_product_attributes($product), true);
 
                 /**
                  * get custom fields and merge
