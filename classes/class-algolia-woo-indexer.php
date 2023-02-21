@@ -516,18 +516,19 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $attributes_visibility           = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_visibility', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_variation            = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_variation', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_list                 = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_list', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-            $attributes_interp     = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_interp', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $attributes_interp               = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_interp', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 
             /**
              * Properly sanitize text fields before updating data
              *
              * @see https://developer.wordpress.org/reference/functions/sanitize_text_field/
              */
-            $filtered_app_id         = sanitize_text_field($post_application_id['id']);
-            $filtered_api_key        = sanitize_text_field($post_api_key['key']);
-            $filtered_index_name     = sanitize_text_field($post_index_name['name']);
-            $filtered_attributes_visibility     = sanitize_text_field($attributes_visibility['value']);
-            $filtered_attributes_variation     = sanitize_text_field($attributes_variation['value']);
+            $sanitized = array();
+            $sanitized['app_id']                    = sanitize_text_field($post_application_id['id']);
+            $sanitized['api_key']                   = sanitize_text_field($post_api_key['key']);
+            $sanitized['index_name']                = sanitize_text_field($post_index_name['name']);
+            $sanitized['attributes_visibility']     = sanitize_text_field($attributes_visibility['value']);
+            $sanitized['attributes_variation']      = sanitize_text_field($attributes_variation['value']);
 
             /**
              * sanitize select list of id's by getting integers and them implode seperated with comma
@@ -537,29 +538,29 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             foreach ($attributes_list['list'] as $id) {
                 array_push($attributes_list_integers, (int) $id);
             }
-            $filtered_attributes_list = implode(',', $attributes_list_integers);
-            $attributes_list_interp_int = [];
+            $sanitized['attributes_list'] = implode(',', $attributes_list_integers);
+            $attributes_interp_int = [];
             foreach ($attributes_interp['list'] as $id) {
-                array_push($attributes_list_interp_int, (int) $id);
+                array_push($attributes_interp_int, (int) $id);
             }
-            $filtered_attributes_interp = implode(',', $attributes_list_interp_int);
+            $sanitized['attributes_interp'] = implode(',', $attributes_interp_int);
 
             /**
              * Sanitizing by setting the value to either 1 or 0
              */
-            $filtered_product = (!empty($auto_send)) ? 1 : 0;
-            $filtered_attributes_enabled = (!empty($attributes_enabled)) ? 1 : 0;
+            $sanitized['product'] = (!empty($auto_send)) ? 1 : 0;
+            $sanitized['attributes_enabled'] = (!empty($attributes_enabled)) ? 1 : 0;
 
             /**
              * Filter the data fields checkboxes and verify that the input is an array and assign it to an associative array
              *
              * @see https://www.php.net/manual/en/function.filter-input.php
              */
-            $filtered_fields = array();
+            $sanitized['fields'] = array();
             foreach (BASIC_FIELDS as $field) {
                 $raw_field = filter_input(INPUT_POST, 'algolia_woo_indexer_field_' . $field, FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
                 $filtered_field = (!empty($raw_field)) ? 1 : 0;
-                $filtered_fields[$field] = $filtered_field;
+                $sanitized['fields'][$field] = $filtered_field;
             }
 
             /**
@@ -568,36 +569,36 @@ if (!class_exists('Algolia_Woo_Indexer')) {
              *
              * @see https://developer.wordpress.org/reference/functions/update_option/
              */
-            if (isset($filtered_app_id) && (!empty($filtered_app_id))) {
+            if (isset($sanitized['app_id']) && (!empty($sanitized['app_id']))) {
                 update_option(
                     ALGOWOO_DB_OPTION . ALGOLIA_APP_ID,
-                    $filtered_app_id
+                    $sanitized['app_id']
                 );
             }
 
-            if (isset($filtered_api_key) && (!empty($filtered_api_key))) {
+            if (isset($sanitized['api_key']) && (!empty($sanitized['api_key']))) {
                 update_option(
                     ALGOWOO_DB_OPTION . ALGOLIA_API_KEY,
-                    $filtered_api_key
+                    $sanitized['api_key']
                 );
             }
 
-            if (isset($filtered_index_name) && (!empty($filtered_index_name))) {
+            if (isset($sanitized['index_name']) && (!empty($sanitized['index_name']))) {
                 update_option(
                     ALGOWOO_DB_OPTION . INDEX_NAME,
-                    $filtered_index_name
+                    $sanitized['index_name']
                 );
             }
 
-            if (isset($filtered_product)) {
+            if (isset($sanitized['product'])) {
                 update_option(
                     ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS,
-                    $filtered_product
+                    $sanitized['product']
                 );
             }
 
             foreach (array_keys(ATTRIBUTES_SETTINGS) as $key) {
-                $value = ${'filtered_attributes_' . $key};
+                $value = $sanitized['attributes_'.$key];
                 if (isset($value)) {
                     $extension = constant('ATTRIBUTES_' . strtoupper($key));
                     update_option(
@@ -607,8 +608,8 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 }
             }
 
-            if (isset($filtered_fields) && (!empty($filtered_fields))) {
-                foreach ($filtered_fields as $key => $value) {
+            if (isset($sanitized['fields']) && (!empty($sanitized['fields']))) {
+                foreach ($sanitized['fields'] as $key => $value) {
                     update_option(
                         ALGOWOO_DB_OPTION . BASIC_FIELD_PREFIX . $key,
                         $value
