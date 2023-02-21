@@ -32,7 +32,7 @@ if ( ! class_exists( 'Algolia_Verify_Nonces' ) ) {
 			$settings_nonce = filter_input( INPUT_POST, 'algolia_woo_indexer_admin_api_nonce_name', FILTER_DEFAULT );
 
 			/**
-			 * Return if if no nonce has been set for either of the two forms
+			 * Return boolean depending on if the nonce has been set
 			 */
 			if ( ! isset( $settings_nonce ) ) {
 				return;
