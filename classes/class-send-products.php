@@ -37,12 +37,51 @@ define('ALGOWOO_CURRENT_DB_VERSION', '0.3');
 define('CHANGE_ME', 'change me');
 
 /**
+ * Define list of fields available to index
+ */
+define('BASIC_FIELDS', array(
+    'product_name',
+    'permalink',
+    'tags',
+    'categories',
+    'short_description',
+    'long_description',
+    'excerpt',
+    'product_image',
+    'regular_price',
+    'sale_price',
+    'on_sale',
+    "stock_quantity",
+    "stock_status"
+));
+
+/**
  * Database table names
  */
 define('INDEX_NAME', '_index_name');
 define('AUTOMATICALLY_SEND_NEW_PRODUCTS', '_automatically_send_new_products');
+define('BASIC_FIELD_PREFIX', '_field_');
 define('ALGOLIA_APP_ID', '_application_id');
 define('ALGOLIA_API_KEY', '_admin_api_key');
+
+/**
+ * constants for attributes
+ */
+define('ATTRIBUTES_SETTINGS', array(
+    'enabled' => 'Enable indexing of attributes',
+    'visibility' => 'Visibility',
+    'variation' => 'Used for variations',
+    'list' => 'Valid Attributes',
+    'interp' => 'Numeric Interpolation'
+));
+define('ATTRIBUTES_ENABLED', '_attributes_enabled');
+define('ATTRIBUTES_VISIBILITY', '_attributes_visibility');
+define('ATTRIBUTES_VISIBILITY_STATES', array('all', 'visible', 'hidden'));
+define('ATTRIBUTES_VARIATION', '_attributes_variation');
+define('ATTRIBUTES_VARIATION_STATES', array('all', 'used', 'notused'));
+define('ATTRIBUTES_LIST', '_attributes_list');
+define('ATTRIBUTES_INTERP', '_attributes_interp');
+
 
 if (!class_exists('Algolia_Send_Products')) {
     /**
@@ -73,12 +112,46 @@ if (!class_exists('Algolia_Send_Products')) {
                     'admin_notices',
                     function () {
                         echo '<div class="error notice">
-							  <p>' . esc_html__('An error has been encountered. Please check your application ID and API key. ', 'algolia-woo-indexer') . '</p>
-							</div>';
+                            <p>' . esc_html__('An error has been encountered. Please check your application ID and API key. ', 'algolia-woo-indexer') . '</p>
+						</div>';
                     }
                 );
                 return;
             }
+        }
+
+        /**
+         * check if the field is enabled and shall be sent
+         *
+         * @param  mixed $field name of field to be checked according to BASIC_FIELDS 
+         * @return boolean true if enable, false is not enabled
+         */
+        public static function is_basic_field_enabled($field)
+        {
+            $fieldValue = get_option(ALGOWOO_DB_OPTION . BASIC_FIELD_PREFIX . $field);
+            return $fieldValue;
+        }
+
+        /**
+         * helper function to add a field to a record while checking their state
+         *
+         * @param  array $record existing record where the field and value shall be added to 
+         * @param  string $field name of field to be checked according to BASIC_FIELDS 
+         * @param  mixed $value data to be added to the record array named to $field
+         * @param  boolean $skip_basic_field_validation set to true if it is not a basic field to skip validation 
+         * @return array $record previous passed $record with added field data
+         */
+        public static function add_to_record($record, $field, $value, $skip_basic_field_validation = false)
+        {
+            /**
+             *  only if enabled or validation skipped and not empty
+             */
+            if ((!self::is_basic_field_enabled($field) && !$skip_basic_field_validation) || empty($value)) {
+                return $record;
+            }
+
+            $record[$field] = $value;
+            return $record;
         }
 
         /**
@@ -118,9 +191,48 @@ if (!class_exists('Algolia_Send_Products')) {
                     'stock_quantity' => $product->get_stock_quantity(),
                     'stock_status' => $product->get_stock_status()
                 );
-            } else {
-                return false;
             }
+            return false;
+        }
+
+        /**
+         * Get product tags
+         *
+         * @param  mixed $product Product to check   
+         * @return array ['tag1', 'tag2', ...] simple array with associated tags
+         */
+        public static function get_product_tags($product)
+        {
+            $tags = get_the_terms($product->get_id(), 'product_tag');
+            $term_array = array();
+            if (is_array($tags)) {
+                foreach ($tags as $tag) {
+                    $name = get_term($tag)->name;
+                    array_push($term_array, $name);
+                }
+            }
+            return $term_array;
+        }
+
+        /**
+         * Get product categories
+         *
+         * @param  mixed $product Product to check   
+         * @return array ['tag1', 'tag2', ...] simple array with associated categories
+         */
+        public static function get_product_categories($product)
+        {
+            $categories = get_the_terms($product->get_id(), 'product_cat');
+            $term_array = array();
+            foreach ($categories as $category) {
+                $name = get_term($category)->name;
+                $slug = get_term($category)->slug;
+                array_push($term_array, array(
+                    "name" => $name,
+                    "slug" => $slug
+                ));
+            }
+            return $term_array;
         }
 
         /**
@@ -131,37 +243,80 @@ if (!class_exists('Algolia_Send_Products')) {
          */
         public static function get_product_attributes($product)
         {
-            $rawAttributes = $product->get_attributes();
-            $numericRangeAttributes = ["pa_height", "pa_flowermonth"];
+            /**
+             * ensure that attrobutes are actually enabled
+             */
+            $attributes_enabled = (int) get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED);
+            if ($attributes_enabled !== 1) {
+                return false;
+            }
+
+            /**
+             * gather data and settings
+             */
+            $rawAttributes = $product->get_attributes("edit");
+            $setting_visibility = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
+            $setting_variation = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
+            $setting_ids = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
+            $setting_ids = explode(",", $setting_ids);
+            $setting_ids_interp = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_INTERP);
+            $setting_ids_interp = explode(",", $setting_ids_interp);
+
             if (!$rawAttributes) {
                 return false;
             }
 
             $attributes = [];
             foreach ($rawAttributes as $attribute) {
-                if ($attribute->get_variation()) {
+
+                $visibility = $attribute["visible"];
+                $variation = $attribute["variation"];
+                $id = $attribute->get_id();
+                /**
+                 * skip variable related attributes,
+                 * ensure that taxonomy is whitelisted and
+                 * ensure that the visibility and variation is respected
+                 */
+                if (
+                    $attribute->get_variation() ||
+                    !in_array($id, $setting_ids) ||
+                    ($setting_visibility ===  "visible" && $visibility === false) ||
+                    ($setting_visibility ===  "hidden" && $visibility === true) ||
+                    ($setting_variation ===  "used" && $variation === false) ||
+                    ($setting_variation ===  "notused" && $variation === true)
+                ) {
                     continue;
                 }
+
+
                 $name = $attribute->get_name();
                 if ($attribute->is_taxonomy()) {
                     $terms = wp_get_post_terms($product->get_id(), $name, 'all');
                     $tax_terms = array();
-                    
-                    // interpolate all values when found in numericRangeAttributes
-                    if (array_search($name, $numericRangeAttributes, true) !== false) {
-                        $integers = array();
-                        foreach ($terms as $term) {
-                            array_push($integers, (int) $term->name);
-                        }
-                        for ($i = min($integers); $i <= max($integers); $i++) {
-                            array_push($tax_terms, $i);
-                        }
-                    } else {
-                        // strings
-                        foreach ($terms as $term) {
-                            $single_term = esc_html($term->name);
-                            array_push($tax_terms, $single_term);
-                        }
+
+                    switch (in_array($id, $setting_ids_interp)) {
+                            /**
+                         * numeric interpolation
+                         */
+                        case true:
+                            $integers = array();
+                            foreach ($terms as $term) {
+                                array_push($integers, (int) $term->name);
+                            }
+                            if (count($integers) > 0) {
+                                for ($i = min($integers); $i <= max($integers); $i++) {
+                                    array_push($tax_terms, $i);
+                                }
+                            }
+                            break;
+                            /**
+                             * normal mixed content case 
+                             */
+                        default:
+                            foreach ($terms as $term) {
+                                $single_term = esc_html($term->name);
+                                array_push($tax_terms, $single_term);
+                            }
                     }
                 }
                 $attributes[$name] = $tax_terms;
@@ -262,36 +417,49 @@ if (!class_exists('Algolia_Send_Products')) {
                 $product_type_price = self::get_product_type_price($product);
                 $sale_price = $product_type_price['sale_price'];
                 $regular_price = $product_type_price['regular_price'];
+
+
+
+
+                /**
+                 * always add objectID (mandatory field for algolia)
+                 */
+                $record['objectID'] = $product->get_id();
+
                 /**
                  * Extract image from $product->get_image()
                  */
-                preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
-                $product_image = array_pop($result);
+                if (self::is_basic_field_enabled("product_image")) {
+                    preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result);
+                    $record["product_image"] = array_pop($result);
+                }
 
-                /**
-                 * Build the record array using the information from the WooCommerce product
-                 */
-                $record['objectID']                      = $product->get_id();
-                $record['product_name']                  = $product->get_name();
-                $record['product_image']                 = $product_image;
-                $record['short_description']             = $product->get_short_description();
-                $record['regular_price']                 = $regular_price;
-                $record['sale_price']                    = $sale_price;
-                $record['on_sale']                       = $product->is_on_sale();
-                $record['attributes']                    = self::get_product_attributes($product);
+                $record = self::add_to_record($record, 'product_name', $product->get_name());
+                $record = self::add_to_record($record, 'short_description', $product->get_short_description());
+                $record = self::add_to_record($record, 'long_description', $product->get_description());
+                $record = self::add_to_record($record, 'excerpt', get_the_excerpt($product->get_id()));
+                $record = self::add_to_record($record, 'regular_price', $regular_price);
+                $record = self::add_to_record($record, 'sale_price', $sale_price);
+                $record = self::add_to_record($record, 'on_sale', $product->is_on_sale());
+                $record = self::add_to_record($record, 'permalink', $product->get_permalink());
+                $record = self::add_to_record($record, 'categories', self::get_product_categories($product));
+                $record = self::add_to_record($record, 'tags', self::get_product_tags($product));
+                $record = self::add_to_record($record, 'attributes', self::get_product_attributes($product), true);
+
 
 
                 /**
                  * Add stock information if stock management is on
                  */
                 $stock_data = self::get_product_stock_data($product);
-                if($stock_data) {
-                    $record = array_merge($record, $stock_data);
+                if (is_array($stock_data)) {
+                    $record = self::add_to_record($record, 'stock_quantity', $stock_data['stock_quantity']);
+                    $record = self::add_to_record($record, 'stock_status', $stock_data['stock_status']);
                 }
 
-                
                 $records[] = $record;
             }
+
             wp_reset_postdata();
 
             /**

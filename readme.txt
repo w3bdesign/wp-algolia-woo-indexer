@@ -2,7 +2,7 @@
 Contributors: Daniel F
 Tags: algolia, woocommerce, search, algolia search, algolia indexing
 Requires at least: not tested
-Tested up to: 5.5.1
+Tested up to: 6.1.1
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -21,7 +21,7 @@ You need to add the Application ID, the Admin API Key from the `API keys` sectio
 * Add the Application ID to the plugin settings page
 * Add the Admin API Key to the plugin settings page
 * Enter the name of the index that should be used to index Woocommerce products
-
+* Configure the fields to be indexed to your needs
 
 == Hooks ==
 n/a
