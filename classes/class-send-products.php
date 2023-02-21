@@ -72,7 +72,8 @@ define('ATTRIBUTES_SETTINGS', array(
     'visibility' => 'Visibility',
     'variation' => 'Used for variations',
     'list' => 'Valid Attributes',
-    'interp' => 'Numeric Interpolation'
+    'interp' => 'Numeric Interpolation',
+    'tax_fields' => 'Content of each attribute term'
 ));
 define('CUSTOM_FIELDS', '_custom_fields');
 define('ATTRIBUTES_ENABLED', '_attributes_enabled');
@@ -82,7 +83,16 @@ define('ATTRIBUTES_VARIATION', '_attributes_variation');
 define('ATTRIBUTES_VARIATION_STATES', array('all', 'used', 'notused'));
 define('ATTRIBUTES_LIST', '_attributes_list');
 define('ATTRIBUTES_INTERP', '_attributes_interp');
-
+define('ATTRIBUTES_TAX_FIELDS', '_attributes_tax_fields');
+define('ALLOWED_TAXONOMIES', array(
+    'term_id',
+    'name',
+    'slug',
+    'term_group',
+    'description',
+    'count',
+    'filter'
+));
 
 if (!class_exists('Algolia_Send_Products')) {
     /**
@@ -207,9 +217,9 @@ if (!class_exists('Algolia_Send_Products')) {
             $custom_fields_string = get_option(ALGOWOO_DB_OPTION . CUSTOM_FIELDS);
             $custom_fields_array = explode(",", $custom_fields_string);
             $custom_field_with_values = array();
-            foreach($custom_fields_array as $custom_field) {
+            foreach ($custom_fields_array as $custom_field) {
                 $value = get_post_meta($product->get_id(), $custom_field);
-                if(!empty($value)) {
+                if (!empty($value)) {
                     $custom_field_with_values[$custom_field] = $value;
                 }
             }
@@ -256,6 +266,46 @@ if (!class_exists('Algolia_Send_Products')) {
             return $term_array;
         }
 
+        /**
+         * Get attributes from product
+         *
+         * @param  mixed $attribute woocommerce attribute taxonomy
+         * @return array Array with fields set in config as defined in ATTRIBUTEX_TAX_FIELDS.
+         */
+        public static function format_product_attribute_terms($terms, $interpolateValues)
+        {
+            $allowed_keys_raw = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_TAX_FIELDS);
+            $allowed_keys = explode(',', $allowed_keys_raw);
+            $final_terms = array();
+            // var_dump('ALL', $allowed_keys);
+            // die();
+           
+            switch ($interpolateValues) {
+                case true:
+                    $integers = array();
+                    foreach ($terms as $term) {
+                        array_push($integers, (int) $term->name);
+                    }
+                    if (count($integers) > 0) {
+                        for ($i = min($integers); $i <= max($integers); $i++) {
+                            array_push($final_terms, $i);
+                        }
+                    }
+                    break;
+                    /**
+                     * normal mixed content case 
+                     */
+                default:
+                    foreach ($terms as $term) {
+                        $final_term = array();
+                        foreach ($allowed_keys as $key) {
+                            $final_term[$key] = esc_html($term->{$key});
+                        }
+                        array_push($final_terms, $final_term);
+                    }
+            }
+            return $final_terms;
+        }
         /**
          * Get attributes from product
          *
@@ -313,34 +363,10 @@ if (!class_exists('Algolia_Send_Products')) {
                 $name = $attribute->get_name();
                 if ($attribute->is_taxonomy()) {
                     $terms = wp_get_post_terms($product->get_id(), $name, 'all');
-                    $tax_terms = array();
-
-                    switch (in_array($id, $setting_ids_interp)) {
-                            /**
-                         * numeric interpolation
-                         */
-                        case true:
-                            $integers = array();
-                            foreach ($terms as $term) {
-                                array_push($integers, (int) $term->name);
-                            }
-                            if (count($integers) > 0) {
-                                for ($i = min($integers); $i <= max($integers); $i++) {
-                                    array_push($tax_terms, $i);
-                                }
-                            }
-                            break;
-                            /**
-                             * normal mixed content case 
-                             */
-                        default:
-                            foreach ($terms as $term) {
-                                $single_term = esc_html($term->name);
-                                array_push($tax_terms, $single_term);
-                            }
-                    }
+                    $is_interpolation = in_array($id, $setting_ids_interp);
+                    $attributes[$name] = self::format_product_attribute_terms($terms, $is_interpolation);
                 }
-                $attributes[$name] = $tax_terms;
+                
             }
             return $attributes;
         }
@@ -471,7 +497,7 @@ if (!class_exists('Algolia_Send_Products')) {
                  * get custom fields and merge
                  */
                 $custom_fields = self::get_custom_fields($product);
-                if(!empty($custom_fields)) {
+                if (!empty($custom_fields)) {
                     $record = array_merge($record, $custom_fields);
                 }
 

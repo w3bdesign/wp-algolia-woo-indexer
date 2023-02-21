@@ -262,7 +262,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
         public static function algolia_woo_indexer_custom_fields_output($args)
         {
             $custom_fields = get_option(ALGOWOO_DB_OPTION . CUSTOM_FIELDS);
-            $asLines = str_replace(',',"\r", $custom_fields);
+            $asLines = str_replace(',', "\r", $custom_fields);
         ?>
             <p><?php echo esc_html__('Add some custom fields names, for example from ACF (Advanced custom fields) here. create a new line for each field or separate with comma.', 'algolia-woo-indexer'); ?></p>
             <textarea id="algolia_woo_indexer_custom_fields" name="algolia_woo_indexer_custom_fields" rows="6" cols="50"><?php echo $asLines; ?></textarea>
@@ -344,28 +344,61 @@ if (!class_exists('Algolia_Woo_Indexer')) {
         }
 
         /**
-         * Generic Output for attributes list where attributes are whitelisted
+         * Output for attributes list which are using a numeric interpolation
          *
          * @return void
          */
-        public static function generic_attributes_select_output($name, $selectedIds, $description)
+        public static function algolia_woo_indexer_attributes_tax_fields_output()
         {
-            $attribute_taxonomies = wc_get_attribute_taxonomies();
+            $selected_raw = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_TAX_FIELDS);
+            $selected_entries = explode(",", $selected_raw);
+            $name = "algolia_woo_indexer_attributes_tax_fields[list]";
+            $description = __('Select which taxonomy fields for each attribute shall be indexed', 'algolia-woo-indexer');
+            $values = ALLOWED_TAXONOMIES;
+            ?>
+            <p><?php echo $description; ?></p>
+            <select multiple="multiple" name="<?php echo $name; ?>[]" size="<?php echo count($values); ?>">
+                <?php
+                foreach ($values as $tax) {
+                    $selected = in_array($tax, $selected_entries) ? ' selected="selected" ' : '';
+                ?>
+                    <option value="<?php echo $tax; ?>" <?php echo $selected; ?>>
+                        <?php echo __($tax, 'algolia-woo-indexer'); ?>
+                    </option>
+                <?php
+                }
+                ?>
+            </select>
+        <?php
+        }
 
-            if (!$attribute_taxonomies) {
+        /**
+         * Generic Output for attributes list where attributes are whitelisted using Woocommerce attributes taxonomies
+         * @param string $name id and name for select
+         * @param array $selected_entries will be preselected if matching with WC taxonomies
+         * @param string $description will be displayed on top
+         * 
+         */
+        public static function generic_attributes_select_output($name, $selected_entries, $description)
+        {
+
+
+            $values = wc_get_attribute_taxonomies();
+            if (!$values) {
                 echo esc_html__('You don\'t have any attributes defined yet. Go to WooCommerce and add some to use this feature.', 'algolia-woo-indexer');
                 return;
             }
-            ?>
+
+        ?>
             <p><?php echo $description; ?></p>
-            <select multiple="multiple" name="<?php echo $name; ?>[]" size="<?php echo count($attribute_taxonomies); ?>">
+            <select multiple="multiple" name="<?php echo $name; ?>[]" size="<?php echo count($values); ?>">
                 <?php
-                foreach ($attribute_taxonomies as $tax) {
+                foreach ($values as $tax) {
 
                     $id = $tax->attribute_id;
                     $label = $tax->attribute_label;
                     $name = $tax->attribute_name;
-                    $selected = in_array($id, $selectedIds) ? ' selected="selected" ' : '';
+                    $selected = in_array($id, $selected_entries) ? ' selected="selected" ' : '';
                 ?>
                     <option value="<?php echo $id; ?>" <?php echo $selected; ?>>
                         <?php echo $label . ' (' . $name . ')'; ?>
@@ -540,6 +573,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $attributes_variation            = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_variation', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_list                 = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_list', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_interp               = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_interp', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $attributes_tax_fields               = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_tax_fields', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             /**
              * Properly sanitize text fields before updating data
              *
@@ -552,21 +586,35 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $sanitized['custom_fields']             = sanitize_textarea_field($custom_fields);
             $sanitized['attributes_visibility']     = sanitize_text_field($attributes_visibility['value']);
             $sanitized['attributes_variation']      = sanitize_text_field($attributes_variation['value']);
-        
+
             /**
              * sanitize select list of id's by getting integers and them implode seperated with comma
              */
 
             $attributes_list_integers = [];
             foreach ($attributes_list['list'] as $id) {
-                array_push($attributes_list_integers, (int) $id);
+                $sanitizedId = sanitize_text_field($id);
+                array_push($attributes_list_integers, (int) $sanitizedId);
             }
             $sanitized['attributes_list'] = implode(',', $attributes_list_integers);
+
             $attributes_interp_int = [];
             foreach ($attributes_interp['list'] as $id) {
-                array_push($attributes_interp_int, (int) $id);
+                $sanitizedId = sanitize_text_field($id);
+                array_push($attributes_interp_int, (int) $sanitizedId);
             }
             $sanitized['attributes_interp'] = implode(',', $attributes_interp_int);
+
+            /**
+             * only allow values from the ALLOWED_TAXONOMIES to be saved
+             */
+            $sanitized['attributes_tax_fields'] = [];
+            foreach ($attributes_tax_fields['list'] as $name) {
+                if (in_array($name, ALLOWED_TAXONOMIES)) {
+                    array_push($sanitized['attributes_tax_fields'], $name);
+                }
+            }
+            $sanitized['attributes_tax_fields'] = implode(',', $sanitized['attributes_tax_fields']);
 
             /**
              * Sanitizing by setting the value to either 1 or 0
@@ -621,7 +669,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             }
             if (isset($sanitized['custom_fields'])) {
                 $custom_fields_array = preg_split("/[\r\n,]+/", $sanitized['custom_fields'], -1, PREG_SPLIT_NO_EMPTY);
-                $custom_fields_string = implode(",", $custom_fields_array) ;
+                $custom_fields_string = implode(",", $custom_fields_array);
                 update_option(
                     ALGOWOO_DB_OPTION . CUSTOM_FIELDS,
                     $custom_fields_string
@@ -629,9 +677,10 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             }
 
             foreach (array_keys(ATTRIBUTES_SETTINGS) as $key) {
-                $value = $sanitized['attributes_'.$key];
+                $value = $sanitized['attributes_' . $key];
                 if (isset($value)) {
                     $extension = constant('ATTRIBUTES_' . strtoupper($key));
+                    var_dump($extension);
                     update_option(
                         ALGOWOO_DB_OPTION . $extension,
                         $value
@@ -757,6 +806,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $attributes_variation            = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
             $attributes_list                 = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
             $attributes_interp               = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_INTERP);
+            $attributes_tax_fields           = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_TAX_FIELDS);
 
             if (empty($auto_send)) {
                 add_option(
@@ -821,6 +871,12 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 add_option(
                     ALGOWOO_DB_OPTION . ATTRIBUTES_INTERP,
                     ''
+                );
+            }
+            if (empty($attributes_tax_fields)) {
+                add_option(
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_TAX_FIELDS,
+                    'name,slug'
                 );
             }
 
