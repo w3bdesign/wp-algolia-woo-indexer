@@ -45,12 +45,12 @@ define('BASIC_FIELDS', array(
     'tags',
     'categories',
     'short_description',
-
+    'long_description',
+    'excerpt',
     'product_image',
     'regular_price',
     'sale_price',
     'on_sale',
-    'attributes',
     "stock_quantity",
     "stock_status"
 ));
@@ -440,6 +440,8 @@ if (!class_exists('Algolia_Send_Products')) {
 
                 $record = self::add_to_record($record, 'product_name', $product->get_name());
                 $record = self::add_to_record($record, 'short_description', $product->get_short_description());
+                $record = self::add_to_record($record, 'long_description', $product->get_description());
+                $record = self::add_to_record($record, 'excerpt', get_the_excerpt($product->get_id()));
                 $record = self::add_to_record($record, 'regular_price', $regular_price);
                 $record = self::add_to_record($record, 'sale_price', $sale_price);
                 $record = self::add_to_record($record, 'on_sale', $product->is_on_sale());
@@ -462,10 +464,6 @@ if (!class_exists('Algolia_Send_Products')) {
                 $records[] = $record;
             }
 
-            echo "<pre>";
-            var_dump($records);
-            echo "</pre>";
-            die();
             wp_reset_postdata();
 
             /**
