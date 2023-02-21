@@ -147,6 +147,13 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                         )
                     );
                 }
+                add_settings_field(
+                    'algolia_woo_indexer_custom_fields',
+                    esc_html__('Custom Fields', 'algolia-woo-indexer'),
+                    array($algowooindexer, 'algolia_woo_indexer_custom_fields_output'),
+                    'algolia_woo_indexer',
+                    'algolia_woo_indexer_fields'
+                );
 
                 /**
                  * Add sections and fields for the attributes
@@ -244,6 +251,21 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $isChecked = (!empty($value)) ? 1 : 0;
         ?>
             <input id="<?php echo $args["label_for"] ?>" name="<?php echo $args["label_for"] ?>[checked]" type="checkbox" <?php checked(1, $isChecked); ?> />
+        <?php
+        }
+
+        /**
+         * Output textarea for custom fields
+         *
+         * @return void
+         */
+        public static function algolia_woo_indexer_custom_fields_output($args)
+        {
+            $custom_fields = get_option(ALGOWOO_DB_OPTION . CUSTOM_FIELDS);
+            $asLines = str_replace(',',"\r", $custom_fields);
+        ?>
+            <p><?php echo esc_html__('Add some custom fields names, for example from ACF (Advanced custom fields) here. create a new line for each field or separate with comma.', 'algolia-woo-indexer'); ?></p>
+            <textarea id="algolia_woo_indexer_custom_fields" name="algolia_woo_indexer_custom_fields" rows="6" cols="50"><?php echo $asLines; ?></textarea>
         <?php
         }
 
@@ -512,12 +534,12 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $post_api_key                    = filter_input(INPUT_POST, 'algolia_woo_indexer_admin_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $post_index_name                 = filter_input(INPUT_POST, 'algolia_woo_indexer_index_name', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $auto_send                       = filter_input(INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $custom_fields                   = filter_input(INPUT_POST, 'algolia_woo_indexer_custom_fields', FILTER_DEFAULT);
             $attributes_enabled              = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_enabled', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_visibility           = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_visibility', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_variation            = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_variation', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_list                 = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_list', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_interp               = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_interp', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-
             /**
              * Properly sanitize text fields before updating data
              *
@@ -527,9 +549,10 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $sanitized['app_id']                    = sanitize_text_field($post_application_id['id']);
             $sanitized['api_key']                   = sanitize_text_field($post_api_key['key']);
             $sanitized['index_name']                = sanitize_text_field($post_index_name['name']);
+            $sanitized['custom_fields']             = sanitize_textarea_field($custom_fields);
             $sanitized['attributes_visibility']     = sanitize_text_field($attributes_visibility['value']);
             $sanitized['attributes_variation']      = sanitize_text_field($attributes_variation['value']);
-
+        
             /**
              * sanitize select list of id's by getting integers and them implode seperated with comma
              */
@@ -594,6 +617,14 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 update_option(
                     ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS,
                     $sanitized['product']
+                );
+            }
+            if (isset($sanitized['custom_fields'])) {
+                $custom_fields_array = preg_split("/[\r\n,]+/", $sanitized['custom_fields'], -1, PREG_SPLIT_NO_EMPTY);
+                $custom_fields_string = implode(",", $custom_fields_array) ;
+                update_option(
+                    ALGOWOO_DB_OPTION . CUSTOM_FIELDS,
+                    $custom_fields_string
                 );
             }
 
@@ -720,6 +751,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $algolia_application_id          = get_option(ALGOWOO_DB_OPTION . ALGOLIA_APP_ID);
             $algolia_api_key                 = get_option(ALGOWOO_DB_OPTION . ALGOLIA_API_KEY);
             $algolia_index_name              = get_option(ALGOWOO_DB_OPTION . INDEX_NAME);
+            $custom_fields                   = get_option(ALGOWOO_DB_OPTION . CUSTOM_FIELDS);
             $attributes_enabled              = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED);
             $attributes_visibility           = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
             $attributes_variation            = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
@@ -751,6 +783,12 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 add_option(
                     ALGOWOO_DB_OPTION . INDEX_NAME,
                     'Change me'
+                );
+            }
+            if (empty($custom_fields)) {
+                add_option(
+                    ALGOWOO_DB_OPTION . CUSTOM_FIELDS,
+                    ''
                 );
             }
 
