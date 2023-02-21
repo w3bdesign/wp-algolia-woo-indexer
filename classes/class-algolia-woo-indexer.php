@@ -157,42 +157,16 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                     array($algowooindexer, 'algolia_woo_indexer_attributes_section_text'),
                     'algolia_woo_indexer'
                 );
-                add_settings_field(
-                    'algolia_woo_indexer_attributes_enabled',
-                    esc_html__('Enable indexing of attributes', 'algolia-woo-indexer'),
-                    array($algowooindexer, 'algolia_woo_indexer_attributes_enabled_output'),
-                    'algolia_woo_indexer',
-                    'algolia_woo_indexer_attributes'
-                );
-                add_settings_field(
-                    'algolia_woo_indexer_attributes_visibility',
-                    esc_html__('Visibility', 'algolia-woo-indexer'),
-                    array($algowooindexer, 'algolia_woo_indexer_attributes_visibility_output'),
-                    'algolia_woo_indexer',
-                    'algolia_woo_indexer_attributes'
-                );
 
-                add_settings_field(
-                    'algolia_woo_indexer_attributes_variation',
-                    esc_html__('Used for variations', 'algolia-woo-indexer'),
-                    array($algowooindexer, 'algolia_woo_indexer_attributes_variation_output'),
-                    'algolia_woo_indexer',
-                    'algolia_woo_indexer_attributes'
-                );
-                add_settings_field(
-                    'algolia_woo_indexer_attributes_list',
-                    esc_html__('Valid Attributes', 'algolia-woo-indexer'),
-                    array($algowooindexer, 'algolia_woo_indexer_attributes_list_output'),
-                    'algolia_woo_indexer',
-                    'algolia_woo_indexer_attributes'
-                );
-                add_settings_field(
-                    'algolia_woo_indexer_attributes_list_interpolate',
-                    esc_html__('Numeric Interpolation', 'algolia-woo-indexer'),
-                    array($algowooindexer, 'algolia_woo_indexer_attributes_list_interpolate_output'),
-                    'algolia_woo_indexer',
-                    'algolia_woo_indexer_attributes'
-                );
+                foreach (ATTRIBUTES_SETTINGS as $key => $description) {
+                    add_settings_field(
+                        'algolia_woo_indexer_attributes_' . $key,
+                        esc_html__($description, 'algolia-woo-indexer'),
+                        array($algowooindexer, 'algolia_woo_indexer_attributes_' . $key . '_output'),
+                        'algolia_woo_indexer',
+                        'algolia_woo_indexer_attributes'
+                    );
+                }
             }
         }
 
@@ -264,7 +238,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          *
          * @return void
          */
-        public static function algolia_woo_indexer_field_output()
+        public static function algolia_woo_indexer_field_output($args)
         {
             $value = get_option(ALGOWOO_DB_OPTION . BASIC_FIELD_PREFIX . $args["name"]);
             $isChecked = (!empty($value)) ? 1 : 0;
@@ -338,12 +312,12 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          *
          * @return void
          */
-        public static function algolia_woo_indexer_attributes_list_interpolate_output()
+        public static function algolia_woo_indexer_attributes_interp_output()
         {
-            $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE);
+            $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_INTERP);
             $selectedIds = explode(",", $value);
-            $name = "algolia_woo_indexer_attributes_list_interpolate[list]";
-            $description = __('If you have some attributes based on number which shall be interpolated between the lowest to the highest number, you can select it here. A common usecase for this is if you want to have a <b>range slider</b> in aloglia which works for a certain range. Example: a plant grows between 20 and 25cm tall. for this you enter 20 and 25 as attribute values to your product and it will automatically extend the data to [20,21,22,23,24,25]', 'algolia-woo-indexer');
+            $name = "algolia_woo_indexer_attributes_interp[list]";
+            $description = __('If you have some attributes based on number which shall be interpd between the lowest to the highest number, you can select it here. A common usecase for this is if you want to have a <b>range slider</b> in aloglia which works for a certain range. Example: a plant grows between 20 and 25cm tall. for this you enter 20 and 25 as attribute values to your product and it will automatically extend the data to [20,21,22,23,24,25]', 'algolia-woo-indexer');
             self::generic_attributes_select_output($name, $selectedIds, $description);
         }
 
@@ -542,7 +516,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $attributes_visibility           = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_visibility', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_variation            = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_variation', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_list                 = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_list', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-            $attributes_list_interpolate     = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_list_interpolate', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $attributes_interp     = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_interp', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 
             /**
              * Properly sanitize text fields before updating data
@@ -565,10 +539,10 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             }
             $filtered_attributes_list = implode(',', $attributes_list_integers);
             $attributes_list_interp_int = [];
-            foreach ($attributes_list_interpolate['list'] as $id) {
+            foreach ($attributes_interp['list'] as $id) {
                 array_push($attributes_list_interp_int, (int) $id);
             }
-            $clean_attributes_list_interp = implode(',', $attributes_list_interp_int);
+            $filtered_attributes_interp = implode(',', $attributes_list_interp_int);
 
             /**
              * Sanitizing by setting the value to either 1 or 0
@@ -622,39 +596,15 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 );
             }
 
-            if (isset($filtered_attributes_enabled)) {
-                update_option(
-                    ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED,
-                    $filtered_attributes_enabled
-                );
-            }
-
-            if (isset($filtered_attributes_visibility) && (!empty($filtered_attributes_visibility))) {
-                update_option(
-                    ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY,
-                    $filtered_attributes_visibility
-                );
-            }
-
-            if (isset($filtered_attributes_variation) && (!empty($filtered_attributes_variation))) {
-                update_option(
-                    ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION,
-                    $filtered_attributes_variation
-                );
-            }
-
-            if (isset($filtered_attributes_list) && (!empty($filtered_attributes_list))) {
-                update_option(
-                    ALGOWOO_DB_OPTION . ATTRIBUTES_LIST,
-                    $filtered_attributes_list
-                );
-            }
-
-            if (isset($clean_attributes_list_interp) && (!empty($clean_attributes_list_interp))) {
-                update_option(
-                    ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE,
-                    $clean_attributes_list_interp
-                );
+            foreach (array_keys(ATTRIBUTES_SETTINGS) as $key) {
+                $value = ${'filtered_attributes_' . $key};
+                if (isset($value)) {
+                    $extension = constant('ATTRIBUTES_' . strtoupper($key));
+                    update_option(
+                        ALGOWOO_DB_OPTION . $extension,
+                        $value
+                    );
+                }
             }
 
             if (isset($filtered_fields) && (!empty($filtered_fields))) {
@@ -773,7 +723,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $attributes_visibility           = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
             $attributes_variation            = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
             $attributes_list                 = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
-            $attributes_list_interpolate     = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE);
+            $attributes_interp               = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_INTERP);
 
             if (empty($auto_send)) {
                 add_option(
@@ -828,9 +778,9 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                     ''
                 );
             }
-            if (empty($attributes_list_interpolate)) {
+            if (empty($attributes_interp)) {
                 add_option(
-                    ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE,
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_INTERP,
                     ''
                 );
             }

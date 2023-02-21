@@ -67,13 +67,20 @@ define('ALGOLIA_API_KEY', '_admin_api_key');
 /**
  * constants for attributes
  */
+define('ATTRIBUTES_SETTINGS', array(
+    'enabled' => 'Enable indexing of attributes',
+    'visibility' => 'Visibility',
+    'variation' => 'Used for variations',
+    'list' => 'Valid Attributes',
+    'interp' => 'Numeric Interpolation'
+));
 define('ATTRIBUTES_ENABLED', '_attributes_enabled');
 define('ATTRIBUTES_VISIBILITY', '_attributes_visibility');
 define('ATTRIBUTES_VISIBILITY_STATES', array('all', 'visible', 'hidden'));
 define('ATTRIBUTES_VARIATION', '_attributes_variation');
 define('ATTRIBUTES_VARIATION_STATES', array('all', 'used', 'notused'));
 define('ATTRIBUTES_LIST', '_attributes_list');
-define('ATTRIBUTES_LIST_INTERPOLATE', '_attributes_list_interpolate');
+define('ATTRIBUTES_INTERP', '_attributes_interp');
 
 
 if (!class_exists('Algolia_Send_Products')) {
@@ -252,8 +259,8 @@ if (!class_exists('Algolia_Send_Products')) {
             $setting_variation = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
             $setting_ids = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
             $setting_ids = explode(",", $setting_ids);
-            $setting_ids_interpolate = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE);
-            $setting_ids_interpolate = explode(",", $setting_ids_interpolate);
+            $setting_ids_interp = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_INTERP);
+            $setting_ids_interp = explode(",", $setting_ids_interp);
 
             if (!$rawAttributes) {
                 return false;
@@ -304,9 +311,9 @@ if (!class_exists('Algolia_Send_Products')) {
                     $tax_terms = array();
 
                     /**
-                     * interpolate all values when specified to interpolate
+                     * interp all values when specified to interp
                      */
-                    if (in_array($id, $setting_ids_interpolate)) {
+                    if (in_array($id, $setting_ids_interp)) {
                         $integers = array();
                         foreach ($terms as $term) {
                             array_push($integers, (int) $term->name);
@@ -321,7 +328,7 @@ if (!class_exists('Algolia_Send_Products')) {
                     /**
                      * normal mixed content case 
                      */
-                    if (!in_array($id, $setting_ids_interpolate)) {
+                    if (!in_array($id, $setting_ids_interp)) {
                         foreach ($terms as $term) {
                             $single_term = esc_html($term->name);
                             array_push($tax_terms, $single_term);
