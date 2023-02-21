@@ -193,6 +193,13 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                     'algolia_woo_indexer',
                     'algolia_woo_indexer_attributes'
                 );
+                add_settings_field(
+                    'algolia_woo_indexer_attributes_list_interpolate',
+                    esc_html__('Numeric Interpolation', 'algolia-woo-indexer'),
+                    array($algowooindexer, 'algolia_woo_indexer_attributes_list_interpolate_output'),
+                    'algolia_woo_indexer',
+                    'algolia_woo_indexer_attributes'
+                );
             }
         }
 
@@ -332,7 +339,42 @@ if (!class_exists('Algolia_Woo_Indexer')) {
 
             if ($attribute_taxonomies) {
             ?>
+            <p><?php echo __('Here you can whitelist all the attributes. Use the <b>shift</b> or <b>control</b> buttons to select multiple attributes.', 'algolia-woo-indexer'); ?></p>
                 <select multiple="multiple" name="algolia_woo_indexer_attributes_list[list][]" size="<?php echo count($attribute_taxonomies); ?>">
+                    <?php
+                    foreach ($attribute_taxonomies as $tax) {
+
+                        $id = $tax->attribute_id;
+                        $label = $tax->attribute_label;
+                        $name = $tax->attribute_name;
+                        $selected = in_array($id, $selectedIds) ? ' selected="selected" ' : '';
+                    ?>
+                        <option value="<?php echo $id; ?>" <?php echo $selected; ?>>
+                            <?php echo $label . ' (' . $name . ')'; ?>
+                        </option>
+                    <?php
+                    }
+                    ?>
+                </select>
+            <?php
+            }
+        }
+
+        /**
+         * Output for attributes list which attributes are whitelisted
+         *
+         * @return void
+         */
+        public static function algolia_woo_indexer_attributes_list_interpolate_output($args)
+        {
+            $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE);
+            $selectedIds = explode(",", $value);
+            $attribute_taxonomies = wc_get_attribute_taxonomies();
+
+            if ($attribute_taxonomies) {
+            ?>
+            <p><?php echo __('If you have some attributes based on number which shall be interpolated between the lowest to the highest number, you can select it here. A common usecase for this is if you want to have a <b>range slider</b> in aloglia which works for a certain range. Example: a plant grows between 20 and 25cm tall. for this you enter 20 and 25 as attribute values to your product and it will automatically extend the data to [20,21,22,23,24,25]', 'algolia-woo-indexer'); ?></p>
+                <select multiple="multiple" name="algolia_woo_indexer_attributes_list_interpolate[list][]" size="<?php echo count($attribute_taxonomies); ?>">
                     <?php
                     foreach ($attribute_taxonomies as $tax) {
 
@@ -512,6 +554,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $attributes_visibility           = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_visibility', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_variation            = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_variation', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_list                 = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_list', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $attributes_list_interpolate     = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_list_interpolate', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 
             /**
              * Properly sanitize text fields before updating data
@@ -533,6 +576,11 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 array_push($attributes_list_integers, (int) $id);
             }
             $filtered_attributes_list = implode(',', $attributes_list_integers);
+            $attributes_list_interpolate_integers = [];
+            foreach ($attributes_list_interpolate['list'] as $id) {
+                array_push($attributes_list_interpolate_integers, (int) $id);
+            }
+            $filtered_attributes_list_interpolate = implode(',', $attributes_list_interpolate_integers);
 
             /**
              * Sanitizing by setting the value to either 1 or 0
@@ -611,6 +659,13 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 update_option(
                     ALGOWOO_DB_OPTION . ATTRIBUTES_LIST,
                     $filtered_attributes_list
+                );
+            }
+
+            if (isset($filtered_attributes_list_interpolate) && (!empty($filtered_attributes_list_interpolate))) {
+                update_option(
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE,
+                    $filtered_attributes_list_interpolate
                 );
             }
 
@@ -730,6 +785,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $attributes_visibility           = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
             $attributes_variation            = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
             $attributes_list                 = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
+            $attributes_list_interpolate     = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE);
 
             if (empty($auto_send)) {
                 add_option(
@@ -781,6 +837,12 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             if (empty($attributes_list)) {
                 add_option(
                     ALGOWOO_DB_OPTION . ATTRIBUTES_LIST,
+                    ''
+                );
+            }
+            if (empty($attributes_list_interpolate)) {
+                add_option(
+                    ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE,
                     ''
                 );
             }

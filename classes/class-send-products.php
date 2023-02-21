@@ -40,11 +40,12 @@ define('CHANGE_ME', 'change me');
  * Define list of fields available to index
  */
 define('BASIC_FIELDS', array(
+    'product_name',
     'permalink',
     'tags',
     'categories',
     'short_description',
-    'product_name',
+
     'product_image',
     'regular_price',
     'sale_price',
@@ -68,10 +69,11 @@ define('ALGOLIA_API_KEY', '_admin_api_key');
  */
 define('ATTRIBUTES_ENABLED', '_attributes_enabled');
 define('ATTRIBUTES_VISIBILITY', '_attributes_visibility');
-define('ATTRIBUTES_VISIBILITY_STATES', array('both', 'visible', 'hidden'));
+define('ATTRIBUTES_VISIBILITY_STATES', array('all', 'visible', 'hidden'));
 define('ATTRIBUTES_VARIATION', '_attributes_variation');
-define('ATTRIBUTES_VARIATION_STATES', array('both', 'used', 'notused'));
+define('ATTRIBUTES_VARIATION_STATES', array('all', 'used', 'notused'));
 define('ATTRIBUTES_LIST', '_attributes_list');
+define('ATTRIBUTES_LIST_INTERPOLATE', '_attributes_list_interpolate');
 
 
 if (!class_exists('Algolia_Send_Products')) {
@@ -103,8 +105,8 @@ if (!class_exists('Algolia_Send_Products')) {
                     'admin_notices',
                     function () {
                         echo '<div class="error notice">
-							  <p>' . esc_html__('An error has been encountered. Please check your application ID and API key. ', 'algolia-woo-indexer') . '</p>
-							</div>';
+                            <p>' . esc_html__('An error has been encountered. Please check your application ID and API key. ', 'algolia-woo-indexer') . '</p>
+						</div>';
                     }
                 );
                 return;
@@ -251,8 +253,9 @@ if (!class_exists('Algolia_Send_Products')) {
             $setting_variation = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
             $setting_ids = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
             $setting_ids = explode(",", $setting_ids);
+            $setting_ids_interpolate = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE);
+            $setting_ids_interpolate = explode(",", $setting_ids_interpolate);
 
-            $numericRangeAttributes = ["pa_height", "pa_flowermonth"];
             if (!$rawAttributes) {
                 return false;
             }
@@ -292,7 +295,7 @@ if (!class_exists('Algolia_Send_Products')) {
                  * ensure that taxonomy is whitelisted
                  */
                 $id = $attribute->get_id();
-                if(!in_array($id, $setting_ids)) {
+                if (!in_array($id, $setting_ids)) {
                     continue;
                 }
 
@@ -302,13 +305,15 @@ if (!class_exists('Algolia_Send_Products')) {
                     $tax_terms = array();
 
                     // interpolate all values when found in numericRangeAttributes
-                    if (array_search($name, $numericRangeAttributes, true) !== false) {
+                    if (in_array($id, $setting_ids_interpolate)) {
                         $integers = array();
                         foreach ($terms as $term) {
                             array_push($integers, (int) $term->name);
                         }
-                        for ($i = min($integers); $i <= max($integers); $i++) {
-                            array_push($tax_terms, $i);
+                        if (count($integers) > 0) {
+                            for ($i = min($integers); $i <= max($integers); $i++) {
+                                array_push($tax_terms, $i);
+                            }
                         }
                     } else {
                         // strings
