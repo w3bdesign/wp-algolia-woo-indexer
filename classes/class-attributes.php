@@ -85,7 +85,7 @@ if (!class_exists('Algolia_Attributes')) {
             add_settings_section(
                 'algolia_woo_indexer_attributes',
                 esc_html__('Attributes indexing settings', 'algolia-woo-indexer'),
-                esc_html__('Control if and how the attributes shall be indexed.', 'algolia-woo-indexer'),
+                array($algowoo_attributes, 'algolia_woo_indexer_attributes_section_text'),
                 'algolia_woo_indexer'
             );
 
@@ -244,6 +244,17 @@ if (!class_exists('Algolia_Attributes')) {
 <?php
 
         }
+
+        /**
+         * Section text for attributes settings section text
+         *
+         * @return void
+         */
+        public static function algolia_woo_indexer_attributes_section_text()
+        {
+            
+        }
+
 
         /**
          * parse, sanitize and update attribute settings in DB
@@ -456,14 +467,16 @@ if (!class_exists('Algolia_Attributes')) {
             $setting_ids = explode(",", $setting_ids);
             $visibility = $attribute["visible"];
             $variation = $attribute["variation"];
+            $attribute_id = $attribute->get_id();
+            $is_visibility_invalid = ($setting_visibility ===  "visible" && $visibility === false) || ($setting_visibility ===  "hidden" && $visibility === true);
+            $is_variation_invalid = ($setting_variation ===  "used" && $variation === false) ||
+            ($setting_variation ===  "notused" && $variation === true)
 
             return ($attribute->get_variation() ||
                 !$attribute->is_taxonomy() ||
-                !in_array($id, $setting_ids) ||
-                ($setting_visibility ===  "visible" && $visibility === false) ||
-                ($setting_visibility ===  "hidden" && $visibility === true) ||
-                ($setting_variation ===  "used" && $variation === false) ||
-                ($setting_variation ===  "notused" && $variation === true)
+                !in_array($attribute_id, $setting_ids) ||
+                $is_visibility_invalid ||
+                $is_variation_invalid
             );
         }
 
@@ -493,10 +506,9 @@ if (!class_exists('Algolia_Attributes')) {
             foreach ($rawAttributes as $attribute) {
 
                 if (self::is_attribute_allowed($attribute)) {
-                    $id = $attribute->get_id();
                     $name = $attribute->get_name();
                     $terms = wp_get_post_terms($product->get_id(), $name, 'all');
-                    $is_interpolation = in_array($id, $setting_ids_interp);
+                    $is_interpolation = in_array($attribute->get_id(), $setting_ids_interp);
                     $attributes[$name] = self::format_product_attribute_terms($terms, $is_interpolation);
                 }
             }
