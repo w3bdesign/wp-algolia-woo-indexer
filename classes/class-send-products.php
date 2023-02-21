@@ -277,8 +277,6 @@ if (!class_exists('Algolia_Send_Products')) {
             $allowed_keys_raw = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_TAX_FIELDS);
             $allowed_keys = explode(',', $allowed_keys_raw);
             $final_terms = array();
-            // var_dump('ALL', $allowed_keys);
-            // die();
            
             switch ($interpolateValues) {
                 case true:
