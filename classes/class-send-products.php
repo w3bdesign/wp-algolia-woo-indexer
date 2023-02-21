@@ -74,6 +74,7 @@ define('ATTRIBUTES_SETTINGS', array(
     'list' => 'Valid Attributes',
     'interp' => 'Numeric Interpolation'
 ));
+define('CUSTOM_FIELDS', '_custom_fields');
 define('ATTRIBUTES_ENABLED', '_attributes_enabled');
 define('ATTRIBUTES_VISIBILITY', '_attributes_visibility');
 define('ATTRIBUTES_VISIBILITY_STATES', array('all', 'visible', 'hidden'));
@@ -193,6 +194,26 @@ if (!class_exists('Algolia_Send_Products')) {
                 );
             }
             return false;
+        }
+
+        /**
+         * Checks if stock management is enabled and if so, returns quantity and status
+         *
+         * @param  mixed $product Product to check   
+         * @return array ['stock_quantity' => $stock_quantity,'stock_status' => $stock_status] Array with quantity and status. if stock management is disabled, false will be returned,
+         */
+        public static function get_custom_fields($product)
+        {
+            $custom_fields_string = get_option(ALGOWOO_DB_OPTION . CUSTOM_FIELDS);
+            $custom_fields_array = explode(",", $custom_fields_string);
+            $custom_field_with_values = array();
+            foreach($custom_fields_array as $custom_field) {
+                $value = get_post_meta($product->get_id(), $custom_field);
+                if(!empty($value)) {
+                    $custom_field_with_values[$custom_field] = $value;
+                }
+            }
+            return $custom_field_with_values;
         }
 
         /**
@@ -446,6 +467,13 @@ if (!class_exists('Algolia_Send_Products')) {
                 $record = self::add_to_record($record, 'tags', self::get_product_tags($product));
                 $record = self::add_to_record($record, 'attributes', self::get_product_attributes($product), true);
 
+                /**
+                 * get custom fields and merge
+                 */
+                $custom_fields = self::get_custom_fields($product);
+                if(!empty($custom_fields)) {
+                    $record = array_merge($record, $custom_fields);
+                }
 
 
                 /**
