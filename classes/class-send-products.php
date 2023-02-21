@@ -184,9 +184,8 @@ if (!class_exists('Algolia_Send_Products')) {
                     'stock_quantity' => $product->get_stock_quantity(),
                     'stock_status' => $product->get_stock_status()
                 );
-            } else {
-                return false;
             }
+            return false;
         }
 
         /**
@@ -304,7 +303,9 @@ if (!class_exists('Algolia_Send_Products')) {
                     $terms = wp_get_post_terms($product->get_id(), $name, 'all');
                     $tax_terms = array();
 
-                    // interpolate all values when found in numericRangeAttributes
+                    /**
+                     * interpolate all values when specified to interpolate
+                     */
                     if (in_array($id, $setting_ids_interpolate)) {
                         $integers = array();
                         foreach ($terms as $term) {
@@ -315,8 +316,12 @@ if (!class_exists('Algolia_Send_Products')) {
                                 array_push($tax_terms, $i);
                             }
                         }
-                    } else {
-                        // strings
+                    }
+
+                    /**
+                     * normal mixed content case 
+                     */
+                    if (!in_array($id, $setting_ids_interpolate)) {
                         foreach ($terms as $term) {
                             $single_term = esc_html($term->name);
                             array_push($tax_terms, $single_term);
