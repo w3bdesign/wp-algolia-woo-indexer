@@ -268,71 +268,55 @@ if (!class_exists('Algolia_Send_Products')) {
 
             $attributes = [];
             foreach ($rawAttributes as $attribute) {
-                /**
-                 * skip variation attributes
-                 */
-                if ($attribute->get_variation()) {
-                    continue;
-                }
 
-                /**
-                 * ensure that the setting_visibility is respected
-                 */
                 $visibility = $attribute["visible"];
-                if (
-                    ($setting_visibility ===  "visible" && $visibility === false) ||
-                    ($setting_visibility ===  "hidden" && $visibility === true)
-                ) {
-                    continue;
-                }
-
-                /**
-                 * ensure that the variation is respected
-                 */
                 $variation = $attribute["variation"];
+                $id = $attribute->get_id();
+                /**
+                 * skip variable related attributes,
+                 * ensure that taxonomy is whitelisted and
+                 * ensure that the visibility and variation is respected
+                 */
                 if (
+                    $attribute->get_variation() ||
+                    !in_array($id, $setting_ids) ||
+                    ($setting_visibility ===  "visible" && $visibility === false) ||
+                    ($setting_visibility ===  "hidden" && $visibility === true) ||
                     ($setting_variation ===  "used" && $variation === false) ||
                     ($setting_variation ===  "notused" && $variation === true)
                 ) {
                     continue;
                 }
 
-                /**
-                 * ensure that taxonomy is whitelisted
-                 */
-                $id = $attribute->get_id();
-                if (!in_array($id, $setting_ids)) {
-                    continue;
-                }
 
                 $name = $attribute->get_name();
                 if ($attribute->is_taxonomy()) {
                     $terms = wp_get_post_terms($product->get_id(), $name, 'all');
                     $tax_terms = array();
 
-                    /**
-                     * interp all values when specified to interp
-                     */
-                    if (in_array($id, $setting_ids_interp)) {
-                        $integers = array();
-                        foreach ($terms as $term) {
-                            array_push($integers, (int) $term->name);
-                        }
-                        if (count($integers) > 0) {
-                            for ($i = min($integers); $i <= max($integers); $i++) {
-                                array_push($tax_terms, $i);
+                    switch (in_array($id, $setting_ids_interp)) {
+                            /**
+                         * numeric interpolation
+                         */
+                        case true:
+                            $integers = array();
+                            foreach ($terms as $term) {
+                                array_push($integers, (int) $term->name);
                             }
-                        }
-                    }
-
-                    /**
-                     * normal mixed content case 
-                     */
-                    if (!in_array($id, $setting_ids_interp)) {
-                        foreach ($terms as $term) {
-                            $single_term = esc_html($term->name);
-                            array_push($tax_terms, $single_term);
-                        }
+                            if (count($integers) > 0) {
+                                for ($i = min($integers); $i <= max($integers); $i++) {
+                                    array_push($tax_terms, $i);
+                                }
+                            }
+                            break;
+                            /**
+                             * normal mixed content case 
+                             */
+                        default:
+                            foreach ($terms as $term) {
+                                $single_term = esc_html($term->name);
+                                array_push($tax_terms, $single_term);
+                            }
                     }
                 }
                 $attributes[$name] = $tax_terms;
