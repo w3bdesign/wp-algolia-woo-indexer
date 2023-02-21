@@ -335,33 +335,13 @@ if (!class_exists('Algolia_Woo_Indexer')) {
         {
             $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
             $selectedIds = explode(",", $value);
-            $attribute_taxonomies = wc_get_attribute_taxonomies();
-
-            if ($attribute_taxonomies) {
-            ?>
-            <p><?php echo __('Here you can whitelist all the attributes. Use the <b>shift</b> or <b>control</b> buttons to select multiple attributes.', 'algolia-woo-indexer'); ?></p>
-                <select multiple="multiple" name="algolia_woo_indexer_attributes_list[list][]" size="<?php echo count($attribute_taxonomies); ?>">
-                    <?php
-                    foreach ($attribute_taxonomies as $tax) {
-
-                        $id = $tax->attribute_id;
-                        $label = $tax->attribute_label;
-                        $name = $tax->attribute_name;
-                        $selected = in_array($id, $selectedIds) ? ' selected="selected" ' : '';
-                    ?>
-                        <option value="<?php echo $id; ?>" <?php echo $selected; ?>>
-                            <?php echo $label . ' (' . $name . ')'; ?>
-                        </option>
-                    <?php
-                    }
-                    ?>
-                </select>
-            <?php
-            }
+            $name = "algolia_woo_indexer_attributes_list[list]";
+            $description = __('Here you can whitelist all the attributes. Use the <b>shift</b> or <b>control</b> buttons to select multiple attributes.', 'algolia-woo-indexer');
+            self::generic_attributes_select_output($name, $selectedIds, $description);
         }
 
         /**
-         * Output for attributes list which attributes are whitelisted
+         * Output for attributes list which are using a numeric interpolation
          *
          * @return void
          */
@@ -369,29 +349,44 @@ if (!class_exists('Algolia_Woo_Indexer')) {
         {
             $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST_INTERPOLATE);
             $selectedIds = explode(",", $value);
+            $name = "algolia_woo_indexer_attributes_list_interpolate[list]";
+            $description = __('If you have some attributes based on number which shall be interpolated between the lowest to the highest number, you can select it here. A common usecase for this is if you want to have a <b>range slider</b> in aloglia which works for a certain range. Example: a plant grows between 20 and 25cm tall. for this you enter 20 and 25 as attribute values to your product and it will automatically extend the data to [20,21,22,23,24,25]', 'algolia-woo-indexer');
+            self::generic_attributes_select_output($name, $selectedIds, $description);
+        }
+
+        /**
+         * Generic Output for attributes list where attributes are whitelisted
+         *
+         * @return void
+         */
+        public static function generic_attributes_select_output($name, $selectedIds, $description)
+        {
             $attribute_taxonomies = wc_get_attribute_taxonomies();
 
-            if ($attribute_taxonomies) {
-            ?>
-            <p><?php echo __('If you have some attributes based on number which shall be interpolated between the lowest to the highest number, you can select it here. A common usecase for this is if you want to have a <b>range slider</b> in aloglia which works for a certain range. Example: a plant grows between 20 and 25cm tall. for this you enter 20 and 25 as attribute values to your product and it will automatically extend the data to [20,21,22,23,24,25]', 'algolia-woo-indexer'); ?></p>
-                <select multiple="multiple" name="algolia_woo_indexer_attributes_list_interpolate[list][]" size="<?php echo count($attribute_taxonomies); ?>">
-                    <?php
-                    foreach ($attribute_taxonomies as $tax) {
-
-                        $id = $tax->attribute_id;
-                        $label = $tax->attribute_label;
-                        $name = $tax->attribute_name;
-                        $selected = in_array($id, $selectedIds) ? ' selected="selected" ' : '';
-                    ?>
-                        <option value="<?php echo $id; ?>" <?php echo $selected; ?>>
-                            <?php echo $label . ' (' . $name . ')'; ?>
-                        </option>
-                    <?php
-                    }
-                    ?>
-                </select>
-            <?php
+            if (!$attribute_taxonomies) {
+                echo esc_html__('You don\'t have any attributes defined yet. Go to WooCommerce and add some to use this feature.', 'algolia-woo-indexer');
+                return;
             }
+            ?>
+            <p><?php echo $description; ?></p>
+            <select multiple="multiple" name="<?php echo $name; ?>[]" size="<?php echo count($attribute_taxonomies); ?>">
+                <?php
+                foreach ($attribute_taxonomies as $tax) {
+
+                    $id = $tax->attribute_id;
+                    $label = $tax->attribute_label;
+                    $name = $tax->attribute_name;
+                    $selected = in_array($id, $selectedIds) ? ' selected="selected" ' : '';
+                ?>
+                    <option value="<?php echo $id; ?>" <?php echo $selected; ?>>
+                        <?php echo $label . ' (' . $name . ')'; ?>
+                    </option>
+                <?php
+                }
+                ?>
+            </select>
+        <?php
+
         }
 
         /**
