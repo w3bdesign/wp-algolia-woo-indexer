@@ -15,8 +15,6 @@ namespace Algowoo;
 define('ATTRIBUTES_ENABLED', '_attributes_enabled');
 define('ATTRIBUTES_VISIBILITY', '_attributes_visibility');
 define('ATTRIBUTES_VISIBILITY_STATES', array('all', 'visible', 'hidden'));
-define('ATTRIBUTES_VARIATION', '_attributes_variation');
-define('ATTRIBUTES_VARIATION_STATES', array('all', 'used', 'notused'));
 define('ATTRIBUTES_LIST', '_attributes_list');
 define('ATTRIBUTES_INTERP', '_attributes_interp');
 define('ATTRIBUTES_TAX_FIELDS', '_attributes_tax_fields');
@@ -129,22 +127,6 @@ if (!class_exists('Algolia_Attributes')) {
                 $id = 'algolia_woo_indexer_attributes_visibility_' . $state;
             ?>
                 <p><input id="<?php echo $id; ?>" name="algolia_woo_indexer_attributes_visibility[value]" type="radio" value="<?php echo $state; ?>" <?php checked($state, $value); ?> /><label for="<?php echo $id; ?>"><?php echo esc_html__($state, 'algolia-woo-indexer'); ?></label></p>
-            <?php
-            }
-        }
-
-        /**
-         * Output for attributes how to handle variant setting
-         *
-         * @return void
-         */
-        public static function algolia_woo_indexer_attributes_variation_output()
-        {
-            $value = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
-            foreach (ATTRIBUTES_VARIATION_STATES as $state) {
-                $id = 'algolia_woo_indexer_attributes_variation_' . $state;
-            ?>
-                <p><input id="<?php echo $id; ?>" name="algolia_woo_indexer_attributes_variation[value]" type="radio" value="<?php echo $state; ?>" <?php checked($state, $value); ?> /><label for="<?php echo $id; ?>"><?php echo esc_html__($state, 'algolia-woo-indexer'); ?></label></p>
             <?php
             }
         }
@@ -271,7 +253,6 @@ if (!class_exists('Algolia_Attributes')) {
              */
             $attributes_enabled              = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_enabled', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_visibility           = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_visibility', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-            $attributes_variation            = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_variation', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_list                 = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_list', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_interp               = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_interp', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $attributes_tax_fields           = filter_input(INPUT_POST, 'algolia_woo_indexer_attributes_tax_fields', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
@@ -283,7 +264,6 @@ if (!class_exists('Algolia_Attributes')) {
              */
             $sanitized = array();
             $sanitized['attributes_visibility']     = sanitize_text_field($attributes_visibility['value']);
-            $sanitized['attributes_variation']      = sanitize_text_field($attributes_variation['value']);
 
             /**
              * sanitize select list of id's by getting integers and them implode seperated with comma
@@ -353,7 +333,6 @@ if (!class_exists('Algolia_Attributes')) {
              */
             $attributes_enabled              = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_ENABLED);
             $attributes_visibility           = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
-            $attributes_variation            = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
             $attributes_list                 = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
             $attributes_interp               = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_INTERP);
             $attributes_tax_fields           = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_TAX_FIELDS);
@@ -365,17 +344,10 @@ if (!class_exists('Algolia_Attributes')) {
                     1
                 );
             }
-
             if (empty($attributes_visibility)) {
                 add_option(
                     ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY,
                     ATTRIBUTES_VISIBILITY_STATES[0]
-                );
-            }
-            if (empty($attributes_variation)) {
-                add_option(
-                    ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION,
-                    ATTRIBUTES_VARIATION_STATES[0]
                 );
             }
             if (empty($attributes_list)) {
@@ -441,9 +413,10 @@ if (!class_exists('Algolia_Attributes')) {
                     foreach ($terms as $term) {
                         $final_term = array();
                         foreach ($allowed_keys as $key) {
-                            $final_term[$key] = esc_html($term->{$key});
+                            array_push($final_term, esc_html($term->{$key}));
                         }
-                        array_push($final_terms, $final_term);
+                        $string_with_Separator = implode("|", $final_term);
+                        array_push($final_terms, $string_with_Separator);
                     }
             }
             return $final_terms;
@@ -456,27 +429,22 @@ if (!class_exists('Algolia_Attributes')) {
          * ensure that the visibility and variation is respected
          * @param mixed $attribute Woocommerce attribute
          */
-        private static function is_attribute_allowed($attribute)
+        private static function is_attribute_not_allowed($attribute)
         {
             /**
              * gather settings
              */
             $setting_visibility = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VISIBILITY);
-            $setting_variation = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_VARIATION);
             $setting_ids = get_option(ALGOWOO_DB_OPTION . ATTRIBUTES_LIST);
             $setting_ids = explode(",", $setting_ids);
             $visibility = $attribute["visible"];
-            $variation = $attribute["variation"];
             $attribute_id = $attribute->get_id();
-            $is_visibility_invalid = ($setting_visibility ===  "visible" && $visibility === false) || ($setting_visibility ===  "hidden" && $visibility === true);
-            $is_variation_invalid = ($setting_variation ===  "used" && $variation === false) ||
-            ($setting_variation ===  "notused" && $variation === true)
 
             return ($attribute->get_variation() ||
                 !$attribute->is_taxonomy() ||
                 !in_array($attribute_id, $setting_ids) ||
-                $is_visibility_invalid ||
-                $is_variation_invalid
+                ($setting_visibility ===  "visible" && $visibility === false) ||
+                ($setting_visibility ===  "hidden" && $visibility === true)
             );
         }
 
@@ -504,8 +472,7 @@ if (!class_exists('Algolia_Attributes')) {
 
             $attributes = [];
             foreach ($rawAttributes as $attribute) {
-
-                if (self::is_attribute_allowed($attribute)) {
+                if (!self::is_attribute_not_allowed($attribute)) {
                     $name = $attribute->get_name();
                     $terms = wp_get_post_terms($product->get_id(), $name, 'all');
                     $is_interpolation = in_array($attribute->get_id(), $setting_ids_interp);
