@@ -38,6 +38,11 @@ require_once plugin_dir_path( __FILE__ ) . '/classes/class-check-requirements.ph
 require_once plugin_dir_path( __FILE__ ) . '/classes/class-verify-nonces.php';
 
 /**
+ * Class for attributes
+ */
+require_once plugin_dir_path( __FILE__ ) . '/classes/class-attributes.php';
+
+/**
  * Class for sending products
  */
 require_once plugin_dir_path( __FILE__ ) . '/classes/class-send-products.php';
