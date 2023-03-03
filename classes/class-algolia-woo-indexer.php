@@ -246,7 +246,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          *
          * @return void
          */
-        public static function algolia_woo_indexer_custom_fields_output($args)
+        public static function algolia_woo_indexer_custom_fields_output()
         {
             $custom_fields = get_option(ALGOWOO_DB_OPTION . CUSTOM_FIELDS);
             $asLines = str_replace(',', "\r", $custom_fields);
