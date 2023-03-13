@@ -34,7 +34,6 @@ define('ALLOWED_TAXONOMIES', array(
 define('ATTRIBUTES_SETTINGS', array(
     'enabled' => 'Enable indexing of attributes',
     'visibility' => 'Visibility',
-    'variation' => 'Used for variations',
     'list' => 'Valid Attributes',
     'interp' => 'Numeric Interpolation',
     'tax_fields' => 'Content of each attribute term'
