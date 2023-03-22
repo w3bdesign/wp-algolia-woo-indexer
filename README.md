@@ -19,6 +19,8 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 ## Basic Features
 
 -   Manually or automatically submit WooCommerce products to Algolia
+-   Choose from a broad variation of common fields to index
+-   Indexing of attributes with settings for visibility and varation behavios as well as whitelisting.
 -   Default options are added upon plugin activation
 -   Options are deleted from database upon plugin uninstallation (not on deactivation)
 
