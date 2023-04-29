@@ -11,8 +11,8 @@ namespace Algowoo;
 /**
  * Define minimum required versions of PHP and WordPress
  */
-define('ALGOLIA_MIN_PHP_VERSION', '7.2');
-define('ALGOLIA_MIN_WP_VERSION', '5.4');
+define('ALGOLIA_MIN_PHP_VERSION', '8.1');
+define('ALGOLIA_MIN_WP_VERSION', '6.1');
 
 /**
  * Abort if this file is called directly
