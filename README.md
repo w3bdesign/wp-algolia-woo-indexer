@@ -31,7 +31,7 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 
 ## Requirements
 
--   An account at www.algolia.com (can be a free community plan)
+-   An account at www.algolia.com (either free or premium)
 -   Access to install and activate plugins (usually administrator rights)
 -   WordPress 6.1.1 or newer
 -   WooCommerce 7.4.0 or newer
