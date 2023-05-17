@@ -28,6 +28,10 @@ None
 
 
 == Changelog ==
+
+= 1.0.7 =
+* Add support for premium version
+
 = 1.0 =
 * Initial release
 
