@@ -9,7 +9,7 @@
  * Requires PHP: 8.1
  * WC requires at least: 7.0.0
  * WC tested up to: 7.4.0
- * Version:         1.0.6
+ * Version:         1.0.7
  *
  * @package         algolia-woo-indexer
  * @license         GNU version 3
