@@ -224,10 +224,8 @@ if (!class_exists('Algolia_Send_Products')) {
              */
             $result = $index->saveObjects($records);
 
-            if ('Algolia\AlgoliaSearch\Response\NullResponse' === get_class($result)) {		    
-		    echo '<div class="notice notice-error is-dismissible">
-					 	<p>' . esc_html__('Potential API key issue. You may dismiss this if you are using the premium version.', 'algolia-woo-indexer') . '</p>
-				  		</div>';		    
+            if ('Algolia\AlgoliaSearch\Response\NullResponse' === get_class($result)) {
+                wp_die(esc_html__('No response from the server. Please check your settings and try again', 'algolia_woo_indexer_settings'));
             }
 
             /**
