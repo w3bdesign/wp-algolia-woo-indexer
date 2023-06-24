@@ -368,7 +368,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             if ('publish' !== $post->post_status || 'product' !== $post->post_type) {
                 return;
             }
-            Algolia_Send_Products::send_products_to_algolia($post_id);
+            Algolia_Send_Products::send_product_to_algolia($post_id);
         }
 
         /**

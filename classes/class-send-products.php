@@ -239,14 +239,35 @@ if (!class_exists('Algolia_Send_Products')) {
             return $term_array;
         }
 
-
         /**
-         * Send WooCommerce products to Algolia
+         * Send specific WooCommerce products to Algolia
          *
          * @param Int $id Product to send to Algolia if we send only a single product
          * @return void
          */
+        public static function send_product_to_algolia($id = '')
+        {
+            self::send_products_to_algolia_wrapper("saveObjects", $id);
+        }
+
+        /**
+         * Replace all exitsting WooCommerce products to Algolia
+         *
+         * @return void
+         */
         public static function send_products_to_algolia($id = '')
+        {
+            self::send_products_to_algolia_wrapper("replaceAllObjects", $id);
+        }
+
+        /**
+         * Send WooCommerce products to Algolia
+         *
+         * @param string $type represent how we handle it on algolia, options are ""replaceAll"
+         * @param Int $id Product to send to Algolia if we send only a single product
+         * @return void
+         */
+        public static function send_products_to_algolia_wrapper($type, $id = '')
         {
             /**
              * Remove classes from plugin URL and autoload Algolia with Composer
@@ -335,8 +356,6 @@ if (!class_exists('Algolia_Send_Products')) {
                 $regular_price = $product_type_price['regular_price'];
 
 
-
-
                 /**
                  * always add objectID (mandatory field for algolia)
                  */
@@ -388,8 +407,16 @@ if (!class_exists('Algolia_Send_Products')) {
             /**
              * Send the information to Algolia and save the result
              * If result is NullResponse, print an error message
-             */
-            $result = $index->saveObjects($records);
+             */ 
+            switch($type) {
+                case "replaceAllObjects":
+                    $result = $index->replaceAllObjects($records);
+                break;
+                case "saveObjects":
+                    $result = $index->saveObjects($records);
+                break;
+            }
+            
 
             if ('Algolia\AlgoliaSearch\Response\NullResponse' === get_class($result)) {
                 wp_die(esc_html__('No response from the server. Please check your settings and try again', 'algolia_woo_indexer_settings'));
