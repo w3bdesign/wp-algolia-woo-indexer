@@ -160,7 +160,6 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                  * add settings for Attributes
                  */
                 Algolia_Attributes::setup_attributes_settings();
-
             }
         }
 
@@ -275,7 +274,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
         {
             echo esc_html__('Choose which basic fields shall be indexed.', 'algolia-woo-indexer');
         }
-        
+
         /**
          * Check if we are going to send products by verifying send products nonce
          *
@@ -338,6 +337,8 @@ if (!class_exists('Algolia_Woo_Indexer')) {
 
                 if ('1' === $auto_send) {
                     add_action('save_post', array($ob_class, 'send_new_product_to_algolia'), 10, 3);
+                    add_action('woocommerce_reduce_order_stock', array($ob_class, 'send_new_product_to_algolia'), 10, 3);
+                    // add_action('woocommerce_new_order', array($ob_class, 'send_new_products_to_algolia'), 10, 3);
                 }
 
                 self::$plugin_url = admin_url('options-general.php?page=algolia-woo-indexer-settings');
@@ -351,6 +352,18 @@ if (!class_exists('Algolia_Woo_Indexer')) {
 								</div>';
                         }
                     );
+                }
+                
+            }
+
+            // add cronjob if autosend is active to ensure stock statuses
+            if ('1' === $auto_send) {
+                /* add cronjob to update stop automatically */
+                add_action('algolia_cron_send_products_to_algolia', array($ob_class, 'send_new_products_to_algolia'));
+
+                // not sheduled?
+                if (!wp_next_scheduled('algolia_cron_send_products_to_algolia')) {
+                    wp_schedule_event(time(), 'hourly', 'algolia_cron_send_products_to_algolia');
                 }
             }
         }
@@ -369,6 +382,18 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 return;
             }
             Algolia_Send_Products::send_product_to_algolia($post_id);
+        }
+        /**
+         * Send a single product to Algolia once a new product has been published
+         *
+         * @param int   $post_id ID of the product.
+         * @param array $post Post array.
+         *
+         * @return void
+         */
+        public static function send_new_products_to_algolia()
+        {
+            Algolia_Send_Products::send_products_to_algolia();  
         }
 
         /**
@@ -488,7 +513,6 @@ if (!class_exists('Algolia_Woo_Indexer')) {
              * Update Attributes as well 
              */
             Algolia_Attributes::update_attribute_options();
-
         }
 
         /**
@@ -657,6 +681,13 @@ if (!class_exists('Algolia_Woo_Indexer')) {
          */
         public static function deactivate_plugin()
         {
+            register_deactivation_hook(__FILE__, 'bl_deactivate');
+
+            function bl_deactivate()
+            {
+                $timestamp = wp_next_scheduled('bl_cron_hook');
+                wp_unschedule_event($timestamp, 'bl_cron_hook');
+            }
             delete_transient(self::PLUGIN_TRANSIENT);
         }
     }

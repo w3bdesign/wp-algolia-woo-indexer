@@ -272,7 +272,6 @@ if (!class_exists('Algolia_Send_Products')) {
             /**
              * Remove classes from plugin URL and autoload Algolia with Composer
              */
-
             $base_plugin_directory = str_replace('classes', '', dirname(__FILE__));
             require_once $base_plugin_directory . '/vendor/autoload.php';
 
