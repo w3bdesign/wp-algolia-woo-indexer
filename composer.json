@@ -1,5 +1,6 @@
 {
     "name": "daniel/algolia-woo-indexer",
+    "type": "wordpress-plugin",
     "authors": [
         {
             "name": "w3bdesign",
