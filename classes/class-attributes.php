@@ -233,7 +233,6 @@ if (!class_exists('Algolia_Attributes')) {
          */
         public static function algolia_woo_indexer_attributes_section_text()
         {
-            
         }
 
 
@@ -397,7 +396,9 @@ if (!class_exists('Algolia_Attributes')) {
                 case true:
                     $integers = array();
                     foreach ($terms as $term) {
-                        array_push($integers, (int) $term->name);
+                        if ($term->name !== "leer") {
+                            array_push($integers, (int) $term->name);
+                        }
                     }
                     if (count($integers) > 0) {
                         for ($i = min($integers); $i <= max($integers); $i++) {
