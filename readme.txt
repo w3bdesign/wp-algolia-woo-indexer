@@ -29,6 +29,9 @@ None
 
 == Changelog ==
 
+= 1.0.8 =
+* Minor package updates
+
 = 1.0.7 =
 * Add support for premium version
 
@@ -45,4 +48,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 
 == Version history ==
-1.0 - Initial version
+
+1.0.8 - Minor package updates
+1.0.7 - Add support for premium version
+1.0   - Initial version
