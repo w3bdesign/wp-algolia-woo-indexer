@@ -4,7 +4,7 @@
  * Description:     Implement Algolia indexing from WooCommerce
  * Text Domain:     algolia-woo-indexer
  * Author:          Daniel Fjeldstad
- * Requires at least: 6.0
+ * Requires at least: 6.1
  * Tested up to: 6.2.0
  * Requires PHP: 8.1
  * WC requires at least: 7.0.0
