@@ -1,5 +1,9 @@
 name: PHP CodeSniffer Autofix
 
+permissions:
+  contents: write
+  pull-requests: write
+
 on:
   pull_request:
     branches:
@@ -37,13 +41,39 @@ jobs:
       - name: Run PHPCBF to fix coding standards
         run: vendor/bin/phpcbf --standard=phpcs.xml --extensions=php . || true
 
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Apply PHPCBF fixes"
-          branch: ${{ github.head_ref }}
-          commit_options: "--no-verify"
-          file_pattern: "*.php"
-          commit_user_name: "PHPCS Autofixer Bot"
-          commit_user_email: "actions@github.com"
-          commit_author: "PHPCS Autofixer Bot <actions@github.com>"
+      - name: Commit and Push PHPCBF fixes
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          echo "Current git status:"
+          git status
+          
+          # Add all changed files. phpcbf modifies files in place.
+          # We expect only .php files to be changed by phpcbf.
+          git add .
+          
+          # Check again if staging made any difference to status, then commit
+          echo "Git status after add:"
+          git status
+          
+          if git diff --staged --quiet; then
+            echo "No changes staged, nothing to commit."
+          else
+            echo "Staged changes found, attempting commit..."
+            git commit -m "Apply PHPCBF fixes [skip ci]" -m "Automated PHPCBF fixes." --no-verify
+            
+            # Determine the branch to push to
+            # For PRs, github.head_ref is the source branch name.
+            # For workflow_dispatch, github.ref_name is the branch the workflow was run on.
+            BRANCH_NAME=""
+            if [[ -n "${{ github.head_ref }}" ]]; then
+              BRANCH_NAME="${{ github.head_ref }}"
+            else
+              BRANCH_NAME="${{ github.ref_name }}"
+            fi
+            
+            echo "Pushing changes to branch: $BRANCH_NAME"
+            git push origin "$BRANCH_NAME"
+            echo "Changes pushed successfully."
+          fi

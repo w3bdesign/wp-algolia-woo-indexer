@@ -37,7 +37,6 @@ if ( ! class_exists( 'Algolia_Verify_Nonces' ) ) {
 			if ( ! isset( $settings_nonce ) ) {
 				return;
 			}
-
 		}
 
 			/**
