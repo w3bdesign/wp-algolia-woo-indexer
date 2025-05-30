@@ -32,7 +32,7 @@ jobs:
           composer require --dev phpcompatibility/phpcompatibility-wp "*"        
 
       - name: Run PHPCBF to fix coding standards
-        run: vendor/bin/phpcbf --standard=phpcs.xml --extensions=php .
+        run: vendor/bin/phpcbf --standard=phpcs.xml --extensions=php . || true
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
