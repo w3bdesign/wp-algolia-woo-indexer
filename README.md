@@ -6,6 +6,8 @@
 
 # Algolia WooCommerce Indexer
 
+- Used in production at https://flora-di-berna.ch
+
 ## Description
 
 This plugin transfers products from WooCommerce to Algolia. You can choose if it only sends products that are in stock.
