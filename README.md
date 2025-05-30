@@ -28,6 +28,7 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 -   All code scanned and verified with PHPCS
 -   Code follows modern coding standards
 -   All variables are properly sanitized to ensure that no security issues are present
+-   Repository documentation with AI, for easier development with LLM-models
 
 ## Requirements
 
