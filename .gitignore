@@ -473,4 +473,4 @@ composer.lock
 composer.phar
 
 # Comment this out if you do not want to install dependencies manually with "composer install"
-# /vendor/
+/vendor/
