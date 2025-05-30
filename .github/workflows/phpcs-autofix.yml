@@ -1,7 +1,7 @@
 name: PHP CodeSniffer Autofix
 
 on:
-  pull_request: # Now triggers on PRs to any branch
+  pull_request:
 
 jobs:
   phpcs_autofix:
@@ -10,22 +10,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # We need to fetch the PR branch to be able to push changes
           ref: ${{ github.head_ref }}
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.1"
-          extensions: mbstring, xml, ctype, iconv, json # Common extensions
-          tools: composer # Installs composer
+          extensions: mbstring, xml, ctype, iconv, json
+          tools: composer
+
+      - name: Allow Composer plugins
+        run: |
+          composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer config --no-plugins allow-plugins.phpcompatibility/phpcs-compatinfo true
+          # Add any other plugins if they cause issues
 
       - name: Install PHP_CodeSniffer and WordPress Coding Standards
         run: |
           composer require --dev squizlabs/php_codesniffer "*"
           composer require --dev wp-coding-standards/wpcs "*"
-          composer require --dev phpcompatibility/phpcompatibility-wp "*"
-          # Link the WordPress coding standard to PHP_CodeSniffer
+          composer require --dev phpcompatibility/phpcompatibility-wp "*"        
           vendor/bin/phpcs --config-set installed_paths ../../wp-coding-standards/wpcs,../../phpcompatibility/phpcompatibility-wp
 
       - name: Run PHPCBF to fix coding standards
@@ -36,8 +40,8 @@ jobs:
         with:
           commit_message: "Apply PHPCBF fixes"
           branch: ${{ github.head_ref }}
-          commit_options: "--no-verify" # Optional: Skip pre-commit hooks if any
-          file_pattern: "*.php" # Only commit PHP files
+          commit_options: "--no-verify"
+          file_pattern: "*.php"
           commit_user_name: "PHPCS Autofixer Bot"
           commit_user_email: "actions@github.com"
           commit_author: "PHPCS Autofixer Bot <actions@github.com>"
