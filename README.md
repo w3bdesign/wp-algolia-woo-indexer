@@ -29,6 +29,7 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 - Code follows modern coding standards
 - All variables are properly sanitized to ensure that no security issues are present
 - AI Repository documentation located in `/DOCS/repository_context.txt`
+- PHPCS Autofix with Github actions
 
 ## Requirements
 
