@@ -1,9 +1,7 @@
 name: PHP CodeSniffer Autofix
 
 on:
-  pull_request:
-    branches:
-      - main # Or your default branch, e.g., master
+  pull_request: # Now triggers on PRs to any branch
 
 jobs:
   phpcs_autofix:
