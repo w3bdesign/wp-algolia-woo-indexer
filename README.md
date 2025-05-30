@@ -1,5 +1,5 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/w3bdesign/algolia-woo-indexer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/w3bdesign/algolia-woo-indexer/?branch=master)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/bfe1f91c2d3a40e6953baabeee88f781)](https://www.codacy.com/gh/w3bdesign/algolia-woo-indexer/dashboard?utm_source=github.com&utm_medium=referral&utm_content=w3bdesign/algolia-woo-indexer&utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/bfe1f91c2d3a40e6953baabeee88f781)](https://app.codacy.com/gh/w3bdesign/wp-algolia-woo-indexer/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 ![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green)
 
 ![Screenshot](/screenshots/screenshot1.jpg)
