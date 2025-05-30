@@ -30,7 +30,6 @@ jobs:
           composer require --dev squizlabs/php_codesniffer "*"
           composer require --dev wp-coding-standards/wpcs "*"
           composer require --dev phpcompatibility/phpcompatibility-wp "*"        
-          vendor/bin/phpcs --config-set installed_paths ../../wp-coding-standards/wpcs,../../phpcompatibility/phpcompatibility-wp
 
       - name: Run PHPCBF to fix coding standards
         run: vendor/bin/phpcbf --standard=phpcs.xml --extensions=php .
