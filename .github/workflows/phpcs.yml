@@ -1,6 +1,12 @@
 on: pull_request
 
 name: Inspections
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
 jobs:
   runPHPCSInspection:
     name: Run PHPCS inspection
