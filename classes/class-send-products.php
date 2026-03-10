@@ -66,6 +66,16 @@ define('ALGOLIA_APP_ID', '_application_id');
 define('ALGOLIA_API_KEY', '_admin_api_key');
 define('CUSTOM_FIELDS', '_custom_fields');
 
+/**
+ * Define settings update related options and cron identifiers
+ */
+define('ALGOLIA_SETTINGS_CONFIG', '_index_settings_config');
+define('ALGOLIA_SETTINGS_CRON_ENABLED', '_index_settings_cron_enabled');
+define('ALGOLIA_SETTINGS_CRON_INTERVAL', '_index_settings_cron_interval');
+define('ALGOLIA_SETTINGS_DEFAULT_CRON_INTERVAL', 60);
+define('ALGOLIA_SETTINGS_CRON_HOOK', 'algolia_cron_update_index_settings');
+define('ALGOLIA_SETTINGS_CRON_SCHEDULE', 'algolia_settings_interval');
+
 
 if (!class_exists('Algolia_Send_Products')) {
     /**
@@ -83,6 +93,81 @@ if (!class_exists('Algolia_Send_Products')) {
          * @var \Algolia\AlgoliaSearch\SearchClient
          */
         private static $algolia = null;
+
+        /**
+         * Return absolute path to config directory
+         *
+         * @return string
+         */
+        private static function get_config_directory()
+        {
+            return plugin_dir_path(__DIR__) . 'config/';
+        }
+
+        /**
+         * List available JSON config files inside config directory
+         *
+         * @return array
+         */
+        public static function get_available_config_files()
+        {
+            $config_directory = self::get_config_directory();
+            if (!is_dir($config_directory)) {
+                return array();
+            }
+
+            $config_files = glob($config_directory . '*.json');
+
+            if (false === $config_files) {
+                return array();
+            }
+
+            $config_files = array_map('basename', $config_files);
+            sort($config_files);
+
+            return $config_files;
+        }
+
+        /**
+         * Prepare Algolia client and index using stored credentials
+         *
+         * @return \Algolia\AlgoliaSearch\SearchIndex|null
+         */
+        private static function prepare_algolia_index()
+        {
+            $base_plugin_directory = plugin_dir_path(__DIR__);
+            require_once $base_plugin_directory . 'vendor/autoload.php';
+
+            $algolia_application_id = get_option(ALGOWOO_DB_OPTION . ALGOLIA_APP_ID);
+            $algolia_application_id = is_string($algolia_application_id) ? $algolia_application_id : CHANGE_ME;
+
+            $algolia_api_key = get_option(ALGOWOO_DB_OPTION . ALGOLIA_API_KEY);
+            $algolia_api_key = is_string($algolia_api_key) ? $algolia_api_key : CHANGE_ME;
+
+            $algolia_index_name = get_option(ALGOWOO_DB_OPTION . INDEX_NAME);
+            $algolia_index_name = is_string($algolia_index_name) ? $algolia_index_name : CHANGE_ME;
+
+            Algolia_Check_Requirements::check_algolia_input_values($algolia_application_id, $algolia_api_key, $algolia_index_name);
+
+            if (empty($algolia_application_id) || empty($algolia_api_key) || empty($algolia_index_name) || CHANGE_ME === $algolia_application_id || CHANGE_ME === $algolia_api_key || CHANGE_ME === $algolia_index_name) {
+                return null;
+            }
+
+            try {
+                self::$algolia = \Algolia\AlgoliaSearch\SearchClient::create($algolia_application_id, $algolia_api_key);
+                self::can_connect_to_algolia();
+                return self::$algolia->initIndex($algolia_index_name);
+            } catch (\Exception $exception) {
+                add_action(
+                    'admin_notices',
+                    function () use ($exception) {
+                        echo '<div class="error notice"><p>' . esc_html__('Unable to connect to Algolia. ', 'algolia-woo-indexer') . esc_html($exception->getMessage()) . '</p></div>';
+                    }
+                );
+            }
+
+            return null;
+        }
 
         /**
          * Check if we can connect to Algolia, if not, handle the exception, display an error and then return
@@ -270,44 +355,13 @@ if (!class_exists('Algolia_Send_Products')) {
         public static function send_products_to_algolia_wrapper($type, $id = '')
         {
             /**
-             * Remove classes from plugin URL and autoload Algolia with Composer
+             * Prepare Algolia client and index
              */
-            $base_plugin_directory = str_replace('classes', '', dirname(__FILE__));
-            require_once $base_plugin_directory . '/vendor/autoload.php';
+            $index = self::prepare_algolia_index();
 
-            /**
-             * Fetch the required variables from the Settings API
-             */
-
-            $algolia_application_id = get_option(ALGOWOO_DB_OPTION . ALGOLIA_APP_ID);
-            $algolia_application_id = is_string($algolia_application_id) ? $algolia_application_id : CHANGE_ME;
-
-            $algolia_api_key        = get_option(ALGOWOO_DB_OPTION . ALGOLIA_API_KEY);
-            $algolia_api_key        = is_string($algolia_api_key) ? $algolia_api_key : CHANGE_ME;
-
-            $algolia_index_name     = get_option(ALGOWOO_DB_OPTION . INDEX_NAME);
-            $algolia_index_name        = is_string($algolia_index_name) ? $algolia_index_name : CHANGE_ME;
-
-            /**
-             * Display admin notice and return if not all values have been set
-             */
-
-            Algolia_Check_Requirements::check_algolia_input_values($algolia_application_id, $algolia_api_key, $algolia_index_name);
-
-            /**
-             * Initiate the Algolia client
-             */
-            self::$algolia = \Algolia\AlgoliaSearch\SearchClient::create($algolia_application_id, $algolia_api_key);
-
-            /**
-             * Check if we can connect, if not, handle the exception, display an error and then return
-             */
-            self::can_connect_to_algolia();
-
-            /**
-             * Initialize the search index and set the name to the option from the database
-             */
-            $index = self::$algolia->initIndex($algolia_index_name);
+            if (!$index) {
+                return;
+            }
 
             /**
              * Setup arguments for sending all products to Algolia
@@ -409,7 +463,8 @@ if (!class_exists('Algolia_Send_Products')) {
              */ 
             switch($type) {
                 case "replaceAllObjects":
-                    $result = $index->replaceAllObjects($records);
+                    // use safe mode so Algolia waits for settings/synonyms/rules copy before moving the tmp index
+                    $result = $index->replaceAllObjects($records, array('safe' => true));
                 break;
                 case "saveObjects":
                     $result = $index->saveObjects($records);
@@ -427,6 +482,81 @@ if (!class_exists('Algolia_Send_Products')) {
             echo '<div class="notice notice-success is-dismissible">
 					 	<p>' . esc_html__('Product(s) sent to Algolia.', 'algolia-woo-indexer') . '</p>
 				  		</div>';
+        }
+
+        /**
+         * Update Algolia index settings, rules and synonyms based on a config file
+         *
+         * @param string $config_file Optional config file name to override the saved option.
+         * @param bool   $display_notice Whether to show admin notices (disable for cron).
+         * @return void
+         */
+        public static function update_index_settings($config_file = '', $display_notice = true)
+        {
+            $available_configs = self::get_available_config_files();
+            $selected_config = sanitize_file_name($config_file);
+
+            if (empty($selected_config)) {
+                $selected_config = get_option(ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CONFIG);
+            }
+
+            if (empty($selected_config) && !empty($available_configs)) {
+                $selected_config = $available_configs[0];
+            }
+
+            if (empty($selected_config) || !in_array($selected_config, $available_configs, true)) {
+                if ($display_notice && is_admin()) {
+                    echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Config file for Algolia index settings not found.', 'algolia-woo-indexer') . '</p></div>';
+                }
+                return;
+            }
+
+            $config_path = self::get_config_directory() . $selected_config;
+            $config_raw = file_get_contents($config_path);
+
+            if (false === $config_raw) {
+                if ($display_notice && is_admin()) {
+                    echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Could not read the selected Algolia config file.', 'algolia-woo-indexer') . '</p></div>';
+                }
+                return;
+            }
+
+            $config_data = json_decode($config_raw, true);
+
+            if (JSON_ERROR_NONE !== json_last_error()) {
+                if ($display_notice && is_admin()) {
+                    echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Invalid JSON in the selected Algolia config file.', 'algolia-woo-indexer') . '</p></div>';
+                }
+                return;
+            }
+
+            $index = self::prepare_algolia_index();
+
+            if (!$index) {
+                return;
+            }
+
+            try {
+                if (isset($config_data['settings']) && is_array($config_data['settings'])) {
+                    $index->setSettings($config_data['settings']);
+                }
+
+                if (isset($config_data['synonyms']) && is_array($config_data['synonyms'])) {
+                    $index->saveSynonyms($config_data['synonyms'], array('replaceExistingSynonyms' => true));
+                }
+
+                if (isset($config_data['rules']) && is_array($config_data['rules'])) {
+                    $index->saveRules($config_data['rules'], array('clearExistingRules' => true));
+                }
+
+                if ($display_notice && is_admin()) {
+                    echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Algolia index settings were updated from the selected config.', 'algolia-woo-indexer') . '</p></div>';
+                }
+            } catch (\Exception $exception) {
+                if ($display_notice && is_admin()) {
+                    echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Failed to update Algolia index settings: ', 'algolia-woo-indexer') . esc_html($exception->getMessage()) . '</p></div>';
+                }
+            }
         }
     }
 }

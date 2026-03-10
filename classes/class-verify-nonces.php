@@ -39,6 +39,26 @@ if ( ! class_exists( 'Algolia_Verify_Nonces' ) ) {
 		}
 
 			/**
+			 * Verify nonce for updating Algolia index settings manually
+			 *
+			 * @return bool
+			 */
+		public static function verify_update_index_settings_nonce() {
+			$update_nonce = filter_input( INPUT_POST, 'update_index_settings_nonce_name', FILTER_DEFAULT );
+			$update_request = filter_input( INPUT_POST, 'update_algolia_index_settings', FILTER_DEFAULT );
+
+			if ( ! wp_verify_nonce( $update_nonce, 'update_index_settings_nonce_action' ) && isset( $update_request ) ) {
+				wp_die( esc_html__( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html__( 'Error!', 'algolia-woo-indexer' ) );
+			}
+
+			if ( wp_verify_nonce( $update_nonce, 'update_index_settings_nonce_action' ) && isset( $update_request ) ) {
+				return true;
+			}
+
+			return false;
+		}
+
+			/**
 			 * Check if we are sending products to Algolia
 			 *
 			 * @return bool

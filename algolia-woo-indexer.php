@@ -23,11 +23,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Main class file
- */
-require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-woo-indexer.php';
-
-/**
  * Class for checking plugin requirements
  */
 require_once plugin_dir_path( __FILE__ ) . '/classes/class-check-requirements.php';
@@ -43,9 +38,14 @@ require_once plugin_dir_path( __FILE__ ) . '/classes/class-verify-nonces.php';
 require_once plugin_dir_path( __FILE__ ) . '/classes/class-attributes.php';
 
 /**
- * Class for sending products
+ * Class for sending products and handling Algolia index interactions
  */
 require_once plugin_dir_path( __FILE__ ) . '/classes/class-send-products.php';
+
+/**
+ * Main class file
+ */
+require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-woo-indexer.php';
 
 $algowooindexer = \Algowoo\Algolia_Woo_Indexer::get_instance();
 

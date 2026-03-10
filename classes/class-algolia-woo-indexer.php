@@ -157,6 +157,40 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 );
 
                 /**
+                 * Add settings for Algolia index settings updates
+                 */
+                add_settings_section(
+                    'algolia_woo_indexer_index_settings',
+                    esc_html__('Algolia index settings', 'algolia-woo-indexer'),
+                    array($algowooindexer, 'algolia_woo_indexer_index_settings_section_text'),
+                    'algolia_woo_indexer'
+                );
+
+                add_settings_field(
+                    'algolia_woo_indexer_settings_config',
+                    esc_html__('Config file', 'algolia-woo-indexer'),
+                    array($algowooindexer, 'algolia_woo_indexer_settings_config_output'),
+                    'algolia_woo_indexer',
+                    'algolia_woo_indexer_index_settings'
+                );
+
+                add_settings_field(
+                    'algolia_woo_indexer_settings_cron_enabled',
+                    esc_html__('Enable scheduled updates', 'algolia-woo-indexer'),
+                    array($algowooindexer, 'algolia_woo_indexer_settings_cron_enabled_output'),
+                    'algolia_woo_indexer',
+                    'algolia_woo_indexer_index_settings'
+                );
+
+                add_settings_field(
+                    'algolia_woo_indexer_settings_cron_interval',
+                    esc_html__('Cron interval (minutes)', 'algolia-woo-indexer'),
+                    array($algowooindexer, 'algolia_woo_indexer_settings_cron_interval_output'),
+                    'algolia_woo_indexer',
+                    'algolia_woo_indexer_index_settings'
+                );
+
+                /**
                  * add settings for Attributes
                  */
                 Algolia_Attributes::setup_attributes_settings();
@@ -276,6 +310,69 @@ if (!class_exists('Algolia_Woo_Indexer')) {
         }
 
         /**
+         * Section text for index settings section
+         *
+         * @return void
+         */
+        public static function algolia_woo_indexer_index_settings_section_text()
+        {
+            echo esc_html__('Select a config and control how index settings updates are scheduled.', 'algolia-woo-indexer');
+        }
+
+        /**
+         * Output select for available Algolia config files located in config directory
+         *
+         * @return void
+         */
+        public static function algolia_woo_indexer_settings_config_output()
+        {
+            $available_configs = Algolia_Send_Products::get_available_config_files();
+            $selected_config = get_option(ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CONFIG);
+
+            if (empty($available_configs)) {
+                echo '<p>' . esc_html__('No config files found in the plugin config directory.', 'algolia-woo-indexer') . '</p>';
+                return;
+            }
+
+            echo '<select id="algolia_woo_indexer_settings_config" name="algolia_woo_indexer_settings_config[file]">';
+            foreach ($available_configs as $config) {
+                $is_selected = selected($config, $selected_config, false);
+                echo '<option value="' . esc_attr($config) . '" ' . $is_selected . '>' . esc_html($config) . '</option>';
+            }
+            echo '</select>';
+        }
+
+        /**
+         * Output for enabling/disabling scheduled settings updates
+         *
+         * @return void
+         */
+        public static function algolia_woo_indexer_settings_cron_enabled_output()
+        {
+            $enabled = get_option(ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CRON_ENABLED);
+            $enabled = (!empty($enabled)) ? 1 : 0; ?>
+            <input id="algolia_woo_indexer_settings_cron_enabled" name="algolia_woo_indexer_settings_cron_enabled[checked]" type="checkbox" <?php checked(1, $enabled); ?> />
+        <?php
+        }
+
+        /**
+         * Output for configuring cron interval in minutes
+         *
+         * @return void
+         */
+        public static function algolia_woo_indexer_settings_cron_interval_output()
+        {
+            $interval = get_option(ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CRON_INTERVAL);
+            $interval = absint($interval);
+            $interval = (0 !== $interval) ? $interval : ALGOLIA_SETTINGS_DEFAULT_CRON_INTERVAL;
+
+        ?>
+            <input id="algolia_woo_indexer_settings_cron_interval" name="algolia_woo_indexer_settings_cron_interval[value]" type="number" min="1" step="1" value="<?php echo esc_attr($interval); ?>" />
+            <p class="description"><?php echo esc_html__('Define how often (in minutes) Algolia index settings should be refreshed when cron is enabled.', 'algolia-woo-indexer'); ?></p>
+        <?php
+        }
+
+        /**
          * Check if we are going to send products by verifying send products nonce
          *
          * @return void
@@ -285,6 +382,73 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             if (true === Algolia_Verify_Nonces::verify_send_products_nonce()) {
                 Algolia_Send_Products::send_products_to_algolia();
             }
+        }
+
+        /**
+         * Trigger index settings update when manual form is submitted
+         *
+         * @return void
+         */
+        public static function maybe_update_index_settings()
+        {
+            if (true === Algolia_Verify_Nonces::verify_update_index_settings_nonce()) {
+                $config = get_option(ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CONFIG);
+                Algolia_Send_Products::update_index_settings($config);
+            }
+        }
+
+        /**
+         * Register custom cron schedule for index settings updates
+         *
+         * @param array $schedules Existing schedules
+         * @return array
+         */
+        public static function register_settings_cron_schedule($schedules)
+        {
+            $interval_minutes = get_option(ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CRON_INTERVAL);
+            $interval_minutes = absint($interval_minutes);
+            $interval_minutes = (0 !== $interval_minutes) ? $interval_minutes : ALGOLIA_SETTINGS_DEFAULT_CRON_INTERVAL;
+
+            $interval_minutes = max(1, $interval_minutes);
+
+            $schedules[ALGOLIA_SETTINGS_CRON_SCHEDULE] = array(
+                'interval' => $interval_minutes * 60,
+                'display'  => sprintf(esc_html__('Every %d minutes (Algolia index settings)', 'algolia-woo-indexer'), $interval_minutes),
+            );
+
+            return $schedules;
+        }
+
+        /**
+         * Ensure cron hook schedule matches current settings
+         *
+         * @param int $enabled Flag if cron should be active
+         * @param int $interval_minutes Interval in minutes
+         *
+         * @return void
+         */
+        public static function refresh_settings_cron_schedule($enabled, $interval_minutes)
+        {
+            $interval_minutes = absint($interval_minutes);
+            $interval_minutes = (0 !== $interval_minutes) ? $interval_minutes : ALGOLIA_SETTINGS_DEFAULT_CRON_INTERVAL;
+
+            wp_clear_scheduled_hook(ALGOLIA_SETTINGS_CRON_HOOK);
+
+            if (1 !== (int) $enabled) {
+                return;
+            }
+
+            wp_schedule_event(time(), ALGOLIA_SETTINGS_CRON_SCHEDULE, ALGOLIA_SETTINGS_CRON_HOOK);
+        }
+
+        /**
+         * Cron callback to refresh Algolia index settings
+         *
+         * @return void
+         */
+        public static function run_scheduled_index_settings_update()
+        {
+            Algolia_Send_Products::update_index_settings('', false);
         }
 
         /**
@@ -298,6 +462,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
              * Fetch the option to see if we are going to automatically send new products
              */
             $auto_send = get_option(ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS);
+            $settings_cron_enabled = get_option(ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CRON_ENABLED);
 
             /**
              * Check that we have the minimum versions required and all of the required PHP extensions
@@ -323,12 +488,19 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             add_action('plugins_loaded', array($ob_class, 'load_textdomain'));
 
             /**
+             * Register cron schedule for index settings
+             */
+            add_filter('cron_schedules', array($ob_class, 'register_settings_cron_schedule'));
+            add_action(ALGOLIA_SETTINGS_CRON_HOOK, array($ob_class, 'run_scheduled_index_settings_update'));
+
+            /**
              * Add actions to setup admin menu
              */
             if (is_admin()) {
                 add_action('admin_menu', array($ob_class, 'admin_menu'));
                 add_action('admin_init', array($ob_class, 'setup_settings_sections'));
                 add_action('admin_init', array($ob_class, 'update_settings_options'));
+                add_action('admin_init', array($ob_class, 'maybe_update_index_settings'));
                 add_action('admin_init', array($ob_class, 'maybe_send_products'));
 
                 /**
@@ -354,6 +526,10 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                     );
                 }
                 
+            }
+
+            if ('1' === $settings_cron_enabled && !wp_next_scheduled(ALGOLIA_SETTINGS_CRON_HOOK)) {
+                wp_schedule_event(time(), ALGOLIA_SETTINGS_CRON_SCHEDULE, ALGOLIA_SETTINGS_CRON_HOOK);
             }
 
             // add cronjob if autosend is active to ensure stock statuses
@@ -428,6 +604,9 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $post_index_name                 = filter_input(INPUT_POST, 'algolia_woo_indexer_index_name', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $auto_send                       = filter_input(INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
             $custom_fields                   = filter_input(INPUT_POST, 'algolia_woo_indexer_custom_fields', FILTER_DEFAULT);
+            $config_file                     = filter_input(INPUT_POST, 'algolia_woo_indexer_settings_config', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $settings_cron_enabled           = filter_input(INPUT_POST, 'algolia_woo_indexer_settings_cron_enabled', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+            $settings_cron_interval          = filter_input(INPUT_POST, 'algolia_woo_indexer_settings_cron_interval', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 
             /**
              * Properly sanitize text fields before updating data
@@ -439,6 +618,9 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $sanitized['api_key']                   = sanitize_text_field($post_api_key['key']);
             $sanitized['index_name']                = sanitize_text_field($post_index_name['name']);
             $sanitized['custom_fields']             = sanitize_textarea_field($custom_fields);
+            $sanitized['config_file']               = isset($config_file['file']) ? sanitize_text_field($config_file['file']) : '';
+            $sanitized['settings_cron_enabled']     = (!empty($settings_cron_enabled)) ? 1 : 0;
+            $sanitized['settings_cron_interval']    = isset($settings_cron_interval['value']) ? absint($settings_cron_interval['value']) : ALGOLIA_SETTINGS_DEFAULT_CRON_INTERVAL;
 
             /**
              * Sanitizing by setting the value to either 1 or 0
@@ -456,6 +638,16 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 $filtered_field = (!empty($raw_field)) ? 1 : 0;
                 $sanitized['fields'][$field] = $filtered_field;
             }
+
+            /**
+             * Validate config selection
+             */
+            $available_configs = Algolia_Send_Products::get_available_config_files();
+            if (!in_array($sanitized['config_file'], $available_configs, true)) {
+                $sanitized['config_file'] = '';
+            }
+
+            $sanitized['settings_cron_interval'] = (0 !== $sanitized['settings_cron_interval']) ? $sanitized['settings_cron_interval'] : ALGOLIA_SETTINGS_DEFAULT_CRON_INTERVAL;
 
             /**
              * Values have been filtered and sanitized
@@ -509,10 +701,36 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 );
             }
 
+            if (!empty($sanitized['config_file'])) {
+                update_option(
+                    ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CONFIG,
+                    $sanitized['config_file']
+                );
+            }
+
+            if (isset($sanitized['settings_cron_enabled'])) {
+                update_option(
+                    ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CRON_ENABLED,
+                    $sanitized['settings_cron_enabled']
+                );
+            }
+
+            if (isset($sanitized['settings_cron_interval'])) {
+                update_option(
+                    ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CRON_INTERVAL,
+                    $sanitized['settings_cron_interval']
+                );
+            }
+
             /**
              * Update Attributes as well 
              */
             Algolia_Attributes::update_attribute_options();
+
+            /**
+             * Refresh cron schedule for index settings if necessary
+             */
+            self::refresh_settings_cron_schedule($sanitized['settings_cron_enabled'], $sanitized['settings_cron_interval']);
         }
 
         /**
@@ -581,6 +799,11 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                     submit_button('', 'primary wide'); ?>
                 </form>
                 <form action="<?php echo esc_url(self::$plugin_url); ?>" method="POST">
+                    <?php wp_nonce_field('update_index_settings_nonce_action', 'update_index_settings_nonce_name'); ?>
+                    <input type="hidden" name="update_algolia_index_settings" id="update_algolia_index_settings" value="true" />
+                    <?php submit_button(esc_html__('Update Algolia index settings now', 'algolia-woo-indexer'), 'secondary wide', 'algolia_update_index_settings_now', false); ?>
+                </form>
+                <form action="<?php echo esc_url(self::$plugin_url); ?>" method="POST">
                     <?php wp_nonce_field('send_products_to_algolia_nonce_action', 'send_products_to_algolia_nonce_name'); ?>
                     <input type="hidden" name="send_products_to_algolia" id="send_products_to_algolia" value="true" />
                     <?php submit_button(esc_html__('Send products to Algolia', 'algolia_woo_indexer_settings'), 'primary wide', '', false); ?>
@@ -618,6 +841,9 @@ if (!class_exists('Algolia_Woo_Indexer')) {
             $algolia_api_key                 = get_option(ALGOWOO_DB_OPTION . ALGOLIA_API_KEY);
             $algolia_index_name              = get_option(ALGOWOO_DB_OPTION . INDEX_NAME);
             $custom_fields                   = get_option(ALGOWOO_DB_OPTION . CUSTOM_FIELDS);
+            $index_settings_config           = get_option(ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CONFIG);
+            $settings_cron_enabled           = get_option(ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CRON_ENABLED);
+            $settings_cron_interval          = get_option(ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CRON_INTERVAL);
 
             if (empty($auto_send)) {
                 add_option(
@@ -650,6 +876,29 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 add_option(
                     ALGOWOO_DB_OPTION . CUSTOM_FIELDS,
                     ''
+                );
+            }
+
+            if (false === $settings_cron_enabled) {
+                add_option(
+                    ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CRON_ENABLED,
+                    '0'
+                );
+            }
+
+            if (empty($settings_cron_interval)) {
+                add_option(
+                    ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CRON_INTERVAL,
+                    ALGOLIA_SETTINGS_DEFAULT_CRON_INTERVAL
+                );
+            }
+
+            if (false === $index_settings_config || '' === $index_settings_config) {
+                $available_configs = Algolia_Send_Products::get_available_config_files();
+                $default_config = (!empty($available_configs)) ? $available_configs[0] : '';
+                add_option(
+                    ALGOWOO_DB_OPTION . ALGOLIA_SETTINGS_CONFIG,
+                    $default_config
                 );
             }
 
@@ -688,6 +937,7 @@ if (!class_exists('Algolia_Woo_Indexer')) {
                 $timestamp = wp_next_scheduled('bl_cron_hook');
                 wp_unschedule_event($timestamp, 'bl_cron_hook');
             }
+            wp_clear_scheduled_hook(ALGOLIA_SETTINGS_CRON_HOOK);
             delete_transient(self::PLUGIN_TRANSIENT);
         }
     }
