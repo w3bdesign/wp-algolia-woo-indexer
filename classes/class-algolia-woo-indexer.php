@@ -72,13 +72,6 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * @see https://developer.wordpress.org/reference/functions/register_setting/
 			 */
 			if ( is_admin() ) {
-				$arguments = array(
-					'type'              => 'string',
-					'sanitize_callback' => 'settings_fields_validate_options',
-					'default'           => null,
-				);
-				register_setting( 'algolia_woo_options', 'algolia_woo_options', $arguments );
-
 				/**
 				 * Make sure we reference the instance of the current class by using self::get_instance()
 				 * This way we can setup the correct callback function for add_settings_section and add_settings_field
@@ -196,11 +189,31 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Check if we are going to send products by verifying send products nonce
 		 *
+		 * Requires the manage_options capability and a valid nonce before
+		 * any indexing is triggered. Registers a success or failure admin
+		 * notice based on the result.
+		 *
 		 * @return void
 		 */
 		public static function maybe_send_products() {
-			if ( true === Algolia_Verify_Nonces::verify_send_products_nonce() ) {
-				Algolia_Send_Products::send_products_to_algolia();
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+			if ( true !== Algolia_Verify_Nonces::verify_send_products_nonce() ) {
+				return;
+			}
+
+			$result = Algolia_Send_Products::send_products_to_algolia();
+
+			if ( true === $result ) {
+				add_action(
+					'admin_notices',
+					function () {
+						echo '<div class="notice notice-success is-dismissible">
+							  <p>' . esc_html__( 'Product(s) sent to Algolia.', 'algolia-woo-indexer' ) . '</p>
+							</div>';
+					}
+				);
 			}
 		}
 
@@ -274,6 +287,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Send a single product to Algolia once a new product has been published
 		 *
+		 * A failed background sync must never break the product-save flow, so
+		 * any failure is ignored silently (logged only when WP_DEBUG is on).
+		 *
 		 * @param int   $post_id ID of the product.
 		 * @param array $post Post array.
 		 *
@@ -283,63 +299,106 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			if ( 'publish' !== $post->post_status || 'product' !== $post->post_type ) {
 				return;
 			}
-			Algolia_Send_Products::send_products_to_algolia( $post_id );
+			$result = Algolia_Send_Products::send_products_to_algolia( $post_id );
+
+			if ( true !== $result && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Algolia Woo Indexer: background sync of product ' . absint( $post_id ) . ' failed.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
 		}
 
 		/**
-		 * Verify nonces before we update options and settings
-		 * Also retrieve the value from the send_products_to_algolia hidden field to check if we are sending products to Algolia
+		 * Extract and sanitize a scalar value from a submitted settings field.
+		 *
+		 * Verifies that the filter_input() result is an array containing the
+		 * expected key with a scalar value. Malformed POST data (missing keys,
+		 * scalar instead of array) is treated as "not submitted".
+		 *
+		 * @param string $field_name POST field name to read.
+		 * @param string $array_key  Expected key inside the submitted array.
+		 *
+		 * @return string|null Sanitized value, or null if the field was not submitted correctly.
+		 */
+		private static function get_sanitized_post_field( $field_name, $array_key ) {
+			$submitted = filter_input( INPUT_POST, $field_name, FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+
+			if ( ! is_array( $submitted ) || ! isset( $submitted[ $array_key ] ) || ! is_scalar( $submitted[ $array_key ] ) ) {
+				return null;
+			}
+
+			return sanitize_text_field( wp_unslash( (string) $submitted[ $array_key ] ) );
+		}
+
+		/**
+		 * Update options and settings after capability and nonce verification.
+		 *
+		 * Fails closed: nothing is written unless this is a POST request with
+		 * a valid settings nonce from a user with the manage_options capability.
+		 *
+		 * Persistence rules:
+		 * - The auto-send checkbox is always persisted as '1' or '0' based on
+		 *   its presence in the POST, so unchecking it is saved correctly.
+		 * - Text fields (application ID, API key, index name) are persisted
+		 *   when a non-empty sanitized value is submitted. A field submitted
+		 *   intentionally blank is reset to the CHANGE_ME sentinel, which the
+		 *   rest of the codebase treats as "unconfigured".
 		 *
 		 * @return void
 		 */
 		public static function update_settings_options() {
-			Algolia_Verify_Nonces::verify_settings_nonce();
-
-			if ( Algolia_Verify_Nonces::verify_send_products_nonce() ) {
+			/**
+			 * Only act on POST requests that contain the settings form nonce field
+			 */
+			if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+				return;
+			}
+			if ( ! isset( $_POST['algolia_woo_indexer_admin_api_nonce_name'] ) ) {
 				return;
 			}
 
-			$application_id = filter_input( INPUT_POST, 'algolia_woo_indexer_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-			$api_key        = filter_input( INPUT_POST, 'algolia_woo_indexer_admin_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-			$index_name     = filter_input( INPUT_POST, 'algolia_woo_indexer_index_name', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-			$auto_send      = filter_input( INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-
-			$sanitized_app_id     = sanitize_text_field( $application_id['id'] );
-			$sanitized_api_key    = sanitize_text_field( $api_key['key'] );
-			$sanitized_index_name = sanitize_text_field( $index_name['name'] );
-			$sanitized_auto_send  = ( ! empty( $auto_send ) ) ? 1 : 0;
-
-			$options = array(
-				ALGOWOO_DB_OPTION . ALGOLIA_APP_ID  => $sanitized_app_id,
-				ALGOWOO_DB_OPTION . ALGOLIA_API_KEY => $sanitized_api_key,
-				ALGOWOO_DB_OPTION . INDEX_NAME      => $sanitized_index_name,
-				ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS => $sanitized_auto_send,
-			);
-
-			foreach ( $options as $option_key => $option_value ) {
-				if ( isset( $option_value ) && ( ! empty( $option_value ) ) ) {
-					update_option( $option_key, $option_value );
-				}
+			/**
+			 * Only users who can manage options may change plugin settings
+			 */
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
 			}
-		}
 
+			/**
+			 * Fail closed: invalid or missing nonce means no writes, ever
+			 */
+			if ( true !== Algolia_Verify_Nonces::verify_settings_nonce() ) {
+				return;
+			}
 
-
-
-		/**
-		 * Sanitize input in settings fields and filter through regex to accept only a-z and A-Z
-		 *
-		 * @param string $input Settings text data
-		 * @return array
-		 */
-		public static function settings_fields_validate_options( $input ) {
-			$valid         = array();
-			$valid['name'] = preg_replace(
-				'/[^a-zA-Z\s]/',
-				'',
-				$input['name']
+			/**
+			 * Persist the text fields: non-empty values are saved as-is,
+			 * blank submissions reset the option to the CHANGE_ME sentinel
+			 */
+			$text_fields = array(
+				ALGOWOO_DB_OPTION . ALGOLIA_APP_ID  => self::get_sanitized_post_field( 'algolia_woo_indexer_application_id', 'id' ),
+				ALGOWOO_DB_OPTION . ALGOLIA_API_KEY => self::get_sanitized_post_field( 'algolia_woo_indexer_admin_api_key', 'key' ),
+				ALGOWOO_DB_OPTION . INDEX_NAME      => self::get_sanitized_post_field( 'algolia_woo_indexer_index_name', 'name' ),
 			);
-			return $valid;
+
+			foreach ( $text_fields as $option_key => $option_value ) {
+				if ( null === $option_value ) {
+					continue;
+				}
+				if ( '' === $option_value ) {
+					update_option( $option_key, CHANGE_ME );
+					continue;
+				}
+				update_option( $option_key, $option_value );
+			}
+
+			/**
+			 * Always persist the checkbox as '1' or '0' so it can be disabled
+			 */
+			$auto_send = filter_input( INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+
+			update_option(
+				ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS,
+				( is_array( $auto_send ) && isset( $auto_send['checked'] ) ) ? '1' : '0'
+			);
 		}
 
 		/**
