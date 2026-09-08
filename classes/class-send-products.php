@@ -63,22 +63,21 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 		private static $algolia = null;
 
 		/**
-		 * Check if we can connect to Algolia, if not, handle the exception, display an error and then return
+		 * Register an error message as an admin notice
+		 *
+		 * @param string $message Translated message to display.
+		 *
+		 * @return void
 		 */
-		public static function can_connect_to_algolia() {
-			try {
-				self::$algolia->listApiKeys();
-			} catch ( \Algolia\AlgoliaSearch\Exceptions\UnreachableException $error ) {
-				add_action(
-					'admin_notices',
-					function () {
-						echo '<div class="error notice">
-							  <p>' . esc_html__( 'An error has been encountered. Please check your application ID and API key. ', 'algolia-woo-indexer' ) . '</p>
-							</div>';
-					}
-				);
-				return;
-			}
+		private static function add_error_notice( $message ) {
+			add_action(
+				'admin_notices',
+				function () use ( $message ) {
+					echo '<div class="error notice">
+						  <p>' . esc_html( $message ) . '</p>
+						</div>';
+				}
+			);
 		}
 
 		/**
@@ -106,15 +105,25 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 		/**
 		 * Send WooCommerce products to Algolia
 		 *
+		 * Fail-closed and output-free: on any failure an admin notice is
+		 * registered (never echoed directly) and false is returned so the
+		 * caller decides how to react. Success/failure notices for manual
+		 * indexing are rendered by the caller in the main class.
+		 *
 		 * @param Int $id Product to send to Algolia if we send only a single product
-		 * @return void
+		 * @return bool True if the product(s) were sent to Algolia, false otherwise.
 		 */
 		public static function send_products_to_algolia( $id = '' ) {
 			/**
 			 * Remove classes from plugin URL and autoload Algolia with Composer
+			 * Guard against incomplete deployments with a missing vendor directory
 			 */
-
 			$base_plugin_directory = str_replace( 'classes', '', __DIR__ );
+
+			if ( ! file_exists( $base_plugin_directory . '/vendor/autoload.php' ) ) {
+				self::add_error_notice( __( 'Algolia Woo Indexer dependencies are missing. Please run "composer install" or reinstall the plugin.', 'algolia-woo-indexer' ) );
+				return false;
+			}
 			require_once $base_plugin_directory . '/vendor/autoload.php';
 
 			/**
@@ -131,25 +140,12 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 			$algolia_index_name = is_string( $algolia_index_name ) ? $algolia_index_name : CHANGE_ME;
 
 			/**
-			 * Display admin notice and return if not all values have been set
+			 * Stop if not all credential values are usable
+			 * (the check registers its own admin notice)
 			 */
-
-			Algolia_Check_Requirements::check_algolia_input_values( $algolia_application_id, $algolia_api_key, $algolia_index_name );
-
-			/**
-			 * Initiate the Algolia client
-			 */
-			self::$algolia = \Algolia\AlgoliaSearch\SearchClient::create( $algolia_application_id, $algolia_api_key );
-
-			/**
-			 * Check if we can connect, if not, handle the exception, display an error and then return
-			 */
-			self::can_connect_to_algolia();
-
-			/**
-			 * Initialize the search index and set the name to the option from the database
-			 */
-			$index = self::$algolia->initIndex( $algolia_index_name );
+			if ( true !== Algolia_Check_Requirements::check_algolia_input_values( $algolia_application_id, $algolia_api_key, $algolia_index_name ) ) {
+				return false;
+			}
 
 			/**
 			 * Setup arguments for sending all products to Algolia
@@ -183,7 +179,7 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 				wc_get_products( $arguments );
 
 			if ( empty( $products ) ) {
-				return;
+				return false;
 			}
 			$records = array();
 			$record  = array();
@@ -216,21 +212,37 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 			wp_reset_postdata();
 
 			/**
-			 * Send the information to Algolia and save the result
-			 * If result is NullResponse, print an error message
+			 * Create the client, initialize the index and send the records.
+			 * All Algolia SDK calls are wrapped so failures register a generic
+			 * admin notice instead of fataling the request. Credentials are
+			 * never included in notices or logs.
 			 */
-			$result = $index->saveObjects( $records );
+			try {
+				self::$algolia = \Algolia\AlgoliaSearch\SearchClient::create( $algolia_application_id, $algolia_api_key );
 
-			if ( 'Algolia\AlgoliaSearch\Response\NullResponse' === get_class( $result ) ) {
-				wp_die( esc_html__( 'No response from the server. Please check your settings and try again', 'algolia_woo_indexer_settings' ) );
+				$index = self::$algolia->initIndex( $algolia_index_name );
+
+				$result = $index->saveObjects( $records );
+			} catch ( \Algolia\AlgoliaSearch\Exceptions\AlgoliaException $exception ) {
+				self::add_error_notice( __( 'The connection to Algolia failed. Please check your application ID, API key and index name.', 'algolia-woo-indexer' ) );
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'Algolia Woo Indexer: Algolia request failed (' . get_class( $exception ) . ').' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				}
+				return false;
+			} catch ( \Throwable $exception ) {
+				self::add_error_notice( __( 'An unexpected error occurred while sending products to Algolia.', 'algolia-woo-indexer' ) );
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'Algolia Woo Indexer: unexpected error (' . get_class( $exception ) . ').' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				}
+				return false;
 			}
 
-			/**
-			 * Display success message
-			 */
-			echo '<div class="notice notice-success is-dismissible">
-					 	<p>' . esc_html__( 'Product(s) sent to Algolia.', 'algolia-woo-indexer' ) . '</p>
-				  		</div>';
+			if ( $result instanceof \Algolia\AlgoliaSearch\Response\NullResponse ) {
+				self::add_error_notice( __( 'No response from the Algolia server. Please check your settings and try again.', 'algolia-woo-indexer' ) );
+				return false;
+			}
+
+			return true;
 		}
 	}
 }
