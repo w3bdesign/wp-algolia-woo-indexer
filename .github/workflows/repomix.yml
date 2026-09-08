@@ -16,7 +16,7 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # fetch all history for better context
 
@@ -31,7 +31,7 @@ jobs:
           node-version: "24"
 
       - name: Install Repomix
-        run: npm install -g repomix
+        run: npm install -g --ignore-scripts repomix@1.18.0
 
       - name: Generate Repository Documentation
         run: |
