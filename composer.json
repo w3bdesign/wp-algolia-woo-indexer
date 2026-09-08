@@ -1,24 +1,24 @@
 {
-    "name": "daniel/algolia-woo-indexer",
-    "type": "wordpress-plugin",
-    "authors": [
-        {
-            "name": "w3bdesign",
-            "email": "45217974+w3bd3sign@users.noreply.github.com"
-        }
-    ],
-    "require": {
-        "algolia/algoliasearch-client-php": "^4.38"
-    },
-    "config": {
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true,
-            "phpcompatibility/phpcs-compatinfo": true
-        }
-    },
-    "require-dev": {
-        "squizlabs/php_codesniffer": "*",
-        "wp-coding-standards/wpcs": "*",
-        "phpcompatibility/phpcompatibility-wp": "*"
+  "name": "daniel/algolia-woo-indexer",
+  "type": "wordpress-plugin",
+  "authors": [
+    {
+      "name": "w3bdesign",
+      "email": "45217974+w3bd3sign@users.noreply.github.com"
     }
+  ],
+  "require": {
+    "algolia/algoliasearch-client-php": "^2.6"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "phpcompatibility/phpcs-compatinfo": true
+    }
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "*",
+    "wp-coding-standards/wpcs": "*",
+    "phpcompatibility/phpcompatibility-wp": "*"
+  }
 }
