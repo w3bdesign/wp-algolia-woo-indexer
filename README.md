@@ -34,6 +34,13 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 - PHPCS Autofix with Github actions
 - AI Assistant guidance files (`AGENTS.md` and `.roo/rules-*/AGENTS.md`) for immediate productivity with AI coding tools
 
+## Development Skills
+
+Read the relevant skill before making changes, or ask your AI coding assistant to follow it:
+
+- [Plugin development](SKILLS/wp-plugin-development/SKILL.md): use for permissions, nonces, settings validation, hooks, and activation/uninstall behavior.
+- [Performance](SKILLS/wp-performance/SKILL.md): use for Algolia request failures, large-catalog indexing, batching, and background jobs.
+
 ## Requirements
 
 - An account at <www.algolia.com> (either free or premium)
