@@ -20,52 +20,50 @@ if ( ! class_exists( 'Algolia_Verify_Nonces' ) ) {
 	 * Verify submitted nonces
 	 */
 	class Algolia_Verify_Nonces {
-			/**
-			 * Verify nonces before we update options and settings           *
-			 *
-			 * @return void
-			 */
-		public static function verify_settings_nonce() {
-			/**
-			 * Filter incoming nonces and values
-			 */
-			$settings_nonce = filter_input( INPUT_POST, 'algolia_woo_indexer_admin_api_nonce_name', FILTER_DEFAULT );
 
-			/**
-			 * Return boolean depending on if the nonce has been set
-			 */
-			if ( ! isset( $settings_nonce ) ) {
-				return;
+		/**
+		 * Verify the settings form nonce before options are updated.
+		 *
+		 * Fails closed: returns false unless the request is a POST request
+		 * containing a valid settings nonce.
+		 *
+		 * @return bool True if the settings nonce is present and valid, false otherwise.
+		 */
+		public static function verify_settings_nonce() {
+			if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+				return false;
 			}
+
+			if ( ! isset( $_POST['algolia_woo_indexer_admin_api_nonce_name'] ) ) {
+				return false;
+			}
+
+			$nonce = sanitize_text_field( wp_unslash( $_POST['algolia_woo_indexer_admin_api_nonce_name'] ) );
+
+			return (bool) wp_verify_nonce( $nonce, 'algolia_woo_indexer_admin_api_nonce_action' );
 		}
 
-			/**
-			 * Check if we are sending products to Algolia
-			 *
-			 * @return bool
-			 */
+		/**
+		 * Verify the "send products to Algolia" form nonce.
+		 *
+		 * Fails closed: returns false unless the request is a POST request
+		 * containing both the hidden send_products_to_algolia field and a
+		 * valid nonce.
+		 *
+		 * @return bool True if the send products nonce is present and valid, false otherwise.
+		 */
 		public static function verify_send_products_nonce() {
-			/**
-			 * Filter incoming nonces and values
-			 */
-			$send_products_nonce      = filter_input( INPUT_POST, 'send_products_to_algolia_nonce_name', FILTER_DEFAULT );
-			$send_products_to_algolia = filter_input( INPUT_POST, 'send_products_to_algolia', FILTER_DEFAULT );
-
-			/**
-			 * Display error and die if nonce is not verified and does not pass security check
-			 * Also check if the hidden value field send_products_to_algolia is set
-			 */
-
-			if ( ! wp_verify_nonce( $send_products_nonce, 'send_products_to_algolia_nonce_action' ) && isset( $send_products_to_algolia ) ) {
-				wp_die( esc_html__( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html__( 'Error!', 'algolia-woo-indexer' ) );
+			if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+				return false;
 			}
 
-			/**
-			 * If we have verified the send_products_nonce and the send_products hidden field is set, return true
-			 */
-			if ( wp_verify_nonce( $send_products_nonce, 'send_products_to_algolia_nonce_action' ) && isset( $send_products_to_algolia ) ) {
-				return true;
+			if ( ! isset( $_POST['send_products_to_algolia'] ) || ! isset( $_POST['send_products_to_algolia_nonce_name'] ) ) {
+				return false;
 			}
+
+			$nonce = sanitize_text_field( wp_unslash( $_POST['send_products_to_algolia_nonce_name'] ) );
+
+			return (bool) wp_verify_nonce( $nonce, 'send_products_to_algolia_nonce_action' );
 		}
 	}
 }
