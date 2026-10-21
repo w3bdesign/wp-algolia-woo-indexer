@@ -504,6 +504,19 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				)
 			);
 
+			self::$connection_status = self::get_algolia_response_status( $response, $settings, $status );
+			return self::$connection_status;
+		}
+
+		/**
+		 * Translate an HTTP or transport response into a connection notice.
+		 *
+		 * @param array|\WP_Error $response WordPress HTTP response or transport error.
+		 * @param array           $settings Connection settings containing the keys to redact.
+		 * @param array           $status   Default error notice.
+		 * @return array Connection notice with redacted diagnostic details on failure.
+		 */
+		private static function get_algolia_response_status( $response, $settings, $status ) {
 			if ( is_wp_error( $response ) ) {
 				$status['message'] = __( 'Your server could not reach Algolia within the connection check. Check DNS, HTTPS access, and firewall settings, then reload this page.', 'algolia-woo-indexer' );
 				$status['details'] = self::sanitize_connection_diagnostic(
@@ -515,53 +528,65 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					),
 					array( $settings['api_key'], $settings['search_api_key'] )
 				);
-			} else {
-				$code   = wp_remote_retrieve_response_code( $response );
-				$body   = json_decode( wp_remote_retrieve_body( $response ), true );
-				$reason = __( 'The response did not include an Algolia error message.', 'algolia-woo-indexer' );
-				if ( is_array( $body ) && isset( $body['message'] ) && is_string( $body['message'] ) ) {
-					$reason = $body['message'];
-				} elseif ( ! is_array( $body ) ) {
-					$reason = __( 'The response was not valid JSON. A proxy, firewall, or upstream service may have returned it instead of Algolia.', 'algolia-woo-indexer' );
-				} elseif ( 200 === $code ) {
-					$reason = __( 'Algolia returned an unexpected search response, so index access could not be verified.', 'algolia-woo-indexer' );
-				}
-				$status['details'] = self::sanitize_connection_diagnostic(
-					sprintf(
-						/* translators: 1: HTTP response code, 2: HTTP reason phrase, 3: API error or response diagnostic. */
-						__( 'HTTP %1$d (%2$s): %3$s', 'algolia-woo-indexer' ),
-						$code,
-						wp_remote_retrieve_response_message( $response ),
-						$reason
-					),
-					array( $settings['api_key'], $settings['search_api_key'] )
-				);
-
-				if ( 200 === $code && is_array( $body ) && isset( $body['hits'] ) && is_array( $body['hits'] ) ) {
-					$status = array(
-						'type'    => 'success',
-						'emoji'   => '✅',
-						'title'   => __( 'Connected to Algolia', 'algolia-woo-indexer' ),
-						'message' => __( 'A test search succeeded using your Search API Key. The connection and search access to the configured index are working. No product records were returned or changed. The separate Write API Key is verified when products are uploaded.', 'algolia-woo-indexer' ),
-					);
-				} elseif ( 400 === $code ) {
-					$status['message'] = __( 'Algolia rejected the connection-check request as invalid. See the diagnostic below for the exact reason. Check the saved Application ID and index name.', 'algolia-woo-indexer' );
-				} elseif ( 401 === $code || 403 === $code ) {
-					$status['message'] = __( 'Algolia rejected the Search API Key or search access. Use the Search API Key from the same Algolia application and check that it can search the configured index. See the diagnostic below for any additional key restrictions.', 'algolia-woo-indexer' );
-				} elseif ( 404 === $code ) {
-					$status['type']    = 'warning';
-					$status['emoji']   = '⚠️';
-					$status['title']   = __( 'Algolia connection not verified', 'algolia-woo-indexer' );
-					$status['message'] = __( 'Algolia responded, but the configured index was not found. Check the index name. If the index is new, send products to create it, then reload this page.', 'algolia-woo-indexer' );
-				} elseif ( 429 === $code ) {
-					$status['message'] = __( 'Algolia rate-limited the connection check. Wait a moment, then reload this page to try again.', 'algolia-woo-indexer' );
-				} elseif ( $code >= 500 ) {
-					$status['message'] = __( 'Algolia or an upstream service returned a server error. See the diagnostic below and try again shortly.', 'algolia-woo-indexer' );
-				}
+				return $status;
 			}
 
-			self::$connection_status = $status;
-			return self::$connection_status;
+			$code              = wp_remote_retrieve_response_code( $response );
+			$body              = json_decode( wp_remote_retrieve_body( $response ), true );
+			$status['details'] = self::sanitize_connection_diagnostic(
+				sprintf(
+					/* translators: 1: HTTP response code, 2: HTTP reason phrase, 3: API error or response diagnostic. */
+					__( 'HTTP %1$d (%2$s): %3$s', 'algolia-woo-indexer' ),
+					$code,
+					wp_remote_retrieve_response_message( $response ),
+					self::get_algolia_response_reason( $body, $code )
+				),
+				array( $settings['api_key'], $settings['search_api_key'] )
+			);
+
+			if ( 200 === $code && is_array( $body ) && isset( $body['hits'] ) && is_array( $body['hits'] ) ) {
+				$status = array(
+					'type'    => 'success',
+					'emoji'   => '✅',
+					'title'   => __( 'Connected to Algolia', 'algolia-woo-indexer' ),
+					'message' => __( 'A test search succeeded using your Search API Key. The connection and search access to the configured index are working. No product records were returned or changed. The separate Write API Key is verified when products are uploaded.', 'algolia-woo-indexer' ),
+				);
+			} elseif ( 400 === $code ) {
+				$status['message'] = __( 'Algolia rejected the connection-check request as invalid. See the diagnostic below for the exact reason. Check the saved Application ID and index name.', 'algolia-woo-indexer' );
+			} elseif ( 401 === $code || 403 === $code ) {
+				$status['message'] = __( 'Algolia rejected the Search API Key or search access. Use the Search API Key from the same Algolia application and check that it can search the configured index. See the diagnostic below for any additional key restrictions.', 'algolia-woo-indexer' );
+			} elseif ( 404 === $code ) {
+				$status['type']    = 'warning';
+				$status['emoji']   = '⚠️';
+				$status['title']   = __( 'Algolia connection not verified', 'algolia-woo-indexer' );
+				$status['message'] = __( 'Algolia responded, but the configured index was not found. Check the index name. If the index is new, send products to create it, then reload this page.', 'algolia-woo-indexer' );
+			} elseif ( 429 === $code ) {
+				$status['message'] = __( 'Algolia rate-limited the connection check. Wait a moment, then reload this page to try again.', 'algolia-woo-indexer' );
+			} elseif ( $code >= 500 ) {
+				$status['message'] = __( 'Algolia or an upstream service returned a server error. See the diagnostic below and try again shortly.', 'algolia-woo-indexer' );
+			}
+
+			return $status;
+		}
+
+		/**
+		 * Describe the API error or unexpected response without exposing raw HTML.
+		 *
+		 * @param mixed $body Decoded JSON response body.
+		 * @param int   $code HTTP response code.
+		 * @return string Diagnostic explanation before secret redaction.
+		 */
+		private static function get_algolia_response_reason( $body, $code ) {
+			if ( is_array( $body ) && isset( $body['message'] ) && is_string( $body['message'] ) ) {
+				return $body['message'];
+			}
+			if ( ! is_array( $body ) ) {
+				return __( 'The response was not valid JSON. A proxy, firewall, or upstream service may have returned it instead of Algolia.', 'algolia-woo-indexer' );
+			}
+			if ( 200 === $code ) {
+				return __( 'Algolia returned an unexpected search response, so index access could not be verified.', 'algolia-woo-indexer' );
+			}
+			return __( 'The response did not include an Algolia error message.', 'algolia-woo-indexer' );
 		}
 
 		/**
