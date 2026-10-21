@@ -339,11 +339,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$index_name     = filter_input( INPUT_POST, 'algolia_woo_indexer_index_name', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 			$auto_send      = filter_input( INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 
-			$sanitized_app_id     = sanitize_text_field( $application_id['id'] );
-			$sanitized_api_key    = sanitize_text_field( $api_key['key'] );
+			$sanitized_app_id         = sanitize_text_field( $application_id['id'] );
+			$sanitized_api_key        = sanitize_text_field( $api_key['key'] );
 			$sanitized_search_api_key = sanitize_text_field( $search_api_key['key'] ?? '' );
-			$sanitized_index_name = sanitize_text_field( $index_name['name'] );
-			$sanitized_auto_send  = ( ! empty( $auto_send ) ) ? 1 : 0;
+			$sanitized_index_name     = sanitize_text_field( $index_name['name'] );
+			$sanitized_auto_send      = ( ! empty( $auto_send ) ) ? 1 : 0;
 
 			$options = array(
 				ALGOWOO_DB_OPTION . ALGOLIA_APP_ID  => $sanitized_app_id,
@@ -407,7 +407,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Retrieve connection settings through the main plugin class.
 		 *
-		 * @return array Saved Application ID, API key, and index name.
+		 * @return array Saved Application ID, write and search keys, and index name.
 		 */
 		public static function get_algolia_settings() {
 			return array(
@@ -421,7 +421,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Remove the secret key from diagnostic text before it can be displayed.
 		 *
-		 * @param string $message Diagnostic text from WordPress or Algolia.
+		 * @param string   $message  Diagnostic text from WordPress or Algolia.
 		 * @param string[] $api_keys Configured API keys to redact.
 		 * @return string Plain text with the secret redacted and a bounded length.
 		 */
@@ -488,7 +488,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				array(
 					'timeout'             => 5,
 					'redirection'         => 0,
-					'limit_response_size' => 4096,
+					'limit_response_size' => 65536,
 					'headers'             => array(
 						'X-Algolia-Application-Id' => $settings['application_id'],
 						'X-Algolia-API-Key'        => $settings['search_api_key'],
