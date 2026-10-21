@@ -188,7 +188,7 @@ msgstr "Algolia or an upstream service returned a server error. See the diagnost
 msgid "Diagnostic details:"
 msgstr "Diagnostic details:"
 
-#. Plugin Name of the plugin/theme
+#: classes/class-algolia-woo-indexer.php
 msgid "Search API Key"
 msgstr "Search API Key"
 
