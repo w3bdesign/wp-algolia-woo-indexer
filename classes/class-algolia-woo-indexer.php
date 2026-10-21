@@ -621,10 +621,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$status = self::get_algolia_connection_status();
 			?>
 			<output class="notice notice-<?php echo esc_attr( $status['type'] ); ?> inline" style="display: block;">
-				<p><span aria-hidden="true"><?php echo esc_html( $status['emoji'] ); ?></span> <strong><?php echo esc_html( $status['title'] ); ?></strong></p>
-				<p><?php echo esc_html( $status['message'] ); ?></p>
+				<span style="display: block; margin: 0.5em 0;"><span aria-hidden="true"><?php echo esc_html( $status['emoji'] ); ?></span> <strong><?php echo esc_html( $status['title'] ); ?></strong></span>
+				<span style="display: block; margin: 0.5em 0;"><?php echo esc_html( $status['message'] ); ?></span>
 				<?php if ( ! empty( $status['details'] ) ) : ?>
-					<p><strong><?php echo esc_html__( 'Diagnostic details:', 'algolia-woo-indexer' ); ?></strong> <?php echo esc_html( $status['details'] ); ?></p>
+					<span style="display: block; margin: 0.5em 0;"><strong><?php echo esc_html__( 'Diagnostic details:', 'algolia-woo-indexer' ); ?></strong> <?php echo esc_html( $status['details'] ); ?></span>
 				<?php endif; ?>
 			</output>
 			<?php
