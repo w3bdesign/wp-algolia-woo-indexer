@@ -149,8 +149,8 @@ msgstr "Your server could not reach Algolia within the connection check. Check D
 msgid "Connected to Algolia"
 msgstr "Connected to Algolia"
 
-msgid "A test search succeeded using your Search API Key. The connection and search access to the configured index are working. No product records were returned or changed. The separate Write API Key is verified when products are uploaded."
-msgstr "A test search succeeded using your Search API Key. The connection and search access to the configured index are working. No product records were returned or changed. The separate Write API Key is verified when products are uploaded."
+msgid "Your Algolia search connection is working."
+msgstr "Your Algolia search connection is working."
 
 msgid "Algolia rejected the Search API Key or search access. Use the Search API Key from the same Algolia application and check that it can search the configured index. See the diagnostic below for any additional key restrictions."
 msgstr "Algolia rejected the Search API Key or search access. Use the Search API Key from the same Algolia application and check that it can search the configured index. See the diagnostic below for any additional key restrictions."

@@ -93,37 +93,6 @@ uploads. Rotate
 the previously used Admin API Key after checking whether other integrations
 depend on it.
 
-### Connection status
-
-The top of the plugin settings page shows an automatic connection check with an
-emoji and explanatory message:
-
-- ✅ Connected: a test search succeeded with the saved credentials and configured
-  index. This confirms search access, not upload permission.
-- ❌ Not connected: the check failed; the message explains credential,
-  permission, connectivity, or rate-limit issues.
-- ⚙️ Not checked: save the Application ID, both API keys, and index name first.
-  Blank values and default placeholders do not trigger a request.
-- ⚠️ Not verified: Algolia responded, but the index was not found. Verify
-  the index name; if the index is new, upload products to create it and
-  reload the page.
-
-The check runs once per settings-page load, including after saving
-settings, when Application ID, both API keys, and index name are set. It
-does not run on unrelated admin pages, return product records, change
-products, or poll in the background.
-Each check uses a single request with a five-second timeout and analytics
-disabled. It verifies the Search API Key's access, not the separate Write
-API Key or whether previous uploads have completed. Existing saved Write
-API Keys are
-retained; add the Search API Key to enable the new check.
-
-Failed checks include diagnostic details: the HTTP status and Algolia's error
-message, or the WordPress HTTP transport error for DNS, TLS, timeout, and other
-network failures. Diagnostics are plain text, length-limited, visible only to
-settings administrators, and redact both configured API keys. Non-JSON responses
-are identified without displaying raw HTML from proxies or firewalls.
-
 ## Troubleshooting
 
 If you encounter any errors, first of all make sure that your hosting
