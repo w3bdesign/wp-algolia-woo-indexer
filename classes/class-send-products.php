@@ -42,6 +42,7 @@ define( 'CHANGE_ME', 'change me' );
 define( 'INDEX_NAME', '_index_name' );
 define( 'AUTOMATICALLY_SEND_NEW_PRODUCTS', '_automatically_send_new_products' );
 define( 'ALGOLIA_APP_ID', '_application_id' );
+define( 'ALGOLIA_SEARCH_API_KEY', '_search_api_key' );
 // Keep the legacy option suffix so existing saved keys remain available.
 define( 'ALGOLIA_API_KEY', '_admin_api_key' );
 

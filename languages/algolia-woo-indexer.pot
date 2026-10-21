@@ -122,7 +122,6 @@ msgid ""
 "Please contact your hosting provider."
 msgstr ""
 
-#. Plugin Name of the plugin/theme
 msgid "Algolia connection not checked"
 msgstr ""
 
@@ -157,6 +156,34 @@ msgid "Algolia responded, but the configured index or probe task was not found. 
 msgstr ""
 
 msgid "Algolia rate-limited the connection check. Wait a moment, then reload this page to try again."
+msgstr ""
+
+#. translators: 1: WordPress HTTP error code, 2: Transport error message.
+#, php-format
+msgid "Transport error (%1$s): %2$s"
+msgstr ""
+
+msgid "The response did not include an Algolia error message."
+msgstr ""
+
+msgid "The response was not valid JSON. A proxy, firewall, or upstream service may have returned it instead of Algolia."
+msgstr ""
+
+msgid "Algolia returned an unexpected task-status response, so index access could not be verified."
+msgstr ""
+
+#. translators: 1: HTTP response code, 2: HTTP reason phrase, 3: API error or response diagnostic.
+#, php-format
+msgid "HTTP %1$d (%2$s): %3$s"
+msgstr ""
+
+msgid "Algolia rejected the connection-check request as invalid. See the diagnostic below for the exact reason. Check the saved Application ID and index name."
+msgstr ""
+
+msgid "Algolia or an upstream service returned a server error. See the diagnostic below and try again shortly."
+msgstr ""
+
+msgid "Diagnostic details:"
 msgstr ""
 
 #. Plugin Name of the plugin/theme

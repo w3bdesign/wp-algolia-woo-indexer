@@ -109,6 +109,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					'algolia_woo_indexer_main'
 				);
 				add_settings_field(
+					'algolia_woo_indexer_search_api_key',
+					esc_html__( 'Search API Key', 'algolia-woo-indexer' ),
+					array( $algowooindexer, 'algolia_woo_indexer_search_api_key_output' ),
+					'algolia_woo_indexer',
+					'algolia_woo_indexer_main'
+				);
+				add_settings_field(
 					'algolia_woo_indexer_admin_api_key',
 					esc_html__( 'Write API Key', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algolia_woo_indexer_admin_api_key_output' ),
@@ -133,6 +140,20 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		}
 
 		/**
+		 * Output the read-only Search API Key field used for connection checks.
+		 *
+		 * @return void
+		 */
+		public static function algolia_woo_indexer_search_api_key_output() {
+			$settings = self::get_algolia_settings();
+			$api_key  = is_string( $settings['search_api_key'] ) ? $settings['search_api_key'] : '';
+			?>
+			<input id="algolia_woo_indexer_search_api_key" name="algolia_woo_indexer_search_api_key[key]" type="password" autocomplete="new-password" aria-describedby="algolia_woo_indexer_search_api_key_description" value="<?php echo esc_attr( $api_key ); ?>" />
+			<p class="description" id="algolia_woo_indexer_search_api_key_description"><?php echo esc_html__( 'Copy the Search API Key from Algolia. It is used only to check the connection, not to upload products. It must be able to search the configured index.', 'algolia-woo-indexer' ); ?></p>
+			<?php
+		}
+
+		/**
 		 * Output for Write API Key field, retaining the legacy form and nonce identifiers.
 		 *
 		 * @see https://developer.wordpress.org/reference/functions/wp_nonce_field/
@@ -147,7 +168,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 			echo "<input id='algolia_woo_indexer_admin_api_key' name='algolia_woo_indexer_admin_api_key[key]'
 				type='password' autocomplete='new-password' aria-describedby='algolia_woo_indexer_api_key_description' value='" . esc_attr( $api_key ) . "' />";
-			echo '<p class="description" id="algolia_woo_indexer_api_key_description">' . esc_html__( 'Use a dedicated Write API Key with only addObject permission, restricted to the configured index. Do not use the Admin API Key. A Search API Key cannot upload products. Existing keys are retained; replace any previously saved Admin API Key here.', 'algolia-woo-indexer' ) . '</p>';
+			echo '<p class="description" id="algolia_woo_indexer_api_key_description">' . esc_html__( 'Use a dedicated Write API Key with only Add records (addObject) permission, restricted to the configured index. This key uploads products. Do not use the Admin API Key or the Search API Key here. Existing saved write keys are retained.', 'algolia-woo-indexer' ) . '</p>';
 		}
 
 		/**
@@ -314,17 +335,20 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 			$application_id = filter_input( INPUT_POST, 'algolia_woo_indexer_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 			$api_key        = filter_input( INPUT_POST, 'algolia_woo_indexer_admin_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+			$search_api_key = filter_input( INPUT_POST, 'algolia_woo_indexer_search_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 			$index_name     = filter_input( INPUT_POST, 'algolia_woo_indexer_index_name', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 			$auto_send      = filter_input( INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 
 			$sanitized_app_id     = sanitize_text_field( $application_id['id'] );
 			$sanitized_api_key    = sanitize_text_field( $api_key['key'] );
+			$sanitized_search_api_key = sanitize_text_field( $search_api_key['key'] ?? '' );
 			$sanitized_index_name = sanitize_text_field( $index_name['name'] );
 			$sanitized_auto_send  = ( ! empty( $auto_send ) ) ? 1 : 0;
 
 			$options = array(
 				ALGOWOO_DB_OPTION . ALGOLIA_APP_ID  => $sanitized_app_id,
 				ALGOWOO_DB_OPTION . ALGOLIA_API_KEY => $sanitized_api_key,
+				ALGOWOO_DB_OPTION . ALGOLIA_SEARCH_API_KEY => $sanitized_search_api_key,
 				ALGOWOO_DB_OPTION . INDEX_NAME      => $sanitized_index_name,
 				ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS => $sanitized_auto_send,
 			);
@@ -389,6 +413,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			return array(
 				'application_id' => get_option( ALGOWOO_DB_OPTION . ALGOLIA_APP_ID ),
 				'api_key'        => get_option( ALGOWOO_DB_OPTION . ALGOLIA_API_KEY ),
+				'search_api_key' => get_option( ALGOWOO_DB_OPTION . ALGOLIA_SEARCH_API_KEY ),
 				'index_name'     => get_option( ALGOWOO_DB_OPTION . INDEX_NAME ),
 			);
 		}
@@ -397,19 +422,21 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * Remove the secret key from diagnostic text before it can be displayed.
 		 *
 		 * @param string $message Diagnostic text from WordPress or Algolia.
-		 * @param string $api_key Configured secret API key.
+		 * @param string[] $api_keys Configured API keys to redact.
 		 * @return string Plain text with the secret redacted and a bounded length.
 		 */
-		private static function sanitize_connection_diagnostic( $message, $api_key ) {
-			$message = str_replace( array( $api_key, rawurlencode( $api_key ) ), '[redacted]', $message );
+		private static function sanitize_connection_diagnostic( $message, $api_keys ) {
+			foreach ( $api_keys as $api_key ) {
+				$message = str_replace( array( $api_key, rawurlencode( $api_key ) ), '[redacted]', $message );
+			}
 			return wp_html_excerpt( sanitize_text_field( $message ), 500, '…' );
 		}
 
 		/**
 		 * Check authenticated index access once per request, without changing records.
 		 *
-		 * The task-status endpoint requires only addObject permission. Task 1 is a
-		 * read-only probe: no task is created, and its completion is not polled.
+		 * An empty search requires search permission and returns no product records.
+		 * This uses the Search API Key, never the separate Write API Key.
 		 *
 		 * @return array Notice type, emoji, title, and explanatory message.
 		 */
@@ -422,7 +449,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				'type'    => 'warning',
 				'emoji'   => '⚙️',
 				'title'   => __( 'Algolia connection not checked', 'algolia-woo-indexer' ),
-				'message' => __( 'Save your Application ID, Write API Key, and index name to check the connection automatically when this page opens.', 'algolia-woo-indexer' ),
+				'message' => __( 'Save your Application ID, Search API Key, Write API Key, and index name to check the connection automatically when this page opens.', 'algolia-woo-indexer' ),
 			);
 
 			// Do not allow this public method to expose connection details to other users.
@@ -443,7 +470,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				'type'    => 'error',
 				'emoji'   => '❌',
 				'title'   => __( 'Not connected to Algolia', 'algolia-woo-indexer' ),
-				'message' => __( 'The connection check failed. Check your Application ID, Write API Key, index name, and server connectivity, then reload this page.', 'algolia-woo-indexer' ),
+				'message' => __( 'The connection check failed. Check your Application ID, Search API Key, index name, and server connectivity, then reload this page.', 'algolia-woo-indexer' ),
 			);
 
 			// Constrain the hostname to an Algolia application, never an arbitrary URL.
@@ -453,10 +480,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				return self::$connection_status;
 			}
 
-			$url = 'https://' . $settings['application_id'] . '.algolia.net/1/indexes/' . rawurlencode( $settings['index_name'] ) . '/task/1';
+			$url = 'https://' . $settings['application_id'] . '.algolia.net/1/indexes/' . rawurlencode( $settings['index_name'] ) . '/query';
 
 			// One bounded request, with no redirects that could forward the secret key.
-			$response = wp_remote_get(
+			$response = wp_remote_post(
 				$url,
 				array(
 					'timeout'             => 5,
@@ -464,7 +491,15 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					'limit_response_size' => 4096,
 					'headers'             => array(
 						'X-Algolia-Application-Id' => $settings['application_id'],
-						'X-Algolia-API-Key'        => $settings['api_key'],
+						'X-Algolia-API-Key'        => $settings['search_api_key'],
+						'Content-Type'             => 'application/json',
+					),
+					'body'                => wp_json_encode(
+						array(
+							'query'      => '',
+							'hitsPerPage' => 0,
+							'analytics'  => false,
+						)
 					),
 				)
 			);
@@ -478,18 +513,18 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 						$response->get_error_code(),
 						$response->get_error_message()
 					),
-					$settings['api_key']
+					array( $settings['api_key'], $settings['search_api_key'] )
 				);
 			} else {
-				$code = wp_remote_retrieve_response_code( $response );
-				$body = json_decode( wp_remote_retrieve_body( $response ), true );
+				$code   = wp_remote_retrieve_response_code( $response );
+				$body   = json_decode( wp_remote_retrieve_body( $response ), true );
 				$reason = __( 'The response did not include an Algolia error message.', 'algolia-woo-indexer' );
 				if ( is_array( $body ) && isset( $body['message'] ) && is_string( $body['message'] ) ) {
 					$reason = $body['message'];
 				} elseif ( ! is_array( $body ) ) {
 					$reason = __( 'The response was not valid JSON. A proxy, firewall, or upstream service may have returned it instead of Algolia.', 'algolia-woo-indexer' );
 				} elseif ( 200 === $code ) {
-					$reason = __( 'Algolia returned an unexpected task-status response, so index access could not be verified.', 'algolia-woo-indexer' );
+					$reason = __( 'Algolia returned an unexpected search response, so index access could not be verified.', 'algolia-woo-indexer' );
 				}
 				$status['details'] = self::sanitize_connection_diagnostic(
 					sprintf(
@@ -499,25 +534,25 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 						wp_remote_retrieve_response_message( $response ),
 						$reason
 					),
-					$settings['api_key']
+					array( $settings['api_key'], $settings['search_api_key'] )
 				);
 
-				if ( 200 === $code && is_array( $body ) && isset( $body['status'] ) && in_array( $body['status'], array( 'published', 'notPublished' ), true ) ) {
+				if ( 200 === $code && is_array( $body ) && isset( $body['hits'] ) && is_array( $body['hits'] ) ) {
 					$status = array(
 						'type'    => 'success',
 						'emoji'   => '✅',
 						'title'   => __( 'Connected to Algolia', 'algolia-woo-indexer' ),
-						'message' => __( 'Algolia accepted your credentials and the addObject permission check for the configured index. No products were changed. This check runs once each time you open or reload this settings page.', 'algolia-woo-indexer' ),
+						'message' => __( 'A test search succeeded using your Search API Key. The connection and search access to the configured index are working. No product records were returned or changed. The separate Write API Key is verified when products are uploaded.', 'algolia-woo-indexer' ),
 					);
 				} elseif ( 400 === $code ) {
 					$status['message'] = __( 'Algolia rejected the connection-check request as invalid. See the diagnostic below for the exact reason. Check the saved Application ID and index name.', 'algolia-woo-indexer' );
 				} elseif ( 401 === $code || 403 === $code ) {
-					$status['message'] = __( 'Algolia rejected the credentials or index access. Verify the Application ID and use a Write API Key with addObject permission for this exact index. A Search API Key is not sufficient.', 'algolia-woo-indexer' );
+					$status['message'] = __( 'Algolia rejected the Search API Key or search access. Use the Search API Key from the same Algolia application and check that it can search the configured index. See the diagnostic below for any additional key restrictions.', 'algolia-woo-indexer' );
 				} elseif ( 404 === $code ) {
 					$status['type']    = 'warning';
 					$status['emoji']   = '⚠️';
 					$status['title']   = __( 'Algolia connection not verified', 'algolia-woo-indexer' );
-					$status['message'] = __( 'Algolia responded, but the configured index or probe task was not found. Check the index name. If the index is new, send products to create it, then reload this page. Write access has not been confirmed.', 'algolia-woo-indexer' );
+					$status['message'] = __( 'Algolia responded, but the configured index was not found. Check the index name. If the index is new, send products to create it, then reload this page.', 'algolia-woo-indexer' );
 				} elseif ( 429 === $code ) {
 					$status['message'] = __( 'Algolia rate-limited the connection check. Wait a moment, then reload this page to try again.', 'algolia-woo-indexer' );
 				} elseif ( $code >= 500 ) {
@@ -604,6 +639,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$auto_send              = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
 			$algolia_application_id = get_option( ALGOWOO_DB_OPTION . ALGOLIA_APP_ID );
 			$algolia_api_key        = get_option( ALGOWOO_DB_OPTION . ALGOLIA_API_KEY );
+			$search_api_key         = get_option( ALGOWOO_DB_OPTION . ALGOLIA_SEARCH_API_KEY );
 			$algolia_index_name     = get_option( ALGOWOO_DB_OPTION . INDEX_NAME );
 
 			if ( empty( $auto_send ) ) {
@@ -632,6 +668,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					ALGOWOO_DB_OPTION . INDEX_NAME,
 					'Change me'
 				);
+			}
+			if ( false === $search_api_key ) {
+				add_option( ALGOWOO_DB_OPTION . ALGOLIA_SEARCH_API_KEY, '' );
 			}
 			set_transient( self::PLUGIN_TRANSIENT, true );
 		}
