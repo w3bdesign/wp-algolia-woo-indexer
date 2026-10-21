@@ -108,32 +108,36 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					esc_html__( 'Application ID', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algolia_woo_indexer_application_id_output' ),
 					'algolia_woo_indexer',
-					'algolia_woo_indexer_main'
+					'algolia_woo_indexer_main',
+					array( 'label_for' => 'algolia_woo_indexer_application_id' )
 				);
 				add_settings_field(
 					'algolia_woo_indexer_search_api_key',
 					esc_html__( 'Search API Key', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algoliaWooIndexerSearchApiKeyOutput' ),
 					'algolia_woo_indexer',
-					'algolia_woo_indexer_main'
+					'algolia_woo_indexer_main',
+					array( 'label_for' => 'algolia_woo_indexer_search_api_key' )
 				);
 				add_settings_field(
 					'algolia_woo_indexer_admin_api_key',
 					esc_html__( 'Write API Key', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algolia_woo_indexer_admin_api_key_output' ),
 					'algolia_woo_indexer',
-					'algolia_woo_indexer_main'
+					'algolia_woo_indexer_main',
+					array( 'label_for' => 'algolia_woo_indexer_admin_api_key' )
 				);
 				add_settings_field(
 					'algolia_woo_indexer_index_name',
-					esc_html__( 'Index name (will be created if not existing)', 'algolia-woo-indexer' ),
+					esc_html__( 'Index name', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algolia_woo_indexer_index_name_output' ),
 					'algolia_woo_indexer',
-					'algolia_woo_indexer_main'
+					'algolia_woo_indexer_main',
+					array( 'label_for' => 'algolia_woo_indexer_index_name' )
 				);
 				add_settings_field(
 					'algolia_woo_indexer_automatically_send_new_products',
-					esc_html__( 'Automatically index new products', 'algolia-woo-indexer' ),
+					esc_html__( 'Automatic indexing', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algolia_woo_indexer_automatically_send_new_products_output' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
@@ -150,9 +154,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$settings = self::getAlgoliaSettings();
 			$api_key  = is_string( $settings['search_api_key'] ) ? $settings['search_api_key'] : '';
 			?>
-			<label class="screen-reader-text" for="algolia_woo_indexer_search_api_key"><?php echo esc_html__( 'Search API Key', 'algolia-woo-indexer' ); ?></label>
-			<input id="algolia_woo_indexer_search_api_key" name="algolia_woo_indexer_search_api_key[key]" type="password" autocomplete="new-password" aria-describedby="algolia_woo_indexer_search_api_key_description" value="<?php echo esc_attr( $api_key ); ?>" />
-			<p class="description" id="algolia_woo_indexer_search_api_key_description"><?php echo esc_html__( 'Copy the Search API Key from Algolia. It is used only to check the connection, not to upload products. It must be able to search the configured index.', 'algolia-woo-indexer' ); ?></p>
+			<input id="algolia_woo_indexer_search_api_key" name="algolia_woo_indexer_search_api_key[key]" type="password" class="regular-text" autocomplete="new-password" aria-describedby="algolia_woo_indexer_search_api_key_description" value="<?php echo esc_attr( $api_key ); ?>" />
+			<p class="description" id="algolia_woo_indexer_search_api_key_description"><?php echo esc_html__( 'Used only to check the connection. This key must have search access to the index below.', 'algolia-woo-indexer' ); ?></p>
 			<?php
 		}
 
@@ -170,8 +173,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			wp_nonce_field( 'algolia_woo_indexer_admin_api_nonce_action', 'algolia_woo_indexer_admin_api_nonce_name' );
 
 			echo "<input id='algolia_woo_indexer_admin_api_key' name='algolia_woo_indexer_admin_api_key[key]'
-				type='password' autocomplete='new-password' aria-describedby='algolia_woo_indexer_api_key_description' value='" . esc_attr( $api_key ) . "' />";
-			echo '<p class="description" id="algolia_woo_indexer_api_key_description">' . esc_html__( 'Use a dedicated Write API Key with only Add records (addObject) permission, restricted to the configured index. This key uploads products. Do not use the Admin API Key or the Search API Key here. Existing saved write keys are retained.', 'algolia-woo-indexer' ) . '</p>';
+				type='password' class='regular-text' autocomplete='new-password' aria-describedby='algolia_woo_indexer_api_key_description' value='" . esc_attr( $api_key ) . "' />";
+			echo '<p class="description" id="algolia_woo_indexer_api_key_description">' . esc_html__( 'Use a dedicated key with only Add records (addObject) permission, restricted to this index. Do not use an Admin or Search API Key.', 'algolia-woo-indexer' ) . '</p>';
 		}
 
 		/**
@@ -184,7 +187,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$application_id = is_string( $application_id ) ? $application_id : CHANGE_ME;
 
 			echo "<input id='algolia_woo_indexer_application_id' name='algolia_woo_indexer_application_id[id]'
-				type='text' value='" . esc_attr( $application_id ) . "' />";
+				type='text' class='regular-text' value='" . esc_attr( $application_id ) . "' />";
 		}
 
 		/**
@@ -197,7 +200,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$index_name = is_string( $index_name ) ? $index_name : CHANGE_ME;
 
 			echo "<input id='algolia_woo_indexer_index_name' name='algolia_woo_indexer_index_name[name]'
-				type='text' value='" . esc_attr( $index_name ) . "' />";
+				type='text' class='regular-text' aria-describedby='algolia_woo_indexer_index_name_description' value='" . esc_attr( $index_name ) . "' />";
+			echo '<p class="description" id="algolia_woo_indexer_index_name_description">' . esc_html__( 'Created automatically when products are first sent, if it does not already exist.', 'algolia-woo-indexer' ) . '</p>';
 		}
 
 		/**
@@ -213,7 +217,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$auto_send = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
 			$auto_send = ( ! empty( $auto_send ) ) ? 1 : 0;
 			?>
-			<input id="algolia_woo_indexer_automatically_send_new_products" name="algolia_woo_indexer_automatically_send_new_products[checked]" type="checkbox" <?php checked( 1, $auto_send ); ?> />
+			<label for="algolia_woo_indexer_automatically_send_new_products">
+				<input id="algolia_woo_indexer_automatically_send_new_products" name="algolia_woo_indexer_automatically_send_new_products[checked]" type="checkbox" <?php checked( 1, $auto_send ); ?> />
+				<?php echo esc_html__( 'Send new products to Algolia when they are published.', 'algolia-woo-indexer' ); ?>
+			</label>
 			<?php
 		}
 
@@ -223,7 +230,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function algolia_woo_indexer_section_text() {
-			echo esc_html__( 'Enter your settings here', 'algolia-woo-indexer' );
+			echo '<p>' . esc_html__( 'Connect your WooCommerce catalog to Algolia.', 'algolia-woo-indexer' ) . '</p>';
 		}
 
 		/**
@@ -282,6 +289,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 */
 			if ( is_admin() ) {
 				add_action( 'admin_menu', array( $ob_class, 'admin_menu' ) );
+				add_action( 'admin_enqueue_scripts', array( $ob_class, 'enqueue_settings_styles' ) );
 				add_action( 'admin_init', array( $ob_class, 'setup_settings_sections' ) );
 				add_action( 'admin_init', array( $ob_class, 'update_settings_options' ) );
 				add_action( 'admin_init', array( $ob_class, 'maybe_send_products' ) );
@@ -409,6 +417,26 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		}
 
 		/**
+		 * Keep settings help text readable without restyling native controls.
+		 *
+		 * @param string $hook_suffix Current admin page hook.
+		 * @return void
+		 */
+		public static function enqueue_settings_styles( $hook_suffix ) {
+			if ( 'settings_page_algolia-woo-indexer-settings' !== $hook_suffix ) {
+				return;
+			}
+
+			$stylesheet = '/assets/css/admin.css';
+			wp_enqueue_style(
+				'algolia-woo-indexer-settings',
+				plugins_url( $stylesheet, dirname( __DIR__ ) . '/algolia-woo-indexer.php' ),
+				array(),
+				(string) filemtime( dirname( __DIR__ ) . $stylesheet )
+			);
+		}
+
+		/**
 		 * Retrieve connection settings through the main plugin class.
 		 *
 		 * @return array Saved Application ID, write and search keys, and index name.
@@ -435,20 +463,23 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				wp_die( esc_html__( 'Action not allowed.', 'algolia-woo-indexer' ) );
 			}
 			?>
-			<div class="wrap">
+			<div class="wrap algowoo-settings">
 				<h1><?php echo esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
 				<?php $this->connectionStatus->displayAlgoliaConnectionStatus( self::getAlgoliaSettings() ); ?>
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 					<?php
 					settings_fields( 'algolia_woo_options' );
 					do_settings_sections( 'algolia_woo_indexer' );
-					submit_button( '', 'primary wide' );
+					submit_button( esc_html__( 'Save Settings', 'algolia-woo-indexer' ) );
 					?>
 				</form>
+				<hr />
+				<h2><?php echo esc_html__( 'Product indexing', 'algolia-woo-indexer' ); ?></h2>
+				<p><?php echo esc_html__( 'Send your products using the saved connection settings. Save any changes above before starting.', 'algolia-woo-indexer' ); ?></p>
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 					<?php wp_nonce_field( 'send_products_to_algolia_nonce_action', 'send_products_to_algolia_nonce_name' ); ?>
 					<input type="hidden" name="send_products_to_algolia" id="send_products_to_algolia" value="true" />
-					<?php submit_button( esc_html__( 'Send products to Algolia', 'algolia-woo-indexer' ), 'primary wide', '', false ); ?>
+					<?php submit_button( esc_html__( 'Send products to Algolia', 'algolia-woo-indexer' ), 'primary', 'send_products_submit' ); ?>
 				</form>
 			</div>
 			<?php

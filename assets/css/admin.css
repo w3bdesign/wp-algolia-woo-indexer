@@ -1,0 +1,10 @@
+/**
+ * Readable settings-page layout; controls retain WordPress core styling.
+ */
+.algowoo-settings {
+	max-width: 960px;
+}
+
+.algowoo-settings .form-table .description {
+	max-width: 42em;
+}
