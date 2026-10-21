@@ -148,6 +148,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$settings = self::get_algolia_settings();
 			$api_key  = is_string( $settings['search_api_key'] ) ? $settings['search_api_key'] : '';
 			?>
+			<label class="screen-reader-text" for="algolia_woo_indexer_search_api_key"><?php echo esc_html__( 'Search API Key', 'algolia-woo-indexer' ); ?></label>
 			<input id="algolia_woo_indexer_search_api_key" name="algolia_woo_indexer_search_api_key[key]" type="password" autocomplete="new-password" aria-describedby="algolia_woo_indexer_search_api_key_description" value="<?php echo esc_attr( $api_key ); ?>" />
 			<p class="description" id="algolia_woo_indexer_search_api_key_description"><?php echo esc_html__( 'Copy the Search API Key from Algolia. It is used only to check the connection, not to upload products. It must be able to search the configured index.', 'algolia-woo-indexer' ); ?></p>
 			<?php
