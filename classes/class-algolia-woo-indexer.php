@@ -432,7 +432,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * Verify that the user can access the settings page
 			 */
 			if ( ! current_user_can( 'manage_options' ) ) {
-				wp_die( esc_html__( 'Action not allowed.', 'algoliaWooIndexerSettings' ) );
+				wp_die( esc_html__( 'Action not allowed.', 'algolia-woo-indexer' ) );
 			}
 			?>
 			<div class="wrap">
@@ -448,7 +448,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 					<?php wp_nonce_field( 'send_products_to_algolia_nonce_action', 'send_products_to_algolia_nonce_name' ); ?>
 					<input type="hidden" name="send_products_to_algolia" id="send_products_to_algolia" value="true" />
-					<?php submit_button( esc_html__( 'Send products to Algolia', 'algoliaWooIndexerSettings' ), 'primary wide', '', false ); ?>
+					<?php submit_button( esc_html__( 'Send products to Algolia', 'algolia-woo-indexer' ), 'primary wide', '', false ); ?>
 				</form>
 			</div>
 			<?php
