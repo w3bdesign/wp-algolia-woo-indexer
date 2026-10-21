@@ -227,7 +227,12 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					'admin_notices',
 					function () {
 						echo '<div class="error notice">
-                                  <p>' . esc_html__( 'Please check the server requirements for Algolia Woo Indexer. <br/> It requires minimum PHP version 7.2 and WordPress version 5.0', 'algolia-woo-indexer' ) . '</p>
+                                  <p>' . sprintf(
+							/* translators: 1: Minimum PHP version, 2: Minimum WordPress version. */
+							esc_html__( 'Please check the server requirements for Algolia Woo Indexer. It requires minimum PHP version %1$s and WordPress version %2$s.', 'algolia-woo-indexer' ),
+							esc_html( ALGOLIA_MIN_PHP_VERSION ),
+							esc_html( ALGOLIA_MIN_WP_VERSION )
+						) . '</p>
                                 </div>';
 					}
 				);
