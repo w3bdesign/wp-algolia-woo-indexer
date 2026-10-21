@@ -52,11 +52,20 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		private static $plugin_url = '';
 
 		/**
+		 * Connection-status service shared by the singleton's settings renderer.
+		 *
+		 * @var AlgoliaConnectionStatus
+		 */
+		private $connection_status;
+
+		/**
 		 * Class constructor
 		 *
+		 * @param AlgoliaConnectionStatus|null $connection_status Optional connection-status service.
 		 * @return void
 		 */
-		public function __construct() {
+		public function __construct( ?AlgoliaConnectionStatus $connection_status = null ) {
+			$this->connection_status = $connection_status ?? new AlgoliaConnectionStatus();
 			$this->init();
 		}
 
@@ -395,7 +404,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ),
 				'manage_options',
 				'algolia-woo-indexer-settings',
-				array( get_called_class(), 'algolia_woo_indexer_settings' )
+				array( self::get_instance(), 'algolia_woo_indexer_settings' )
 			);
 		}
 
@@ -418,7 +427,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public static function algolia_woo_indexer_settings() {
+		public function algolia_woo_indexer_settings() {
 			/**
 			 * Verify that the user can access the settings page
 			 */
@@ -428,7 +437,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			?>
 			<div class="wrap">
 				<h1><?php echo esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
-				<?php AlgoliaConnectionStatus::display_algolia_connection_status(); ?>
+				<?php $this->connection_status->display_algolia_connection_status( self::get_algolia_settings() ); ?>
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 					<?php
 					settings_fields( 'algolia_woo_options' );
