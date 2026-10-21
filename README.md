@@ -14,9 +14,10 @@ This plugin transfers products from WooCommerce to Algolia. You can choose if it
 only sends products that are in stock.
 
 Add the Application ID, Search API Key, Write API Key, and index name. Copy the
-built-in Search API Key from Algolia for connection checks. For uploads, create a
-separate Write API Key with only Add records (addObject) permission, restricted to
-the exact product index. The Admin API Key is not required.
+built-in Search API Key from Algolia for connection checks. For uploads,
+create a separate Write API Key with only Add records (addObject)
+permission, restricted to the exact product index. The Admin API Key is
+not required.
 
 Note that this plugin is designed for developers developing headless Ecommerce
 solutions.
@@ -30,8 +31,8 @@ solutions.
 - Options are deleted from database upon plugin uninstallation (not on
   deactivation)
 - Compatible with WooCommerce High-Performance Order Storage (HPOS) and
-  Cart/Checkout Blocks; the plugin indexes products and does not access orders or
-  modify checkout
+  Cart/Checkout Blocks; the plugin indexes products and does not access
+  orders or modify checkout
 
 ## Advanced Features
 
@@ -53,8 +54,8 @@ solutions.
 - WooCommerce 11.2.1 or newer
 - PHP 8.4 or newer
 - PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
-- All products MUST have a category assigned (Uncategorized is not a category), or
-  they will not be submitted
+- All products MUST have a category assigned (Uncategorized is not a
+  category), or they will not be submitted
 
 ## Installation
 
@@ -73,19 +74,22 @@ solutions.
 - Paste the built-in Search API Key into the Search API Key field
 - Add the custom key to the Write API Key field on the plugin settings page
 - Add the name of the index that should be used to index WooCommerce products
-- Click on the `Send products with Algolia` button to send the products to Algolia
+- Click on the `Send products with Algolia` button to send the products
+  to Algolia
 
 ### API key security and upgrades
 
 The Search API Key is used only for the connection check: a search request that
 returns zero records and disables analytics. The separate Write API Key is used
 only for uploads, which require Add records (addObject) permission. Neither key
-needs key-management or index-listing permissions. Never expose the Write API Key
-to a browser or storefront; use a read-only Search API Key there instead.
+needs key-management or index-listing permissions. Never expose the Write
+API Key to a browser or storefront; use a read-only Search API Key there
+instead.
 
 Existing saved settings remain compatible. Updating the plugin does not replace
-or restrict an existing Admin API Key: create the dedicated write key in Algolia,
-replace the saved key in the plugin settings, and verify product uploads. Rotate
+or restrict an existing Admin API Key: create the dedicated write key in
+Algolia, replace the saved key in the plugin settings, and verify product
+uploads. Rotate
 the previously used Admin API Key after checking whether other integrations
 depend on it.
 
@@ -96,19 +100,22 @@ emoji and explanatory message:
 
 - ✅ Connected: a test search succeeded with the saved credentials and configured
   index. This confirms search access, not upload permission.
-- ❌ Not connected: the check failed; the message explains credential, permission,
-  connectivity, or rate-limit issues.
+- ❌ Not connected: the check failed; the message explains credential,
+  permission, connectivity, or rate-limit issues.
 - ⚙️ Not checked: save the Application ID, both API keys, and index name first.
   Blank values and default placeholders do not trigger a request.
-- ⚠️ Not verified: Algolia responded, but the index was not found. Verify the index
-  name; if the index is new, upload products to create it and reload the page.
+- ⚠️ Not verified: Algolia responded, but the index was not found. Verify
+  the index name; if the index is new, upload products to create it and
+  reload the page.
 
-The check runs once per settings-page load, including after saving settings, when
-Application ID, both API keys, and index name are set. It does not run on unrelated
-admin pages, return product records, change products, or poll in the background.
+The check runs once per settings-page load, including after saving
+settings, when Application ID, both API keys, and index name are set. It
+does not run on unrelated admin pages, return product records, change
+products, or poll in the background.
 Each check uses a single request with a five-second timeout and analytics
-disabled. It verifies the Search API Key's access, not the separate Write API Key
-or whether previous uploads have completed. Existing saved Write API Keys are
+disabled. It verifies the Search API Key's access, not the separate Write
+API Key or whether previous uploads have completed. Existing saved Write
+API Keys are
 retained; add the Search API Key to enable the new check.
 
 Failed checks include diagnostic details: the HTTP status and Algolia's error
@@ -119,12 +126,13 @@ are identified without displaying raw HTML from proxies or firewalls.
 
 ## Troubleshooting
 
-If you encounter any errors, first of all make sure that your hosting environment
-meets the requirements listed under Requirements.
+If you encounter any errors, first of all make sure that your hosting
+environment meets the requirements listed under Requirements.
 
-For upload errors, also check connectivity, the Application ID, and that the Write
-API Key has Add records (addObject) permission for the configured index. Read-only
-keys and keys restricted to a different index cannot upload products.
+For upload errors, also check connectivity, the Application ID, and that
+the Write API Key has Add records (addObject) permission for the configured
+index. Read-only keys and keys restricted to a different index cannot
+upload products.
 
 Feel free to [open an issue][issues] and I will do my best to troubleshoot and
 assist.
