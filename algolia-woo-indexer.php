@@ -53,6 +53,11 @@ require_once plugin_dir_path( __FILE__ ) . '/classes/class-verify-nonces.php';
  */
 require_once plugin_dir_path( __FILE__ ) . '/classes/class-send-products.php';
 
+/**
+ * Class for checking the Algolia connection and displaying its status.
+ */
+require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-connection-status.php';
+
 $algowooindexer = \Algowoo\Algolia_Woo_Indexer::get_instance();
 
 register_activation_hook( __FILE__, array( $algowooindexer, 'activate_plugin' ) );
