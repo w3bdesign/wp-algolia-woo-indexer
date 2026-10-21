@@ -103,7 +103,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				);
 				add_settings_field(
 					'algolia_woo_indexer_admin_api_key',
-					esc_html__( 'Admin API Key', 'algolia-woo-indexer' ),
+					esc_html__( 'Write API Key', 'algolia-woo-indexer' ),
 					array( $algowooindexer, 'algolia_woo_indexer_admin_api_key_output' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
@@ -126,7 +126,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		}
 
 		/**
-		 * Output for admin API key field
+		 * Output for Write API Key field, retaining the legacy form and nonce identifiers.
 		 *
 		 * @see https://developer.wordpress.org/reference/functions/wp_nonce_field/
 		 *
@@ -139,7 +139,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			wp_nonce_field( 'algolia_woo_indexer_admin_api_nonce_action', 'algolia_woo_indexer_admin_api_nonce_name' );
 
 			echo "<input id='algolia_woo_indexer_admin_api_key' name='algolia_woo_indexer_admin_api_key[key]'
-				type='text' value='" . esc_attr( $api_key ) . "' />";
+				type='password' autocomplete='new-password' aria-describedby='algolia_woo_indexer_api_key_description' value='" . esc_attr( $api_key ) . "' />";
+			echo '<p class="description" id="algolia_woo_indexer_api_key_description">' . esc_html__( 'Use a dedicated Write API Key with only addObject permission, restricted to the configured index. Do not use the Admin API Key. A Search API Key cannot upload products. Existing keys are retained; replace any previously saved Admin API Key here.', 'algolia-woo-indexer' ) . '</p>';
 		}
 
 		/**
