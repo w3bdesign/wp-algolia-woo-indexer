@@ -394,6 +394,18 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		}
 
 		/**
+		 * Remove the secret key from diagnostic text before it can be displayed.
+		 *
+		 * @param string $message Diagnostic text from WordPress or Algolia.
+		 * @param string $api_key Configured secret API key.
+		 * @return string Plain text with the secret redacted and a bounded length.
+		 */
+		private static function sanitize_connection_diagnostic( $message, $api_key ) {
+			$message = str_replace( array( $api_key, rawurlencode( $api_key ) ), '[redacted]', $message );
+			return wp_html_excerpt( sanitize_text_field( $message ), 500, '…' );
+		}
+
+		/**
 		 * Check authenticated index access once per request, without changing records.
 		 *
 		 * The task-status endpoint requires only addObject permission. Task 1 is a
@@ -459,9 +471,37 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 			if ( is_wp_error( $response ) ) {
 				$status['message'] = __( 'Your server could not reach Algolia within the connection check. Check DNS, HTTPS access, and firewall settings, then reload this page.', 'algolia-woo-indexer' );
+				$status['details'] = self::sanitize_connection_diagnostic(
+					sprintf(
+						/* translators: 1: WordPress HTTP error code, 2: Transport error message. */
+						__( 'Transport error (%1$s): %2$s', 'algolia-woo-indexer' ),
+						$response->get_error_code(),
+						$response->get_error_message()
+					),
+					$settings['api_key']
+				);
 			} else {
 				$code = wp_remote_retrieve_response_code( $response );
 				$body = json_decode( wp_remote_retrieve_body( $response ), true );
+				$reason = __( 'The response did not include an Algolia error message.', 'algolia-woo-indexer' );
+				if ( is_array( $body ) && isset( $body['message'] ) && is_string( $body['message'] ) ) {
+					$reason = $body['message'];
+				} elseif ( ! is_array( $body ) ) {
+					$reason = __( 'The response was not valid JSON. A proxy, firewall, or upstream service may have returned it instead of Algolia.', 'algolia-woo-indexer' );
+				} elseif ( 200 === $code ) {
+					$reason = __( 'Algolia returned an unexpected task-status response, so index access could not be verified.', 'algolia-woo-indexer' );
+				}
+				$status['details'] = self::sanitize_connection_diagnostic(
+					sprintf(
+						/* translators: 1: HTTP response code, 2: HTTP reason phrase, 3: API error or response diagnostic. */
+						__( 'HTTP %1$d (%2$s): %3$s', 'algolia-woo-indexer' ),
+						$code,
+						wp_remote_retrieve_response_message( $response ),
+						$reason
+					),
+					$settings['api_key']
+				);
+
 				if ( 200 === $code && is_array( $body ) && isset( $body['status'] ) && in_array( $body['status'], array( 'published', 'notPublished' ), true ) ) {
 					$status = array(
 						'type'    => 'success',
@@ -469,6 +509,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 						'title'   => __( 'Connected to Algolia', 'algolia-woo-indexer' ),
 						'message' => __( 'Algolia accepted your credentials and the addObject permission check for the configured index. No products were changed. This check runs once each time you open or reload this settings page.', 'algolia-woo-indexer' ),
 					);
+				} elseif ( 400 === $code ) {
+					$status['message'] = __( 'Algolia rejected the connection-check request as invalid. See the diagnostic below for the exact reason. Check the saved Application ID and index name.', 'algolia-woo-indexer' );
 				} elseif ( 401 === $code || 403 === $code ) {
 					$status['message'] = __( 'Algolia rejected the credentials or index access. Verify the Application ID and use a Write API Key with addObject permission for this exact index. A Search API Key is not sufficient.', 'algolia-woo-indexer' );
 				} elseif ( 404 === $code ) {
@@ -478,6 +520,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					$status['message'] = __( 'Algolia responded, but the configured index or probe task was not found. Check the index name. If the index is new, send products to create it, then reload this page. Write access has not been confirmed.', 'algolia-woo-indexer' );
 				} elseif ( 429 === $code ) {
 					$status['message'] = __( 'Algolia rate-limited the connection check. Wait a moment, then reload this page to try again.', 'algolia-woo-indexer' );
+				} elseif ( $code >= 500 ) {
+					$status['message'] = __( 'Algolia or an upstream service returned a server error. See the diagnostic below and try again shortly.', 'algolia-woo-indexer' );
 				}
 			}
 
@@ -496,6 +540,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			<div class="notice notice-<?php echo esc_attr( $status['type'] ); ?> inline" role="status">
 				<p><span aria-hidden="true"><?php echo esc_html( $status['emoji'] ); ?></span> <strong><?php echo esc_html( $status['title'] ); ?></strong></p>
 				<p><?php echo esc_html( $status['message'] ); ?></p>
+				<?php if ( ! empty( $status['details'] ) ) : ?>
+					<p><strong><?php echo esc_html__( 'Diagnostic details:', 'algolia-woo-indexer' ); ?></strong> <?php echo esc_html( $status['details'] ); ?></p>
+				<?php endif; ?>
 			</div>
 			<?php
 		}
