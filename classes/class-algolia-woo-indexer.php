@@ -154,8 +154,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$settings = self::getAlgoliaSettings();
 			$api_key  = is_string( $settings['search_api_key'] ) ? $settings['search_api_key'] : '';
 			?>
+			<div class="algowoo-settings-field">
 			<input id="algolia_woo_indexer_search_api_key" name="algolia_woo_indexer_search_api_key[key]" type="password" class="regular-text" autocomplete="new-password" aria-describedby="algolia_woo_indexer_search_api_key_description" value="<?php echo esc_attr( $api_key ); ?>" />
 			<p class="description" id="algolia_woo_indexer_search_api_key_description"><?php echo esc_html__( 'Used only to check the connection. This key must have search access to the index below.', 'algolia-woo-indexer' ); ?></p>
+			</div>
 			<?php
 		}
 
@@ -172,9 +174,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 			wp_nonce_field( 'algolia_woo_indexer_admin_api_nonce_action', 'algolia_woo_indexer_admin_api_nonce_name' );
 
+			echo '<div class="algowoo-settings-field">';
 			echo "<input id='algolia_woo_indexer_admin_api_key' name='algolia_woo_indexer_admin_api_key[key]'
 				type='password' class='regular-text' autocomplete='new-password' aria-describedby='algolia_woo_indexer_api_key_description' value='" . esc_attr( $api_key ) . "' />";
 			echo '<p class="description" id="algolia_woo_indexer_api_key_description">' . esc_html__( 'Use a dedicated key with only Add records (addObject) permission, restricted to this index. Do not use an Admin or Search API Key.', 'algolia-woo-indexer' ) . '</p>';
+			echo '</div>';
 		}
 
 		/**
@@ -186,8 +190,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$application_id = get_option( ALGOWOO_DB_OPTION . ALGOLIA_APP_ID );
 			$application_id = is_string( $application_id ) ? $application_id : CHANGE_ME;
 
+			echo '<div class="algowoo-settings-field">';
 			echo "<input id='algolia_woo_indexer_application_id' name='algolia_woo_indexer_application_id[id]'
 				type='text' class='regular-text' value='" . esc_attr( $application_id ) . "' />";
+			echo '</div>';
 		}
 
 		/**
@@ -199,9 +205,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$index_name = get_option( ALGOWOO_DB_OPTION . INDEX_NAME );
 			$index_name = is_string( $index_name ) ? $index_name : CHANGE_ME;
 
+			echo '<div class="algowoo-settings-field">';
 			echo "<input id='algolia_woo_indexer_index_name' name='algolia_woo_indexer_index_name[name]'
 				type='text' class='regular-text' aria-describedby='algolia_woo_indexer_index_name_description' value='" . esc_attr( $index_name ) . "' />";
 			echo '<p class="description" id="algolia_woo_indexer_index_name_description">' . esc_html__( 'Created automatically when products are first sent, if it does not already exist.', 'algolia-woo-indexer' ) . '</p>';
+			echo '</div>';
 		}
 
 		/**

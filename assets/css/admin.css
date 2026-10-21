@@ -5,6 +5,17 @@
 	max-width: 960px;
 }
 
-.algowoo-settings .form-table .description {
-	max-width: 42em;
+.algowoo-settings .algowoo-settings-field {
+	width: 25em;
+	max-width: 100%;
+}
+
+.algowoo-settings .algowoo-settings-field .regular-text {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+}
+
+.algowoo-settings .algowoo-settings-field .description {
+	overflow-wrap: anywhere;
 }
