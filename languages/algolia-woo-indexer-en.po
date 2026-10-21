@@ -35,8 +35,8 @@ msgid "Write API Key"
 msgstr "Write API Key"
 
 #: classes/class-algolia-woo-indexer.php:143
-msgid "Use a dedicated Write API Key with only addObject permission, restricted to the configured index. Do not use the Admin API Key. A Search API Key cannot upload products. Existing keys are retained; replace any previously saved Admin API Key here."
-msgstr "Use a dedicated Write API Key with only addObject permission, restricted to the configured index. Do not use the Admin API Key. A Search API Key cannot upload products. Existing keys are retained; replace any previously saved Admin API Key here."
+msgid "Use a dedicated Write API Key with only Add records (addObject) permission, restricted to the configured index. This key uploads products. Do not use the Admin API Key or the Search API Key here. Existing saved write keys are retained."
+msgstr "Use a dedicated Write API Key with only Add records (addObject) permission, restricted to the configured index. This key uploads products. Do not use the Admin API Key or the Search API Key here. Existing saved write keys are retained."
 
 #: classes/class-algolia-woo-indexer.php:109
 msgid "Index name (will be created if not existing)"
@@ -127,14 +127,14 @@ msgstr ""
 msgid "Algolia connection not checked"
 msgstr "Algolia connection not checked"
 
-msgid "Save your Application ID, Write API Key, and index name to check the connection automatically when this page opens."
-msgstr "Save your Application ID, Write API Key, and index name to check the connection automatically when this page opens."
+msgid "Save your Application ID, Search API Key, Write API Key, and index name to check the connection automatically when this page opens."
+msgstr "Save your Application ID, Search API Key, Write API Key, and index name to check the connection automatically when this page opens."
 
 msgid "Not connected to Algolia"
 msgstr "Not connected to Algolia"
 
-msgid "The connection check failed. Check your Application ID, Write API Key, index name, and server connectivity, then reload this page."
-msgstr "The connection check failed. Check your Application ID, Write API Key, index name, and server connectivity, then reload this page."
+msgid "The connection check failed. Check your Application ID, Search API Key, index name, and server connectivity, then reload this page."
+msgstr "The connection check failed. Check your Application ID, Search API Key, index name, and server connectivity, then reload this page."
 
 msgid "The Application ID must contain only letters and numbers. Correct it, save the settings, and reload this page."
 msgstr "The Application ID must contain only letters and numbers. Correct it, save the settings, and reload this page."
@@ -145,17 +145,17 @@ msgstr "Your server could not reach Algolia within the connection check. Check D
 msgid "Connected to Algolia"
 msgstr "Connected to Algolia"
 
-msgid "Algolia accepted your credentials and the addObject permission check for the configured index. No products were changed. This check runs once each time you open or reload this settings page."
-msgstr "Algolia accepted your credentials and the addObject permission check for the configured index. No products were changed. This check runs once each time you open or reload this settings page."
+msgid "A test search succeeded using your Search API Key. The connection and search access to the configured index are working. No product records were returned or changed. The separate Write API Key is verified when products are uploaded."
+msgstr "A test search succeeded using your Search API Key. The connection and search access to the configured index are working. No product records were returned or changed. The separate Write API Key is verified when products are uploaded."
 
-msgid "Algolia rejected the credentials or index access. Verify the Application ID and use a Write API Key with addObject permission for this exact index. A Search API Key is not sufficient."
-msgstr "Algolia rejected the credentials or index access. Verify the Application ID and use a Write API Key with addObject permission for this exact index. A Search API Key is not sufficient."
+msgid "Algolia rejected the Search API Key or search access. Use the Search API Key from the same Algolia application and check that it can search the configured index. See the diagnostic below for any additional key restrictions."
+msgstr "Algolia rejected the Search API Key or search access. Use the Search API Key from the same Algolia application and check that it can search the configured index. See the diagnostic below for any additional key restrictions."
 
 msgid "Algolia connection not verified"
 msgstr "Algolia connection not verified"
 
-msgid "Algolia responded, but the configured index or probe task was not found. Check the index name. If the index is new, send products to create it, then reload this page. Write access has not been confirmed."
-msgstr "Algolia responded, but the configured index or probe task was not found. Check the index name. If the index is new, send products to create it, then reload this page. Write access has not been confirmed."
+msgid "Algolia responded, but the configured index was not found. Check the index name. If the index is new, send products to create it, then reload this page."
+msgstr "Algolia responded, but the configured index was not found. Check the index name. If the index is new, send products to create it, then reload this page."
 
 msgid "Algolia rate-limited the connection check. Wait a moment, then reload this page to try again."
 msgstr "Algolia rate-limited the connection check. Wait a moment, then reload this page to try again."
@@ -171,8 +171,8 @@ msgstr "The response did not include an Algolia error message."
 msgid "The response was not valid JSON. A proxy, firewall, or upstream service may have returned it instead of Algolia."
 msgstr "The response was not valid JSON. A proxy, firewall, or upstream service may have returned it instead of Algolia."
 
-msgid "Algolia returned an unexpected task-status response, so index access could not be verified."
-msgstr "Algolia returned an unexpected task-status response, so index access could not be verified."
+msgid "Algolia returned an unexpected search response, so index access could not be verified."
+msgstr "Algolia returned an unexpected search response, so index access could not be verified."
 
 #. translators: 1: HTTP response code, 2: HTTP reason phrase, 3: API error or response diagnostic.
 #, php-format
@@ -187,6 +187,13 @@ msgstr "Algolia or an upstream service returned a server error. See the diagnost
 
 msgid "Diagnostic details:"
 msgstr "Diagnostic details:"
+
+#. Plugin Name of the plugin/theme
+msgid "Search API Key"
+msgstr "Search API Key"
+
+msgid "Copy the Search API Key from Algolia. It is used only to check the connection, not to upload products. It must be able to search the configured index."
+msgstr "Copy the Search API Key from Algolia. It is used only to check the connection, not to upload products. It must be able to search the configured index."
 
 #. Plugin Name of the plugin/theme
 msgid "Algolia Woocommerce Indexer"
