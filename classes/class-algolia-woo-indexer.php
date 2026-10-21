@@ -620,13 +620,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		public static function display_algolia_connection_status() {
 			$status = self::get_algolia_connection_status();
 			?>
-			<div class="notice notice-<?php echo esc_attr( $status['type'] ); ?> inline" role="status">
+			<output class="notice notice-<?php echo esc_attr( $status['type'] ); ?> inline" style="display: block;">
 				<p><span aria-hidden="true"><?php echo esc_html( $status['emoji'] ); ?></span> <strong><?php echo esc_html( $status['title'] ); ?></strong></p>
 				<p><?php echo esc_html( $status['message'] ); ?></p>
 				<?php if ( ! empty( $status['details'] ) ) : ?>
 					<p><strong><?php echo esc_html__( 'Diagnostic details:', 'algolia-woo-indexer' ); ?></strong> <?php echo esc_html( $status['details'] ); ?></p>
 				<?php endif; ?>
-			</div>
+			</output>
 			<?php
 		}
 
