@@ -56,16 +56,16 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @var AlgoliaConnectionStatus
 		 */
-		private $connection_status;
+		private $connectionStatus;
 
 		/**
 		 * Class constructor
 		 *
-		 * @param AlgoliaConnectionStatus|null $connection_status Optional connection-status service.
+		 * @param AlgoliaConnectionStatus|null $connectionStatus Optional connection-status service.
 		 * @return void
 		 */
-		public function __construct( ?AlgoliaConnectionStatus $connection_status = null ) {
-			$this->connection_status = $connection_status ?? new AlgoliaConnectionStatus();
+		public function __construct( ?AlgoliaConnectionStatus $connectionStatus = null ) {
+			$this->connectionStatus = $connectionStatus ?? new AlgoliaConnectionStatus();
 			$this->init();
 		}
 
@@ -113,7 +113,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				add_settings_field(
 					'algolia_woo_indexer_search_api_key',
 					esc_html__( 'Search API Key', 'algolia-woo-indexer' ),
-					array( $algowooindexer, 'algolia_woo_indexer_search_api_key_output' ),
+					array( $algowooindexer, 'algoliaWooIndexerSearchApiKeyOutput' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
 				);
@@ -146,8 +146,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public static function algolia_woo_indexer_search_api_key_output() {
-			$settings = self::get_algolia_settings();
+		public static function algoliaWooIndexerSearchApiKeyOutput() {
+			$settings = self::getAlgoliaSettings();
 			$api_key  = is_string( $settings['search_api_key'] ) ? $settings['search_api_key'] : '';
 			?>
 			<label class="screen-reader-text" for="algolia_woo_indexer_search_api_key"><?php echo esc_html__( 'Search API Key', 'algolia-woo-indexer' ); ?></label>
@@ -404,7 +404,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ),
 				'manage_options',
 				'algolia-woo-indexer-settings',
-				array( self::get_instance(), 'algolia_woo_indexer_settings' )
+				array( self::get_instance(), 'algoliaWooIndexerSettings' )
 			);
 		}
 
@@ -413,7 +413,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return array Saved Application ID, write and search keys, and index name.
 		 */
-		public static function get_algolia_settings() {
+		public static function getAlgoliaSettings() {
 			return array(
 				'application_id' => get_option( ALGOWOO_DB_OPTION . ALGOLIA_APP_ID ),
 				'api_key'        => get_option( ALGOWOO_DB_OPTION . ALGOLIA_API_KEY ),
@@ -427,17 +427,17 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public function algolia_woo_indexer_settings() {
+		public function algoliaWooIndexerSettings() {
 			/**
 			 * Verify that the user can access the settings page
 			 */
 			if ( ! current_user_can( 'manage_options' ) ) {
-				wp_die( esc_html__( 'Action not allowed.', 'algolia_woo_indexer_settings' ) );
+				wp_die( esc_html__( 'Action not allowed.', 'algoliaWooIndexerSettings' ) );
 			}
 			?>
 			<div class="wrap">
 				<h1><?php echo esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
-				<?php $this->connection_status->display_algolia_connection_status( self::get_algolia_settings() ); ?>
+				<?php $this->connectionStatus->displayAlgoliaConnectionStatus( self::getAlgoliaSettings() ); ?>
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 					<?php
 					settings_fields( 'algolia_woo_options' );
@@ -448,7 +448,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 					<?php wp_nonce_field( 'send_products_to_algolia_nonce_action', 'send_products_to_algolia_nonce_name' ); ?>
 					<input type="hidden" name="send_products_to_algolia" id="send_products_to_algolia" value="true" />
-					<?php submit_button( esc_html__( 'Send products to Algolia', 'algolia_woo_indexer_settings' ), 'primary wide', '', false ); ?>
+					<?php submit_button( esc_html__( 'Send products to Algolia', 'algoliaWooIndexerSettings' ), 'primary wide', '', false ); ?>
 				</form>
 			</div>
 			<?php
