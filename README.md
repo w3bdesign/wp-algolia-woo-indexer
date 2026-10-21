@@ -23,6 +23,7 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 - Manually or automatically submit WooCommerce products to Algolia
 - Default options are added upon plugin activation
 - Options are deleted from database upon plugin uninstallation (not on deactivation)
+- Compatible with WooCommerce High-Performance Order Storage (HPOS) and Cart/Checkout Blocks; the plugin indexes products and does not access orders or modify checkout
 
 ## Advanced Features
 
@@ -39,7 +40,7 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 - An account at <www.algolia.com> (either free or premium)
 - Access to install and activate plugins (usually administrator rights)
 - WordPress 6.1.1 or newer
-- WooCommerce 7.4.0 or newer
+- WooCommerce 11.2.1 or newer
 - PHP 8.1 or newer
 - PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
 - All products MUST have a category assigned (Uncategorized is not a category), or they will not be submitted

@@ -3,7 +3,7 @@ Contributors: Daniel F
 Tags: algolia, woocommerce, search, algolia search, algolia indexing
 Requires at least: not tested
 Tested up to: 6.1.1
-Stable tag: 1.0
+Stable tag: 1.0.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,13 @@ Check connectivity, the Application ID, index name, and the key's Add records (a
 
 == Changelog ==
 
+= 1.0.9 =
+* Require WooCommerce 11.2.1 or newer
+* Support dedicated index-restricted Write API Keys without key-management or index-listing permissions
+* Handle Algolia upload errors and clarify API key setup
+* Mask the Write API Key field while retaining existing saved settings
+* Declare compatibility with WooCommerce High-Performance Order Storage and Cart/Checkout Blocks
+
 = 1.0.8 =
 * Minor package updates
 
@@ -48,7 +55,8 @@ Check connectivity, the Application ID, index name, and the key's Add records (a
 
 
 == Upgrade Notice ==
-None
+= 1.0.9 =
+Requires WooCommerce 11.2.1 or newer. Replace any previously saved Admin API Key with a dedicated Write API Key that has only Add records (addObject) permission for the configured index. Existing settings are retained. WooCommerce HPOS and Cart/Checkout Blocks compatibility is now declared.
 
 
 == License ==
@@ -57,6 +65,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 == Version history ==
 
+1.0.9 - Restricted Write API Key support and WooCommerce feature compatibility declarations
 1.0.8 - Minor package updates
 1.0.7 - Add support for premium version
 1.0   - Initial version
