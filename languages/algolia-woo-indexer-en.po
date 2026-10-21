@@ -82,9 +82,13 @@ msgstr "All settings need to be set for the plugin to work."
 msgid "Unable to send products to Algolia. Check your connection, Application ID, index name, and Write API Key. The key must have addObject permission for the configured index. A Search API Key cannot upload products."
 msgstr "Unable to send products to Algolia. Check your connection, Application ID, index name, and Write API Key. The key must have addObject permission for the configured index. A Search API Key cannot upload products."
 
-#: classes/class-algolia-woo-indexer.php:502
-msgid "Product(s) sent to Algolia."
-msgstr "Product(s) sent to Algolia."
+#. translators: 1: Number of products sent, 2: Algolia index name.
+#: classes/class-send-products.php:226
+#, php-format
+msgid "%1$s product sent to Algolia index \"%2$s\". Indexing may still be in progress."
+msgid_plural "%1$s products sent to Algolia index \"%2$s\". Indexing may still be in progress."
+msgstr[0] "%1$s product sent to Algolia index \"%2$s\". Indexing may still be in progress."
+msgstr[1] "%1$s products sent to Algolia index \"%2$s\". Indexing may still be in progress."
 
 #: classes/class-algolia-woo-indexer.php:539
 #: classes/class-algolia-woo-indexer.php:540
