@@ -459,15 +459,39 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				return $status;
 			}
 
-			$settings = self::get_algolia_settings();
+			$settings                = self::normalize_algolia_connection_settings( self::get_algolia_settings() );
+			self::$connection_status = $status;
+			if ( null !== $settings ) {
+				self::$connection_status = self::check_algolia_connection( $settings );
+			}
+
+			return self::$connection_status;
+		}
+
+		/**
+		 * Normalize complete settings, rejecting missing values and placeholders.
+		 *
+		 * @param array $settings Saved connection settings.
+		 * @return array|null Trimmed settings, or null when configuration is incomplete.
+		 */
+		private static function normalize_algolia_connection_settings( $settings ) {
 			foreach ( $settings as $name => $value ) {
 				if ( ! is_string( $value ) || '' === trim( $value ) || 0 === strcasecmp( trim( $value ), CHANGE_ME ) ) {
-					self::$connection_status = $status;
-					return self::$connection_status;
+					return null;
 				}
 				$settings[ $name ] = trim( $value );
 			}
 
+			return $settings;
+		}
+
+		/**
+		 * Make one connection-check request using normalized settings.
+		 *
+		 * @param array $settings Complete, trimmed connection settings.
+		 * @return array Connection notice, including diagnostics when needed.
+		 */
+		private static function check_algolia_connection( $settings ) {
 			$status = array(
 				'type'    => 'error',
 				'emoji'   => '❌',
@@ -477,9 +501,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 			// Constrain the hostname to an Algolia application, never an arbitrary URL.
 			if ( ! preg_match( '/^[a-zA-Z0-9]+$/', $settings['application_id'] ) ) {
-				$status['message']       = __( 'The Application ID must contain only letters and numbers. Correct it, save the settings, and reload this page.', 'algolia-woo-indexer' );
-				self::$connection_status = $status;
-				return self::$connection_status;
+				$status['message'] = __( 'The Application ID must contain only letters and numbers. Correct it, save the settings, and reload this page.', 'algolia-woo-indexer' );
+				return $status;
 			}
 
 			$url = 'https://' . $settings['application_id'] . '.algolia.net/1/indexes/' . rawurlencode( $settings['index_name'] ) . '/query';
@@ -506,8 +529,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				)
 			);
 
-			self::$connection_status = self::get_algolia_response_status( $response, $settings, $status );
-			return self::$connection_status;
+			return self::get_algolia_response_status( $response, $settings, $status );
 		}
 
 		/**
@@ -579,16 +601,15 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return string Diagnostic explanation before secret redaction.
 		 */
 		private static function get_algolia_response_reason( $body, $code ) {
+			$reason = __( 'The response did not include an Algolia error message.', 'algolia-woo-indexer' );
 			if ( is_array( $body ) && isset( $body['message'] ) && is_string( $body['message'] ) ) {
-				return $body['message'];
+				$reason = $body['message'];
+			} elseif ( ! is_array( $body ) ) {
+				$reason = __( 'The response was not valid JSON. A proxy, firewall, or upstream service may have returned it instead of Algolia.', 'algolia-woo-indexer' );
+			} elseif ( 200 === $code ) {
+				$reason = __( 'Algolia returned an unexpected search response, so index access could not be verified.', 'algolia-woo-indexer' );
 			}
-			if ( ! is_array( $body ) ) {
-				return __( 'The response was not valid JSON. A proxy, firewall, or upstream service may have returned it instead of Algolia.', 'algolia-woo-indexer' );
-			}
-			if ( 200 === $code ) {
-				return __( 'Algolia returned an unexpected search response, so index access could not be verified.', 'algolia-woo-indexer' );
-			}
-			return __( 'The response did not include an Algolia error message.', 'algolia-woo-indexer' );
+			return $reason;
 		}
 
 		/**
