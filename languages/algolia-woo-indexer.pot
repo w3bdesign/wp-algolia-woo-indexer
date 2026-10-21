@@ -54,10 +54,10 @@ msgstr ""
 msgid "Enter your settings here"
 msgstr ""
 
-#: classes/class-algolia-woo-indexer.php:238
-msgid ""
-"Please check the server requirements for Algolia Woo Indexer. <br/> It "
-"requires minimum PHP version 7.2 and WordPress version 5.0"
+#. translators: 1: Minimum PHP version, 2: Minimum WordPress version.
+#: classes/class-algolia-woo-indexer.php:233
+#, php-format
+msgid "Please check the server requirements for Algolia Woo Indexer. It requires minimum PHP version %1$s and WordPress version %2$s."
 msgstr ""
 
 #: classes/class-algolia-woo-indexer.php:274
