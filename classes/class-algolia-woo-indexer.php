@@ -208,7 +208,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			 * But I have still done it to be 100% safe
 			 */
 			$auto_send = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
-			$auto_send = ( ! empty( $auto_send ) ) ? 1 : 0; ?>
+			$auto_send = ( ! empty( $auto_send ) ) ? 1 : 0;
+			?>
 			<input id="algolia_woo_indexer_automatically_send_new_products" name="algolia_woo_indexer_automatically_send_new_products[checked]" type="checkbox" <?php checked( 1, $auto_send ); ?> />
 			<?php
 		}
@@ -346,10 +347,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$sanitized_auto_send      = ( ! empty( $auto_send ) ) ? 1 : 0;
 
 			$options = array(
-				ALGOWOO_DB_OPTION . ALGOLIA_APP_ID  => $sanitized_app_id,
-				ALGOWOO_DB_OPTION . ALGOLIA_API_KEY => $sanitized_api_key,
+				ALGOWOO_DB_OPTION . ALGOLIA_APP_ID         => $sanitized_app_id,
+				ALGOWOO_DB_OPTION . ALGOLIA_API_KEY        => $sanitized_api_key,
 				ALGOWOO_DB_OPTION . ALGOLIA_SEARCH_API_KEY => $sanitized_search_api_key,
-				ALGOWOO_DB_OPTION . INDEX_NAME      => $sanitized_index_name,
+				ALGOWOO_DB_OPTION . INDEX_NAME             => $sanitized_index_name,
 				ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS => $sanitized_auto_send,
 			);
 
@@ -496,9 +497,9 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					),
 					'body'                => wp_json_encode(
 						array(
-							'query'      => '',
+							'query'       => '',
 							'hitsPerPage' => 0,
-							'analytics'  => false,
+							'analytics'   => false,
 						)
 					),
 				)
