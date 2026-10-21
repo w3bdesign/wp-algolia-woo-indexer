@@ -75,6 +75,8 @@ The top of the plugin settings page shows an automatic connection check with an 
 
 The check runs once per settings-page load, including after saving settings. It does not run on unrelated admin pages, create tasks, upload test products, or poll in the background. Each check uses a single request with a five-second timeout. It verifies current access, not whether previous product uploads have completed.
 
+Failed checks include diagnostic details: the HTTP status and Algolia's error message, or the WordPress HTTP transport error for DNS, TLS, timeout, and other network failures. Diagnostics are plain text, length-limited, visible only to settings administrators, and redact the configured API key. Non-JSON responses are identified without displaying raw HTML from proxies or firewalls.
+
 ## Troubleshooting
 
 If you encounter any errors, first of all make sure that your hosting environment meets the requirements listed under Requirements.
