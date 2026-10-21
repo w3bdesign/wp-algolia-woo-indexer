@@ -39,7 +39,7 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 
 - An account at <www.algolia.com> (either free or premium)
 - Access to install and activate plugins (usually administrator rights)
-- WordPress 7.1.1 or newer
+- WordPress 7.1 or newer
 - WooCommerce 11.2.1 or newer
 - PHP 8.4 or newer
 - PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`

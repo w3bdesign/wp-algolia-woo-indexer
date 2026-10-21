@@ -1,8 +1,7 @@
 === Algolia Woo Indexer ===
 Contributors: Daniel F
 Tags: algolia, woocommerce, search, algolia search, algolia indexing
-Requires at least: not tested
-Tested up to: 6.1.1
+Requires at least: 7.1
 Requires PHP: 8.4
 Stable tag: 1.0.9
 License: GPLv2 or later
