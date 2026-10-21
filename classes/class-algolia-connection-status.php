@@ -21,7 +21,7 @@ final class AlgoliaConnectionStatus {
 	 *
 	 * @var array|null
 	 */
-	private static $connection_status = null;
+	private $connection_status = null;
 
 	/**
 	 * Remove the secret key from diagnostic text before it can be displayed.
@@ -30,7 +30,7 @@ final class AlgoliaConnectionStatus {
 	 * @param string[] $api_keys Configured API keys to redact.
 	 * @return string Plain text with the secret redacted and a bounded length.
 	 */
-	private static function sanitize_connection_diagnostic( $message, $api_keys ) {
+	private function sanitize_connection_diagnostic( $message, $api_keys ) {
 		foreach ( $api_keys as $api_key ) {
 			$message = str_replace( array( $api_key, rawurlencode( $api_key ) ), '[redacted]', $message );
 		}
@@ -43,11 +43,12 @@ final class AlgoliaConnectionStatus {
 	 * An empty search requires search permission and returns no product records.
 	 * This uses the Search API Key, never the separate Write API Key.
 	 *
+	 * @param array $settings Saved connection settings from the main plugin wrapper.
 	 * @return array Notice type, emoji, title, and explanatory message.
 	 */
-	public static function get_algolia_connection_status() {
-		if ( null !== self::$connection_status ) {
-			return self::$connection_status;
+	public function get_algolia_connection_status( $settings ) {
+		if ( null !== $this->connection_status ) {
+			return $this->connection_status;
 		}
 
 		$status = array(
@@ -62,13 +63,13 @@ final class AlgoliaConnectionStatus {
 			return $status;
 		}
 
-		$settings                = self::normalize_algolia_connection_settings( Algolia_Woo_Indexer::get_algolia_settings() );
-		self::$connection_status = $status;
+		$settings                = $this->normalize_algolia_connection_settings( $settings );
+		$this->connection_status = $status;
 		if ( null !== $settings ) {
-			self::$connection_status = self::check_algolia_connection( $settings );
+			$this->connection_status = $this->check_algolia_connection( $settings );
 		}
 
-		return self::$connection_status;
+		return $this->connection_status;
 	}
 
 	/**
@@ -77,7 +78,7 @@ final class AlgoliaConnectionStatus {
 	 * @param array $settings Saved connection settings.
 	 * @return array|null Trimmed settings, or null when configuration is incomplete.
 	 */
-	private static function normalize_algolia_connection_settings( $settings ) {
+	private function normalize_algolia_connection_settings( $settings ) {
 		foreach ( $settings as $name => $value ) {
 			if ( ! is_string( $value ) || '' === trim( $value ) || 0 === strcasecmp( trim( $value ), CHANGE_ME ) ) {
 				return null;
@@ -94,7 +95,7 @@ final class AlgoliaConnectionStatus {
 	 * @param array $settings Complete, trimmed connection settings.
 	 * @return array Connection notice, including diagnostics when needed.
 	 */
-	private static function check_algolia_connection( $settings ) {
+	private function check_algolia_connection( $settings ) {
 		$status = array(
 			'type'    => 'error',
 			'emoji'   => '❌',
@@ -132,7 +133,7 @@ final class AlgoliaConnectionStatus {
 			)
 		);
 
-		return self::get_algolia_response_status( $response, $settings, $status );
+		return $this->get_algolia_response_status( $response, $settings, $status );
 	}
 
 	/**
@@ -143,10 +144,10 @@ final class AlgoliaConnectionStatus {
 	 * @param array           $status   Default error notice.
 	 * @return array Connection notice with redacted diagnostic details on failure.
 	 */
-	private static function get_algolia_response_status( $response, $settings, $status ) {
+	private function get_algolia_response_status( $response, $settings, $status ) {
 		if ( is_wp_error( $response ) ) {
 			$status['message'] = __( 'Your server could not reach Algolia within the connection check. Check DNS, HTTPS access, and firewall settings, then reload this page.', 'algolia-woo-indexer' );
-			$status['details'] = self::sanitize_connection_diagnostic(
+			$status['details'] = $this->sanitize_connection_diagnostic(
 				sprintf(
 					/* translators: 1: WordPress HTTP error code, 2: Transport error message. */
 					__( 'Transport error (%1$s): %2$s', 'algolia-woo-indexer' ),
@@ -160,13 +161,13 @@ final class AlgoliaConnectionStatus {
 
 		$code              = wp_remote_retrieve_response_code( $response );
 		$body              = json_decode( wp_remote_retrieve_body( $response ), true );
-		$status['details'] = self::sanitize_connection_diagnostic(
+		$status['details'] = $this->sanitize_connection_diagnostic(
 			sprintf(
 				/* translators: 1: HTTP response code, 2: HTTP reason phrase, 3: API error or response diagnostic. */
 				__( 'HTTP %1$d (%2$s): %3$s', 'algolia-woo-indexer' ),
 				$code,
 				wp_remote_retrieve_response_message( $response ),
-				self::get_algolia_response_reason( $body, $code )
+				$this->get_algolia_response_reason( $body, $code )
 			),
 			array( $settings['api_key'], $settings['search_api_key'] )
 		);
@@ -203,7 +204,7 @@ final class AlgoliaConnectionStatus {
 	 * @param int   $code HTTP response code.
 	 * @return string Diagnostic explanation before secret redaction.
 	 */
-	private static function get_algolia_response_reason( $body, $code ) {
+	private function get_algolia_response_reason( $body, $code ) {
 		$reason = __( 'The response did not include an Algolia error message.', 'algolia-woo-indexer' );
 		if ( is_array( $body ) && isset( $body['message'] ) && is_string( $body['message'] ) ) {
 			$reason = $body['message'];
@@ -218,10 +219,11 @@ final class AlgoliaConnectionStatus {
 	/**
 	 * Display the connection status before the settings forms.
 	 *
+	 * @param array $settings Saved connection settings from the main plugin wrapper.
 	 * @return void
 	 */
-	public static function display_algolia_connection_status() {
-		$status = self::get_algolia_connection_status();
+	public function display_algolia_connection_status( $settings ) {
+		$status = $this->get_algolia_connection_status( $settings );
 		?>
 		<output class="notice notice-<?php echo esc_attr( $status['type'] ); ?> inline" style="display: block;">
 			<span style="display: block; margin: 0.5em 0;"><span aria-hidden="true"><?php echo esc_html( $status['emoji'] ); ?></span> <strong><?php echo esc_html( $status['title'] ); ?></strong></span>
