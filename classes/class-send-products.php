@@ -219,9 +219,21 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 			/**
 			 * Display success message
 			 */
+			$product_count = count( $records );
+			$message       = sprintf(
+				/* translators: 1: Number of products sent, 2: Algolia index name. */
+				_n(
+					'%1$s product sent to Algolia index "%2$s". Indexing may still be in progress.',
+					'%1$s products sent to Algolia index "%2$s". Indexing may still be in progress.',
+					$product_count,
+					'algolia-woo-indexer'
+				),
+				number_format_i18n( $product_count ),
+				$algolia_index_name
+			);
 			echo '<div class="notice notice-success is-dismissible">
-					 	<p>' . esc_html__( 'Product(s) sent to Algolia.', 'algolia-woo-indexer' ) . '</p>
-				  		</div>';
+					 	<p>' . esc_html( $message ) . '</p>
+					  		</div>';
 		}
 	}
 }
