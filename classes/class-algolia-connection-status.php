@@ -63,7 +63,7 @@ final class AlgoliaConnectionStatus {
             return $status;
         }
 
-        $settings                = $this->normalizeAlgoliaConnectionSettings( $settings );
+        $settings               = $this->normalizeAlgoliaConnectionSettings( $settings );
         $this->connectionStatus = $status;
         if ( null !== $settings ) {
             $this->connectionStatus = $this->checkAlgoliaConnection( $settings );
