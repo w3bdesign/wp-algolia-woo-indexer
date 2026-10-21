@@ -42,6 +42,8 @@ define( 'CHANGE_ME', 'change me' );
 define( 'INDEX_NAME', '_index_name' );
 define( 'AUTOMATICALLY_SEND_NEW_PRODUCTS', '_automatically_send_new_products' );
 define( 'ALGOLIA_APP_ID', '_application_id' );
+define( 'ALGOLIA_SEARCH_API_KEY', '_search_api_key' );
+// Keep the legacy option suffix so existing saved keys remain available.
 define( 'ALGOLIA_API_KEY', '_admin_api_key' );
 
 if ( ! class_exists( 'Algolia_Send_Products' ) ) {
@@ -61,25 +63,6 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 		 * @var \Algolia\AlgoliaSearch\SearchClient
 		 */
 		private static $algolia = null;
-
-		/**
-		 * Check if we can connect to Algolia, if not, handle the exception, display an error and then return
-		 */
-		public static function can_connect_to_algolia() {
-			try {
-				self::$algolia->listApiKeys();
-			} catch ( \Algolia\AlgoliaSearch\Exceptions\UnreachableException $error ) {
-				add_action(
-					'admin_notices',
-					function () {
-						echo '<div class="error notice">
-							  <p>' . esc_html__( 'An error has been encountered. Please check your application ID and API key. ', 'algolia-woo-indexer' ) . '</p>
-							</div>';
-					}
-				);
-				return;
-			}
-		}
 
 		/**
 		 * Get sale price or regular price based on product type
@@ -140,11 +123,6 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 			 * Initiate the Algolia client
 			 */
 			self::$algolia = \Algolia\AlgoliaSearch\SearchClient::create( $algolia_application_id, $algolia_api_key );
-
-			/**
-			 * Check if we can connect, if not, handle the exception, display an error and then return
-			 */
-			self::can_connect_to_algolia();
 
 			/**
 			 * Initialize the search index and set the name to the option from the database
@@ -219,7 +197,20 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 			 * Send the information to Algolia and save the result
 			 * If result is NullResponse, print an error message
 			 */
-			$result = $index->saveObjects( $records );
+			// Validate access through the write itself, without requiring key or index listing permissions.
+			try {
+				$result = $index->saveObjects( $records );
+			} catch ( \Algolia\AlgoliaSearch\Exceptions\AlgoliaException $error ) {
+				add_action(
+					'admin_notices',
+					function () {
+						echo '<div class="error notice">
+							<p>' . esc_html__( 'Unable to send products to Algolia. Check your connection, Application ID, index name, and Write API Key. The key must have addObject permission for the configured index. A Search API Key cannot upload products.', 'algolia-woo-indexer' ) . '</p>
+							</div>';
+					}
+				);
+				return;
+			}
 
 			if ( 'Algolia\AlgoliaSearch\Response\NullResponse' === get_class( $result ) ) {
 				wp_die( esc_html__( 'No response from the server. Please check your settings and try again', 'algolia_woo_indexer_settings' ) );
@@ -228,9 +219,21 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 			/**
 			 * Display success message
 			 */
+			$product_count = count( $records );
+			$message       = sprintf(
+				/* translators: 1: Number of products sent, 2: Algolia index name. */
+				_n(
+					'%1$s product sent to Algolia index "%2$s". Indexing may still be in progress.',
+					'%1$s products sent to Algolia index "%2$s". Indexing may still be in progress.',
+					$product_count,
+					'algolia-woo-indexer'
+				),
+				number_format_i18n( $product_count ),
+				$algolia_index_name
+			);
 			echo '<div class="notice notice-success is-dismissible">
-					 	<p>' . esc_html__( 'Product(s) sent to Algolia.', 'algolia-woo-indexer' ) . '</p>
-				  		</div>';
+					 	<p>' . esc_html( $message ) . '</p>
+					  		</div>';
 		}
 	}
 }
