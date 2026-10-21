@@ -177,7 +177,7 @@ final class AlgoliaConnectionStatus {
 				'type'    => 'success',
 				'emoji'   => '✅',
 				'title'   => __( 'Connected to Algolia', 'algolia-woo-indexer' ),
-                'message' => __( 'Your Algolia search connection is working.', 'algolia-woo-indexer' ),
+				'message' => __( 'Your Algolia search connection is working.', 'algolia-woo-indexer' ),
 			);
 		} elseif ( 400 === $code ) {
 			$status['message'] = __( 'Algolia rejected the connection-check request as invalid. See the diagnostic below for the exact reason. Check the saved Application ID and index name.', 'algolia-woo-indexer' );
