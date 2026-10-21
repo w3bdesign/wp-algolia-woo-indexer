@@ -125,6 +125,43 @@ msgstr ""
 "Please contact your hosting provider."
 
 #. Plugin Name of the plugin/theme
+msgid "Algolia connection not checked"
+msgstr "Algolia connection not checked"
+
+msgid "Save your Application ID, Write API Key, and index name to check the connection automatically when this page opens."
+msgstr "Save your Application ID, Write API Key, and index name to check the connection automatically when this page opens."
+
+msgid "Not connected to Algolia"
+msgstr "Not connected to Algolia"
+
+msgid "The connection check failed. Check your Application ID, Write API Key, index name, and server connectivity, then reload this page."
+msgstr "The connection check failed. Check your Application ID, Write API Key, index name, and server connectivity, then reload this page."
+
+msgid "The Application ID must contain only letters and numbers. Correct it, save the settings, and reload this page."
+msgstr "The Application ID must contain only letters and numbers. Correct it, save the settings, and reload this page."
+
+msgid "Your server could not reach Algolia within the connection check. Check DNS, HTTPS access, and firewall settings, then reload this page."
+msgstr "Your server could not reach Algolia within the connection check. Check DNS, HTTPS access, and firewall settings, then reload this page."
+
+msgid "Connected to Algolia"
+msgstr "Connected to Algolia"
+
+msgid "Algolia accepted your credentials and the addObject permission check for the configured index. No products were changed. This check runs once each time you open or reload this settings page."
+msgstr "Algolia accepted your credentials and the addObject permission check for the configured index. No products were changed. This check runs once each time you open or reload this settings page."
+
+msgid "Algolia rejected the credentials or index access. Verify the Application ID and use a Write API Key with addObject permission for this exact index. A Search API Key is not sufficient."
+msgstr "Algolia rejected the credentials or index access. Verify the Application ID and use a Write API Key with addObject permission for this exact index. A Search API Key is not sufficient."
+
+msgid "Algolia connection not verified"
+msgstr "Algolia connection not verified"
+
+msgid "Algolia responded, but the configured index or probe task was not found. Check the index name. If the index is new, send products to create it, then reload this page. Write access has not been confirmed."
+msgstr "Algolia responded, but the configured index or probe task was not found. Check the index name. If the index is new, send products to create it, then reload this page. Write access has not been confirmed."
+
+msgid "Algolia rate-limited the connection check. Wait a moment, then reload this page to try again."
+msgstr "Algolia rate-limited the connection check. Wait a moment, then reload this page to try again."
+
+#. Plugin Name of the plugin/theme
 msgid "Algolia Woocommerce Indexer"
 msgstr "Algolia Woocommerce Indexer"
 

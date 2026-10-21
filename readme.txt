@@ -26,7 +26,10 @@ You need to add the Application ID, a dedicated Write API Key from the API keys 
 
 == Frequently Asked Questions ==
 = Which API key permissions are required? =
-Only Add records (addObject) permission for the configured index. The plugin checks access through the upload itself and does not need key-management or index-listing permissions. Keep this key server-side and use a separate Search API Key for browser or storefront searches.
+Only Add records (addObject) permission for the configured index. The plugin checks connection access using a read-only task-status request, and uploads also validate access when records are sent. No key-management or index-listing permissions are needed. Keep this key server-side and use a separate Search API Key for browser or storefront searches.
+
+= How does the connection status work? =
+An emoji status notice appears at the top of the plugin settings page. It checks once per page load, including after saving, when Application ID, Write API Key, and index name are all set. A single read-only request with a five-second timeout checks index access without changing records or creating tasks. It does not run on other admin pages or poll in the background. The notice explains missing settings, rejected credentials or permissions, network failures, rate limits, and missing indices. A new index may need its first product upload before access can be verified. This check does not confirm completion of previous uploads.
 
 = What if I previously saved an Admin API Key? =
 Existing settings are retained, but upgrading does not restrict or replace the saved key. Create an index-restricted write key in Algolia, replace the saved key in the plugin settings, and verify uploads. Rotate the previously used Admin API Key after checking whether other integrations depend on it.

@@ -60,9 +60,20 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 
 ### API key security and upgrades
 
-The plugin checks access by uploading records, so no key-management or index-listing permissions are needed. Keep the Write API Key server-side; use a separate Search API Key for browser or storefront searches.
+The plugin checks connection access using a read-only task-status request that requires only Add records (addObject) permission. Uploads also validate access when records are sent. No key-management or index-listing permissions are needed. Keep the Write API Key server-side; use a separate Search API Key for browser or storefront searches.
 
 Existing saved settings remain compatible. Updating the plugin does not replace or restrict an existing Admin API Key: create the dedicated write key in Algolia, replace the saved key in the plugin settings, and verify product uploads. Rotate the previously used Admin API Key after checking whether other integrations depend on it.
+
+### Connection status
+
+The top of the plugin settings page shows an automatic connection check with an emoji and explanatory message:
+
+- ✅ Connected: Algolia accepted the credentials and permission check for the configured index.
+- ❌ Not connected: the check failed; the message explains credential, permission, connectivity, or rate-limit issues.
+- ⚙️ Not checked: save all three connection settings first. Blank values and default placeholders do not trigger a request.
+- ⚠️ Not verified: Algolia responded, but the index or probe task was not found. Verify the index name; if the index is new, upload products to create it and reload the page.
+
+The check runs once per settings-page load, including after saving settings. It does not run on unrelated admin pages, create tasks, upload test products, or poll in the background. Each check uses a single request with a five-second timeout. It verifies current access, not whether previous product uploads have completed.
 
 ## Troubleshooting
 

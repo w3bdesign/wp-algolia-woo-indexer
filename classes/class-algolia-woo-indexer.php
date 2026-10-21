@@ -447,9 +447,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			$response = wp_remote_get(
 				$url,
 				array(
-					'timeout'     => 5,
-					'redirection' => 0,
-					'headers'     => array(
+					'timeout'             => 5,
+					'redirection'         => 0,
+					'limit_response_size' => 4096,
+					'headers'             => array(
 						'X-Algolia-Application-Id' => $settings['application_id'],
 						'X-Algolia-API-Key'        => $settings['api_key'],
 					),
