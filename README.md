@@ -12,7 +12,7 @@
 
 This plugin transfers products from WooCommerce to Algolia. You can choose if it only sends products that are in stock.
 
-You need to add the Application ID, the Admin API Key from the `API keys` section in Algolia as well as the Index Name.
+You need to add the Application ID, a dedicated Write API Key from the API keys section in Algolia, and the index name. The key needs only the Add records (addObject) permission and must be restricted to that exact index. A Search API Key is read-only and cannot upload products; the Admin API Key is not required.
 
 Note that this plugin is designed for developers developing headless Ecommerce solutions.
 
@@ -49,16 +49,25 @@ Note that this plugin is designed for developers developing headless Ecommerce s
 - Login to WordPress as Admin
 - Upload `Algolia Woo Indexer` to the `/wp-content/plugins/` directory of your application
 - Activate the plugin through the `Plugins` menu in WordPress
-- Login to Algolia and go to `API keys` and copy or write down the Application ID and the `Admin API Key`
+- Log in to Algolia, open API keys, and copy the Application ID
+- Create a dedicated custom API key with only the Add records (addObject) permission and restrict its allowed indices to the exact product index name (avoid wildcards)
 - Go back to WordPress and access plugin settings under `Settings->Algolia Woo Indexer`
 - Add the `Application ID` to the plugin settings page
-- Add the `Admin API Key` to the plugin settings page
+- Add the custom key to the Write API Key field on the plugin settings page
 - Add the name of the index that should be used to index WooCommerce products
 - Click on the `Send products with Algolia` button to send the products to Algolia
+
+### API key security and upgrades
+
+The plugin checks access by uploading records, so no key-management or index-listing permissions are needed. Keep the Write API Key server-side; use a separate Search API Key for browser or storefront searches.
+
+Existing saved settings remain compatible. Updating the plugin does not replace or restrict an existing Admin API Key: create the dedicated write key in Algolia, replace the saved key in the plugin settings, and verify product uploads. Rotate the previously used Admin API Key after checking whether other integrations depend on it.
 
 ## Troubleshooting
 
 If you encounter any errors, first of all make sure that your hosting environment meets the requirements listed under Requirements.
+
+For upload errors, also check connectivity, the Application ID, and that the Write API Key has Add records (addObject) permission for the configured index. Read-only keys and keys restricted to a different index cannot upload products.
 
 Feel free to <a href="https://github.com/w3bdesign/algolia-woo-indexer/issues">open an issue</a> and I will do my best to troubleshoot and assist.
 
