@@ -10,7 +10,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
 This plugin indexes products inside of WooCommerce and submits them to Algolia. 
-You need to add the Application ID, the Admin API Key from the `API keys` section in Algolia as well as the index name.
+You need to add the Application ID, a dedicated Write API Key from the API keys section in Algolia, and the index name. The key needs only the Add records (addObject) permission, restricted to the exact product index. A Search API Key cannot upload products; the Admin API Key is not required.
 
 
 == Installation ==
@@ -18,13 +18,21 @@ You need to add the Application ID, the Admin API Key from the `API keys` sectio
 * Login as Admin
 * Activate the plugin through the 'Plugins' menu in WordPress
 * Login to Algolia and go to "API keys"
+* Create a dedicated custom key with only Add records (addObject) permission, restricted to the exact product index name (avoid wildcards)
 * Add the Application ID to the plugin settings page
-* Add the Admin API Key to the plugin settings page
+* Add the custom key to the Write API Key field on the plugin settings page
 * Enter the name of the index that should be used to index Woocommerce products
 
 
 == Frequently Asked Questions ==
-None
+= Which API key permissions are required? =
+Only Add records (addObject) permission for the configured index. The plugin checks access through the upload itself and does not need key-management or index-listing permissions. Keep this key server-side and use a separate Search API Key for browser or storefront searches.
+
+= What if I previously saved an Admin API Key? =
+Existing settings are retained, but upgrading does not restrict or replace the saved key. Create an index-restricted write key in Algolia, replace the saved key in the plugin settings, and verify uploads. Rotate the previously used Admin API Key after checking whether other integrations depend on it.
+
+= Why did an upload fail? =
+Check connectivity, the Application ID, index name, and the key's Add records (addObject) permission for that index. A Search API Key or a key restricted to another index cannot upload products.
 
 
 == Changelog ==

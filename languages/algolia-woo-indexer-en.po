@@ -30,9 +30,13 @@ msgstr "Algolia Woo Plugin Settings"
 msgid "Application ID"
 msgstr "Application ID"
 
-#: classes/class-algolia-woo-indexer.php:102
-msgid "Admin API Key"
-msgstr "Admin API Key"
+#: classes/class-algolia-woo-indexer.php:106
+msgid "Write API Key"
+msgstr "Write API Key"
+
+#: classes/class-algolia-woo-indexer.php:143
+msgid "Use a dedicated Write API Key with only addObject permission, restricted to the configured index. Do not use the Admin API Key. A Search API Key cannot upload products. Existing keys are retained; replace any previously saved Admin API Key here."
+msgstr "Use a dedicated Write API Key with only addObject permission, restricted to the configured index. Do not use the Admin API Key. A Search API Key cannot upload products. Existing keys are retained; replace any previously saved Admin API Key here."
 
 #: classes/class-algolia-woo-indexer.php:109
 msgid "Index name (will be created if not existing)"
@@ -76,11 +80,9 @@ msgstr "Error!"
 msgid "All settings need to be set for the plugin to work."
 msgstr "All settings need to be set for the plugin to work."
 
-#: classes/class-algolia-woo-indexer.php:430
-msgid ""
-"An error has been encountered. Please check your application ID and API key. "
-msgstr ""
-"An error has been encountered. Please check your application ID and API key. "
+#: classes/class-send-products.php:204
+msgid "Unable to send products to Algolia. Check your connection, Application ID, index name, and Write API Key. The key must have addObject permission for the configured index. A Search API Key cannot upload products."
+msgstr "Unable to send products to Algolia. Check your connection, Application ID, index name, and Write API Key. The key must have addObject permission for the configured index. A Search API Key cannot upload products."
 
 #: classes/class-algolia-woo-indexer.php:502
 msgid "Product(s) sent to Algolia."
