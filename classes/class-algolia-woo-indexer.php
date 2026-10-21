@@ -52,6 +52,13 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		private static $plugin_url = '';
 
 		/**
+		 * Connection status cached only for the current settings-page request.
+		 *
+		 * @var array|null
+		 */
+		private static $connection_status = null;
+
+		/**
 		 * Class constructor
 		 *
 		 * @return void
@@ -374,6 +381,125 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		}
 
 		/**
+		 * Retrieve connection settings through the main plugin class.
+		 *
+		 * @return array Saved Application ID, API key, and index name.
+		 */
+		public static function get_algolia_settings() {
+			return array(
+				'application_id' => get_option( ALGOWOO_DB_OPTION . ALGOLIA_APP_ID ),
+				'api_key'        => get_option( ALGOWOO_DB_OPTION . ALGOLIA_API_KEY ),
+				'index_name'     => get_option( ALGOWOO_DB_OPTION . INDEX_NAME ),
+			);
+		}
+
+		/**
+		 * Check authenticated index access once per request, without changing records.
+		 *
+		 * The task-status endpoint requires only addObject permission. Task 1 is a
+		 * read-only probe: no task is created, and its completion is not polled.
+		 *
+		 * @return array Notice type, emoji, title, and explanatory message.
+		 */
+		public static function get_algolia_connection_status() {
+			if ( null !== self::$connection_status ) {
+				return self::$connection_status;
+			}
+
+			$status = array(
+				'type'    => 'warning',
+				'emoji'   => '⚙️',
+				'title'   => __( 'Algolia connection not checked', 'algolia-woo-indexer' ),
+				'message' => __( 'Save your Application ID, Write API Key, and index name to check the connection automatically when this page opens.', 'algolia-woo-indexer' ),
+			);
+
+			// Do not allow this public method to expose connection details to other users.
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return $status;
+			}
+
+			$settings = self::get_algolia_settings();
+			foreach ( $settings as $name => $value ) {
+				if ( ! is_string( $value ) || '' === trim( $value ) || 0 === strcasecmp( trim( $value ), CHANGE_ME ) ) {
+					self::$connection_status = $status;
+					return self::$connection_status;
+				}
+				$settings[ $name ] = trim( $value );
+			}
+
+			$status = array(
+				'type'    => 'error',
+				'emoji'   => '❌',
+				'title'   => __( 'Not connected to Algolia', 'algolia-woo-indexer' ),
+				'message' => __( 'The connection check failed. Check your Application ID, Write API Key, index name, and server connectivity, then reload this page.', 'algolia-woo-indexer' ),
+			);
+
+			// Constrain the hostname to an Algolia application, never an arbitrary URL.
+			if ( ! preg_match( '/^[a-zA-Z0-9]+$/', $settings['application_id'] ) ) {
+				$status['message']       = __( 'The Application ID must contain only letters and numbers. Correct it, save the settings, and reload this page.', 'algolia-woo-indexer' );
+				self::$connection_status = $status;
+				return self::$connection_status;
+			}
+
+			$url = 'https://' . $settings['application_id'] . '.algolia.net/1/indexes/' . rawurlencode( $settings['index_name'] ) . '/task/1';
+
+			// One bounded request, with no redirects that could forward the secret key.
+			$response = wp_remote_get(
+				$url,
+				array(
+					'timeout'     => 5,
+					'redirection' => 0,
+					'headers'     => array(
+						'X-Algolia-Application-Id' => $settings['application_id'],
+						'X-Algolia-API-Key'        => $settings['api_key'],
+					),
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
+				$status['message'] = __( 'Your server could not reach Algolia within the connection check. Check DNS, HTTPS access, and firewall settings, then reload this page.', 'algolia-woo-indexer' );
+			} else {
+				$code = wp_remote_retrieve_response_code( $response );
+				$body = json_decode( wp_remote_retrieve_body( $response ), true );
+				if ( 200 === $code && is_array( $body ) && isset( $body['status'] ) && in_array( $body['status'], array( 'published', 'notPublished' ), true ) ) {
+					$status = array(
+						'type'    => 'success',
+						'emoji'   => '✅',
+						'title'   => __( 'Connected to Algolia', 'algolia-woo-indexer' ),
+						'message' => __( 'Algolia accepted your credentials and the addObject permission check for the configured index. No products were changed. This check runs once each time you open or reload this settings page.', 'algolia-woo-indexer' ),
+					);
+				} elseif ( 401 === $code || 403 === $code ) {
+					$status['message'] = __( 'Algolia rejected the credentials or index access. Verify the Application ID and use a Write API Key with addObject permission for this exact index. A Search API Key is not sufficient.', 'algolia-woo-indexer' );
+				} elseif ( 404 === $code ) {
+					$status['type']    = 'warning';
+					$status['emoji']   = '⚠️';
+					$status['title']   = __( 'Algolia connection not verified', 'algolia-woo-indexer' );
+					$status['message'] = __( 'Algolia responded, but the configured index or probe task was not found. Check the index name. If the index is new, send products to create it, then reload this page. Write access has not been confirmed.', 'algolia-woo-indexer' );
+				} elseif ( 429 === $code ) {
+					$status['message'] = __( 'Algolia rate-limited the connection check. Wait a moment, then reload this page to try again.', 'algolia-woo-indexer' );
+				}
+			}
+
+			self::$connection_status = $status;
+			return self::$connection_status;
+		}
+
+		/**
+		 * Display the connection status before the settings forms.
+		 *
+		 * @return void
+		 */
+		public static function display_algolia_connection_status() {
+			$status = self::get_algolia_connection_status();
+			?>
+			<div class="notice notice-<?php echo esc_attr( $status['type'] ); ?> inline" role="status">
+				<p><span aria-hidden="true"><?php echo esc_html( $status['emoji'] ); ?></span> <strong><?php echo esc_html( $status['title'] ); ?></strong></p>
+				<p><?php echo esc_html( $status['message'] ); ?></p>
+			</div>
+			<?php
+		}
+
+		/**
 		 * Display settings and allow user to modify them
 		 *
 		 * @return void
@@ -387,7 +513,8 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			}
 			?>
 			<div class="wrap">
-				<h1><?php esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
+				<h1><?php echo esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
+				<?php self::display_algolia_connection_status(); ?>
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 					<?php
 					settings_fields( 'algolia_woo_options' );
