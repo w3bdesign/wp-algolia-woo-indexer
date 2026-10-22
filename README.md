@@ -14,10 +14,10 @@ This plugin transfers products from WooCommerce to Algolia. You can choose if it
 only sends products that are in stock.
 
 Add the Application ID, Search API Key, Write API Key, and index name. Copy the
-built-in Search API Key from Algolia for connection checks. For uploads,
-create a separate Write API Key with only Add records (addObject)
-permission, restricted to the exact product index. The Admin API Key is
-not required.
+built-in Search API Key from Algolia for connection checks. 
+
+For uploads, create a separate Write API Key with only Add records (addObject)
+permission, restricted to the exact product index.
 
 Note that this plugin is designed for developers developing headless Ecommerce
 solutions.
