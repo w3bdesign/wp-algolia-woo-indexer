@@ -2,6 +2,9 @@
 /**
  * Settings page section and field renderers.
  *
+ * Method names are single lowercase words so they satisfy both the WordPress
+ * (snake_case) and SonarQube (^[a-z][a-zA-Z0-9]*$) naming conventions.
+ *
  * @package algolia-woo-indexer
  */
 
@@ -17,11 +20,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class AlgoliaSettingsFields {
 
 	/**
-	 * Section text for plugin settings section text.
+	 * Section text for plugin settings section.
 	 *
 	 * @return void
 	 */
-	public static function outputSectionText() {
+	public static function renderSectionText() {
 		echo '<p>' . esc_html__( 'Connect your WooCommerce catalog to Algolia.', 'algolia-woo-indexer' ) . '</p>';
 	}
 
@@ -30,7 +33,7 @@ final class AlgoliaSettingsFields {
 	 *
 	 * @return void
 	 */
-	public static function outputApplicationId() {
+	public static function renderApplicationIdField() {
 		$application_id = get_option( ALGOWOO_DB_OPTION . ALGOLIA_APP_ID );
 		$application_id = is_string( $application_id ) ? $application_id : CHANGE_ME;
 
@@ -41,17 +44,16 @@ final class AlgoliaSettingsFields {
 	}
 
 	/**
-	 * Output the read-only Search API Key field used for connection checks.
+	 * Output the Search API Key field used for connection checks.
 	 *
 	 * @return void
 	 */
-	public static function outputSearchApiKey() {
+	public static function renderSearchApiKeyField() {
 		$settings = Algolia_Woo_Indexer::getAlgoliaSettings();
 		$api_key  = is_string( $settings['search_api_key'] ) ? $settings['search_api_key'] : '';
-		$label    = esc_attr__( 'Search API Key', 'algolia-woo-indexer' );
 		?>
 		<div class="algowoo-settings-field">
-		<input id="algolia_woo_indexer_search_api_key" name="algolia_woo_indexer_search_api_key[key]" type="password" class="regular-text" autocomplete="new-password" aria-label="<?php echo $label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above with esc_attr__(). ?>" aria-describedby="algolia_woo_indexer_search_api_key_description" value="<?php echo esc_attr( $api_key ); ?>" />
+		<input id="algolia_woo_indexer_search_api_key" name="algolia_woo_indexer_search_api_key[key]" type="password" class="regular-text" autocomplete="new-password" aria-label="<?php echo esc_attr__( 'Search API Key', 'algolia-woo-indexer' ); ?>" aria-describedby="algolia_woo_indexer_search_api_key_description" value="<?php echo esc_attr( $api_key ); ?>" />
 		<p class="description" id="algolia_woo_indexer_search_api_key_description"><?php echo esc_html__( 'Used only to check the connection. This key must have search access to the index below.', 'algolia-woo-indexer' ); ?></p>
 		</div>
 		<?php
@@ -64,7 +66,7 @@ final class AlgoliaSettingsFields {
 	 *
 	 * @return void
 	 */
-	public static function outputAdminApiKey() {
+	public static function renderWriteApiKeyField() {
 		$api_key = get_option( ALGOWOO_DB_OPTION . ALGOLIA_API_KEY );
 		$api_key = is_string( $api_key ) ? $api_key : CHANGE_ME;
 
@@ -82,7 +84,7 @@ final class AlgoliaSettingsFields {
 	 *
 	 * @return void
 	 */
-	public static function outputIndexName() {
+	public static function renderIndexNameField() {
 		$index_name = get_option( ALGOWOO_DB_OPTION . INDEX_NAME );
 		$index_name = is_string( $index_name ) ? $index_name : CHANGE_ME;
 
@@ -98,7 +100,7 @@ final class AlgoliaSettingsFields {
 	 *
 	 * @return void
 	 */
-	public static function outputAutoSend() {
+	public static function renderAutoSendField() {
 		/**
 		 * Sanitization is not really needed as the variable is not directly echoed
 		 * But I have still done it to be 100% safe
