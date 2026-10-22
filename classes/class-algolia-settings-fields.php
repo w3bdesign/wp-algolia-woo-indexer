@@ -2,9 +2,6 @@
 /**
  * Settings page section and field renderers.
  *
- * Method names are single lowercase words so they satisfy both the WordPress
- * (snake_case) and SonarQube (^[a-z][a-zA-Z0-9]*$) naming conventions.
- *
  * @package algolia-woo-indexer
  */
 
@@ -24,7 +21,7 @@ final class AlgoliaSettingsFields {
 	 *
 	 * @return void
 	 */
-	public static function renderSectionText() {
+	public static function render_section_text() {
 		echo '<p>' . esc_html__( 'Connect your WooCommerce catalog to Algolia.', 'algolia-woo-indexer' ) . '</p>';
 	}
 
@@ -33,7 +30,7 @@ final class AlgoliaSettingsFields {
 	 *
 	 * @return void
 	 */
-	public static function renderApplicationIdField() {
+	public static function render_application_id_field() {
 		$application_id = get_option( ALGOWOO_DB_OPTION . ALGOLIA_APP_ID );
 		$application_id = is_string( $application_id ) ? $application_id : CHANGE_ME;
 
@@ -48,8 +45,8 @@ final class AlgoliaSettingsFields {
 	 *
 	 * @return void
 	 */
-	public static function renderSearchApiKeyField() {
-		$settings = Algolia_Woo_Indexer::getAlgoliaSettings();
+	public static function render_search_api_key_field() {
+		$settings = Algolia_Woo_Indexer::get_algolia_settings();
 		$api_key  = is_string( $settings['search_api_key'] ) ? $settings['search_api_key'] : '';
 		?>
 		<div class="algowoo-settings-field">
@@ -66,7 +63,7 @@ final class AlgoliaSettingsFields {
 	 *
 	 * @return void
 	 */
-	public static function renderWriteApiKeyField() {
+	public static function render_write_api_key_field() {
 		$api_key = get_option( ALGOWOO_DB_OPTION . ALGOLIA_API_KEY );
 		$api_key = is_string( $api_key ) ? $api_key : CHANGE_ME;
 
@@ -84,7 +81,7 @@ final class AlgoliaSettingsFields {
 	 *
 	 * @return void
 	 */
-	public static function renderIndexNameField() {
+	public static function render_index_name_field() {
 		$index_name = get_option( ALGOWOO_DB_OPTION . INDEX_NAME );
 		$index_name = is_string( $index_name ) ? $index_name : CHANGE_ME;
 
@@ -100,7 +97,7 @@ final class AlgoliaSettingsFields {
 	 *
 	 * @return void
 	 */
-	public static function renderAutoSendField() {
+	public static function render_auto_send_field() {
 		/**
 		 * Sanitization is not really needed as the variable is not directly echoed
 		 * But I have still done it to be 100% safe
