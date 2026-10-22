@@ -58,6 +58,11 @@ require_once plugin_dir_path( __FILE__ ) . '/classes/class-send-products.php';
  */
 require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-connection-status.php';
 
+/**
+ * Class for rendering the settings sections and fields.
+ */
+require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-settings-fields.php';
+
 $algowooindexer = \Algowoo\Algolia_Woo_Indexer::get_instance();
 
 register_activation_hook( __FILE__, array( $algowooindexer, 'activate_plugin' ) );

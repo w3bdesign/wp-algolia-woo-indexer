@@ -56,16 +56,16 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @var AlgoliaConnectionStatus
 		 */
-		private $connectionStatus;
+		private $connection_status;
 
 		/**
 		 * Class constructor
 		 *
-		 * @param AlgoliaConnectionStatus|null $connectionStatus Optional connection-status service.
+		 * @param AlgoliaConnectionStatus|null $connection_status Optional connection-status service.
 		 * @return void
 		 */
-		public function __construct( ?AlgoliaConnectionStatus $connectionStatus = null ) {
-			$this->connectionStatus = $connectionStatus ?? new AlgoliaConnectionStatus();
+		public function __construct( ?AlgoliaConnectionStatus $connection_status = null ) {
+		 $this->connection_status = $connection_status ?? new AlgoliaConnectionStatus();
 			$this->init();
 		}
 
@@ -89,24 +89,19 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				register_setting( 'algolia_woo_options', 'algolia_woo_options', $arguments );
 
 				/**
-				 * Make sure we reference the instance of the current class by using self::get_instance()
-				 * This way we can setup the correct callback function for add_settings_section and add_settings_field
-				 */
-				$algowooindexer = self::get_instance();
-
-				/**
-				 * Add our necessary settings sections and fields
+				 * Add our necessary settings sections and fields.
+				 * Field output is handled by the AlgoliaSettingsFields class.
 				 */
 				add_settings_section(
 					'algolia_woo_indexer_main',
 					esc_html__( 'Algolia Woo Plugin Settings', 'algolia-woo-indexer' ),
-					array( $algowooindexer, 'algolia_woo_indexer_section_text' ),
+					array( AlgoliaSettingsFields::class, 'render_section_text' ),
 					'algolia_woo_indexer'
 				);
 				add_settings_field(
 					'algolia_woo_indexer_application_id',
 					esc_html__( 'Application ID', 'algolia-woo-indexer' ),
-					array( $algowooindexer, 'algolia_woo_indexer_application_id_output' ),
+					array( AlgoliaSettingsFields::class, 'render_application_id_field' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main',
 					array( 'label_for' => 'algolia_woo_indexer_application_id' )
@@ -114,7 +109,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				add_settings_field(
 					'algolia_woo_indexer_search_api_key',
 					esc_html__( 'Search API Key', 'algolia-woo-indexer' ),
-					array( $algowooindexer, 'algoliaWooIndexerSearchApiKeyOutput' ),
+					array( AlgoliaSettingsFields::class, 'render_search_api_key_field' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main',
 					array( 'label_for' => 'algolia_woo_indexer_search_api_key' )
@@ -122,7 +117,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				add_settings_field(
 					'algolia_woo_indexer_admin_api_key',
 					esc_html__( 'Write API Key', 'algolia-woo-indexer' ),
-					array( $algowooindexer, 'algolia_woo_indexer_admin_api_key_output' ),
+					array( AlgoliaSettingsFields::class, 'render_write_api_key_field' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main',
 					array( 'label_for' => 'algolia_woo_indexer_admin_api_key' )
@@ -130,7 +125,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				add_settings_field(
 					'algolia_woo_indexer_index_name',
 					esc_html__( 'Index name', 'algolia-woo-indexer' ),
-					array( $algowooindexer, 'algolia_woo_indexer_index_name_output' ),
+					array( AlgoliaSettingsFields::class, 'render_index_name_field' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main',
 					array( 'label_for' => 'algolia_woo_indexer_index_name' )
@@ -138,107 +133,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				add_settings_field(
 					'algolia_woo_indexer_automatically_send_new_products',
 					esc_html__( 'Automatic indexing', 'algolia-woo-indexer' ),
-					array( $algowooindexer, 'algolia_woo_indexer_automatically_send_new_products_output' ),
+					array( AlgoliaSettingsFields::class, 'render_auto_send_field' ),
 					'algolia_woo_indexer',
 					'algolia_woo_indexer_main'
 				);
 			}
-		}
-
-		/**
-		 * Output the read-only Search API Key field used for connection checks.
-		 *
-		 * @return void
-		 */
-		public static function algoliaWooIndexerSearchApiKeyOutput() {
-			$settings = self::getAlgoliaSettings();
-			$api_key  = is_string( $settings['search_api_key'] ) ? $settings['search_api_key'] : '';
-			?>
-			<div class="algowoo-settings-field">
-			<input id="algolia_woo_indexer_search_api_key" name="algolia_woo_indexer_search_api_key[key]" type="password" class="regular-text" autocomplete="new-password" aria-describedby="algolia_woo_indexer_search_api_key_description" value="<?php echo esc_attr( $api_key ); ?>" />
-			<p class="description" id="algolia_woo_indexer_search_api_key_description"><?php echo esc_html__( 'Used only to check the connection. This key must have search access to the index below.', 'algolia-woo-indexer' ); ?></p>
-			</div>
-			<?php
-		}
-
-		/**
-		 * Output for Write API Key field, retaining the legacy form and nonce identifiers.
-		 *
-		 * @see https://developer.wordpress.org/reference/functions/wp_nonce_field/
-		 *
-		 * @return void
-		 */
-		public static function algolia_woo_indexer_admin_api_key_output() {
-			$api_key = get_option( ALGOWOO_DB_OPTION . ALGOLIA_API_KEY );
-			$api_key = is_string( $api_key ) ? $api_key : CHANGE_ME;
-
-			wp_nonce_field( 'algolia_woo_indexer_admin_api_nonce_action', 'algolia_woo_indexer_admin_api_nonce_name' );
-
-			echo '<div class="algowoo-settings-field">';
-			echo "<input id='algolia_woo_indexer_admin_api_key' name='algolia_woo_indexer_admin_api_key[key]'
-				type='password' class='regular-text' autocomplete='new-password' aria-describedby='algolia_woo_indexer_api_key_description' value='" . esc_attr( $api_key ) . "' />";
-			echo '<p class="description" id="algolia_woo_indexer_api_key_description">' . esc_html__( 'Use a dedicated key with only Add records (addObject) permission, restricted to this index. Do not use an Admin or Search API Key.', 'algolia-woo-indexer' ) . '</p>';
-			echo '</div>';
-		}
-
-		/**
-		 * Output for application ID field
-		 *
-		 * @return void
-		 */
-		public static function algolia_woo_indexer_application_id_output() {
-			$application_id = get_option( ALGOWOO_DB_OPTION . ALGOLIA_APP_ID );
-			$application_id = is_string( $application_id ) ? $application_id : CHANGE_ME;
-
-			echo '<div class="algowoo-settings-field">';
-			echo "<input id='algolia_woo_indexer_application_id' name='algolia_woo_indexer_application_id[id]'
-				type='text' class='regular-text' value='" . esc_attr( $application_id ) . "' />";
-			echo '</div>';
-		}
-
-		/**
-		 * Output for index name field
-		 *
-		 * @return void
-		 */
-		public static function algolia_woo_indexer_index_name_output() {
-			$index_name = get_option( ALGOWOO_DB_OPTION . INDEX_NAME );
-			$index_name = is_string( $index_name ) ? $index_name : CHANGE_ME;
-
-			echo '<div class="algowoo-settings-field">';
-			echo "<input id='algolia_woo_indexer_index_name' name='algolia_woo_indexer_index_name[name]'
-				type='text' class='regular-text' aria-describedby='algolia_woo_indexer_index_name_description' value='" . esc_attr( $index_name ) . "' />";
-			echo '<p class="description" id="algolia_woo_indexer_index_name_description">' . esc_html__( 'Created automatically when products are first sent, if it does not already exist.', 'algolia-woo-indexer' ) . '</p>';
-			echo '</div>';
-		}
-
-		/**
-		 * Output for checkbox to check if we automatically send new products to Algolia
-		 *
-		 * @return void
-		 */
-		public static function algolia_woo_indexer_automatically_send_new_products_output() {
-			/**
-			 * Sanitization is not really needed as the variable is not directly echoed
-			 * But I have still done it to be 100% safe
-			 */
-			$auto_send = get_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS );
-			$auto_send = ( ! empty( $auto_send ) ) ? 1 : 0;
-			?>
-			<label for="algolia_woo_indexer_automatically_send_new_products">
-				<input id="algolia_woo_indexer_automatically_send_new_products" name="algolia_woo_indexer_automatically_send_new_products[checked]" type="checkbox" <?php checked( 1, $auto_send ); ?> />
-				<?php echo esc_html__( 'Send new products to Algolia when they are published.', 'algolia-woo-indexer' ); ?>
-			</label>
-			<?php
-		}
-
-		/**
-		 * Section text for plugin settings section text
-		 *
-		 * @return void
-		 */
-		public static function algolia_woo_indexer_section_text() {
-			echo '<p>' . esc_html__( 'Connect your WooCommerce catalog to Algolia.', 'algolia-woo-indexer' ) . '</p>';
 		}
 
 		/**
@@ -420,7 +319,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ),
 				'manage_options',
 				'algolia-woo-indexer-settings',
-				array( self::get_instance(), 'algoliaWooIndexerSettings' )
+				array( self::get_instance(), 'algolia_woo_indexer_settings' )
 			);
 		}
 
@@ -449,7 +348,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return array Saved Application ID, write and search keys, and index name.
 		 */
-		public static function getAlgoliaSettings() {
+		public static function get_algolia_settings() {
 			return array(
 				'application_id' => get_option( ALGOWOO_DB_OPTION . ALGOLIA_APP_ID ),
 				'api_key'        => get_option( ALGOWOO_DB_OPTION . ALGOLIA_API_KEY ),
@@ -463,7 +362,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 *
 		 * @return void
 		 */
-		public function algoliaWooIndexerSettings() {
+		public function algolia_woo_indexer_settings() {
 			/**
 			 * Verify that the user can access the settings page
 			 */
@@ -473,7 +372,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			?>
 			<div class="wrap algowoo-settings">
 				<h1><?php echo esc_html__( 'Algolia Woo Indexer Settings', 'algolia-woo-indexer' ); ?></h1>
-				<?php $this->connectionStatus->displayAlgoliaConnectionStatus( self::getAlgoliaSettings() ); ?>
+				<?php $this->connection_status->display_algolia_connection_status( self::get_algolia_settings() ); ?>
 				<form action="<?php echo esc_url( self::$plugin_url ); ?>" method="POST">
 					<?php
 					settings_fields( 'algolia_woo_options' );
