@@ -98,45 +98,28 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 					array( AlgoliaSettingsFields::class, 'render_section_text' ),
 					'algolia_woo_indexer'
 				);
-				add_settings_field(
-					'algolia_woo_indexer_application_id',
-					esc_html__( 'Application ID', 'algolia-woo-indexer' ),
-					array( AlgoliaSettingsFields::class, 'render_application_id_field' ),
-					'algolia_woo_indexer',
-					'algolia_woo_indexer_main',
-					array( 'label_for' => 'algolia_woo_indexer_application_id' )
+				/**
+				 * Field id => array( title, render method, whether the title label targets the input ).
+				 * The automatic indexing checkbox renders its own label, so it has no label_for.
+				 */
+				$fields = array(
+					'algolia_woo_indexer_application_id'  => array( esc_html__( 'Application ID', 'algolia-woo-indexer' ), 'render_application_id_field', true ),
+					'algolia_woo_indexer_search_api_key'  => array( esc_html__( 'Search API Key', 'algolia-woo-indexer' ), 'render_search_api_key_field', true ),
+					'algolia_woo_indexer_admin_api_key'   => array( esc_html__( 'Write API Key', 'algolia-woo-indexer' ), 'render_write_api_key_field', true ),
+					'algolia_woo_indexer_index_name'      => array( esc_html__( 'Index name', 'algolia-woo-indexer' ), 'render_index_name_field', true ),
+					'algolia_woo_indexer_automatically_send_new_products' => array( esc_html__( 'Automatic indexing', 'algolia-woo-indexer' ), 'render_auto_send_field', false ),
 				);
-				add_settings_field(
-					'algolia_woo_indexer_search_api_key',
-					esc_html__( 'Search API Key', 'algolia-woo-indexer' ),
-					array( AlgoliaSettingsFields::class, 'render_search_api_key_field' ),
-					'algolia_woo_indexer',
-					'algolia_woo_indexer_main',
-					array( 'label_for' => 'algolia_woo_indexer_search_api_key' )
-				);
-				add_settings_field(
-					'algolia_woo_indexer_admin_api_key',
-					esc_html__( 'Write API Key', 'algolia-woo-indexer' ),
-					array( AlgoliaSettingsFields::class, 'render_write_api_key_field' ),
-					'algolia_woo_indexer',
-					'algolia_woo_indexer_main',
-					array( 'label_for' => 'algolia_woo_indexer_admin_api_key' )
-				);
-				add_settings_field(
-					'algolia_woo_indexer_index_name',
-					esc_html__( 'Index name', 'algolia-woo-indexer' ),
-					array( AlgoliaSettingsFields::class, 'render_index_name_field' ),
-					'algolia_woo_indexer',
-					'algolia_woo_indexer_main',
-					array( 'label_for' => 'algolia_woo_indexer_index_name' )
-				);
-				add_settings_field(
-					'algolia_woo_indexer_automatically_send_new_products',
-					esc_html__( 'Automatic indexing', 'algolia-woo-indexer' ),
-					array( AlgoliaSettingsFields::class, 'render_auto_send_field' ),
-					'algolia_woo_indexer',
-					'algolia_woo_indexer_main'
-				);
+
+				foreach ( $fields as $field_id => $field ) {
+					add_settings_field(
+						$field_id,
+						$field[0],
+						array( AlgoliaSettingsFields::class, $field[1] ),
+						'algolia_woo_indexer',
+						'algolia_woo_indexer_main',
+						$field[2] ? array( 'label_for' => $field_id ) : array()
+					);
+				}
 			}
 		}
 
