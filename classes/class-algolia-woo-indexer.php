@@ -103,10 +103,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 				 * The automatic indexing checkbox renders its own label, so it has no label_for.
 				 */
 				$fields = array(
-					'algolia_woo_indexer_application_id'  => array( esc_html__( 'Application ID', 'algolia-woo-indexer' ), 'render_application_id_field', true ),
-					'algolia_woo_indexer_search_api_key'  => array( esc_html__( 'Search API Key', 'algolia-woo-indexer' ), 'render_search_api_key_field', true ),
-					'algolia_woo_indexer_admin_api_key'   => array( esc_html__( 'Write API Key', 'algolia-woo-indexer' ), 'render_write_api_key_field', true ),
-					'algolia_woo_indexer_index_name'      => array( esc_html__( 'Index name', 'algolia-woo-indexer' ), 'render_index_name_field', true ),
+					'algolia_woo_indexer_application_id' => array( esc_html__( 'Application ID', 'algolia-woo-indexer' ), 'render_application_id_field', true ),
+					'algolia_woo_indexer_search_api_key' => array( esc_html__( 'Search API Key', 'algolia-woo-indexer' ), 'render_search_api_key_field', true ),
+					'algolia_woo_indexer_admin_api_key'  => array( esc_html__( 'Write API Key', 'algolia-woo-indexer' ), 'render_write_api_key_field', true ),
+					'algolia_woo_indexer_index_name'     => array( esc_html__( 'Index name', 'algolia-woo-indexer' ), 'render_index_name_field', true ),
 					'algolia_woo_indexer_automatically_send_new_products' => array( esc_html__( 'Automatic indexing', 'algolia-woo-indexer' ), 'render_auto_send_field', false ),
 				);
 
