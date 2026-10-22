@@ -77,22 +77,6 @@ solutions.
 - Click on the `Send products with Algolia` button to send the products
   to Algolia
 
-### API key security and upgrades
-
-The Search API Key is used only for the connection check: a search request that
-returns zero records and disables analytics. The separate Write API Key is used
-only for uploads, which require Add records (addObject) permission. Neither key
-needs key-management or index-listing permissions. Never expose the Write
-API Key to a browser or storefront; use a read-only Search API Key there
-instead.
-
-Existing saved settings remain compatible. Updating the plugin does not replace
-or restrict an existing Admin API Key: create the dedicated write key in
-Algolia, replace the saved key in the plugin settings, and verify product
-uploads. Rotate
-the previously used Admin API Key after checking whether other integrations
-depend on it.
-
 ## Troubleshooting
 
 If you encounter any errors, first of all make sure that your hosting
