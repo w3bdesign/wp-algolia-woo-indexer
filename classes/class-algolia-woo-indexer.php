@@ -65,7 +65,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public function __construct( ?AlgoliaConnectionStatus $connection_status = null ) {
-		 $this->connection_status = $connection_status ?? new AlgoliaConnectionStatus();
+			$this->connection_status = $connection_status ?? new AlgoliaConnectionStatus();
 			$this->init();
 		}
 
