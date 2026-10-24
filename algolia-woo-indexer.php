@@ -21,19 +21,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Declare compatibility with WooCommerce features that do not affect product indexing.
- */
-add_action(
-	'before_woocommerce_init',
-	static function () {
-		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
-			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
-			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
-		}
-	}
-);
-
-/**
  * Main class file
  */
 require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-woo-indexer.php';
