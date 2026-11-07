@@ -77,6 +77,11 @@ solutions.
 - Click on the `Send products with Algolia` button to send the products
   to Algolia
 
+## Licence
+
+This plugin is licensed under the GNU Affero General Public License v3.0 or
+later (AGPLv3 or later). See the [LICENSE](LICENSE) file for the full text.
+
 ## Troubleshooting
 
 If you encounter any errors, first of all make sure that your hosting

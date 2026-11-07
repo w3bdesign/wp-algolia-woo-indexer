@@ -8,9 +8,11 @@
  * Requires PHP: 8.4
  * WC requires at least: 11.2.1
  * Version:         1.0.9
+ * License:         AGPLv3 or later
+ * License URI:     https://www.gnu.org/licenses/agpl-3.0.html
  *
  * @package         algolia-woo-indexer
- * @license         GNU version 3
+ * @license         AGPL-3.0-or-later
  */
 
 /**
