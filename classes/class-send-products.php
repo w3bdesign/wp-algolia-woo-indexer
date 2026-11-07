@@ -48,9 +48,9 @@ define( 'ALGOLIA_API_KEY', '_admin_api_key' );
 if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 	/**
 	 * Algolia WooIndexer main class
+	 *
+	 * @todo Rename class "Algolia_Send_Products" to match the regular expression ^[A-Z][a-zA-Z0-9]*$.
 	 */
-
-	// TODO Rename class "Algolia_Send_Products" to match the regular expression ^[A-Z][a-zA-Z0-9]*$.
 	class Algolia_Send_Products {
 
 		const PLUGIN_NAME      = 'Algolia Woo Indexer';
@@ -66,7 +66,7 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 		/**
 		 * Get sale price or regular price based on product type
 		 *
-		 * @param  mixed $product Product to check
+		 * @param  mixed $product Product to check.
 		 * @return array ['sale_price' => $sale_price,'regular_price' => $regular_price] Array with regular price and sale price
 		 */
 		public static function get_product_type_price( $product ) {
@@ -93,7 +93,7 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 		 *
 		 * @SuppressWarnings(PHPMD.StaticAccess)
 		 *
-		 * @param Int $id Product to send to Algolia if we send only a single product
+		 * @param Int $id Product to send to Algolia if we send only a single product.
 		 * @return void
 		 */
 		public static function send_products_to_algolia( $id = '' ) {
@@ -172,9 +172,7 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 			 *
 			 * @see https://docs.woocommerce.com/wc-apidocs/function-wc_get_products.html
 			 */
-			$products =
-				/** @scrutinizer ignore-call */
-				wc_get_products( $arguments );
+			$products = wc_get_products( $arguments );
 
 			if ( empty( $products ) ) {
 				return;
