@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Algolia Woo Indexer class for sending products
  * Called from main plugin file algolia-woo-indexer.php
