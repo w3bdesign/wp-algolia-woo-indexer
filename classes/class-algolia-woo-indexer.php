@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Main Algolia Woo Indexer class
  * Called from main plugin file algolia-woo-indexer.php
