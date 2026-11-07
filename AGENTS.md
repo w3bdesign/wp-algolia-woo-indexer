@@ -23,13 +23,19 @@ repository.
 ## Licence
 
 - **The project is AGPL-3.0.** The `LICENSE` file is the authority
-- The other licence statements in the repo are stale and contradict it:
-  `readme.txt` says `GPLv2 or later`, the docblock in
-  `algolia-woo-indexer.php` says `GNU version 3`, and `composer.json` has no
-  `license` key. These still need to be aligned to AGPL-3.0, and the plugin
-  header is still missing `License:` / `License URI:` fields
-- Do not copy the licence string from `readme.txt` or the plugin docblock
-  into anything new
+- Every declaration is now aligned to it. Keep all four in sync when
+  touching any one of them:
+  - `LICENSE` — the full AGPL-3.0 text
+  - `readme.txt` — `License: AGPLv3 or later` /
+    `License URI: https://www.gnu.org/licenses/agpl-3.0.html`
+  - `algolia-woo-indexer.php` — the same two fields in the plugin header,
+    plus `@license AGPL-3.0-or-later` in the docblock
+  - `composer.json` — `"license": "AGPL-3.0-or-later"`
+- The plugin header and `readme.txt` use the WordPress readme spelling
+  (`AGPLv3 or later`); `composer.json` and the docblock use the SPDX
+  identifier (`AGPL-3.0-or-later`). Both forms are intentional
+- Historic stale values were `GPLv2 or later` in `readme.txt` and
+  `GNU version 3` in the docblock. Do not reintroduce either
 
 ## WordPress Plugin Architecture (Non-obvious patterns)
 
