@@ -23,7 +23,7 @@ repository.
 ## Licence
 
 - **The project is AGPL-3.0.** The `LICENSE` file is the authority
-- Every declaration is now aligned to it. Keep all four in sync when
+- Every declaration is now aligned to it. Keep all five in sync when
   touching any one of them:
   - `LICENSE` — the full AGPL-3.0 text
   - `readme.txt` — `License: AGPLv3 or later` /
@@ -31,6 +31,7 @@ repository.
   - `algolia-woo-indexer.php` — the same two fields in the plugin header,
     plus `@license AGPL-3.0-or-later` in the docblock
   - `composer.json` — `"license": "AGPL-3.0-or-later"`
+  - `README.md` — the `## Licence` section
 - The plugin header and `readme.txt` use the WordPress readme spelling
   (`AGPLv3 or later`); `composer.json` and the docblock use the SPDX
   identifier (`AGPL-3.0-or-later`). Both forms are intentional
