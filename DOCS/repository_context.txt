@@ -88,77 +88,6 @@ uninstall.php
 
 # Files
 
-## File: .github/workflows/phpcs-autofix.yml
-```yaml
- 1: name: PHP CodeSniffer Autofix
- 2: permissions:
- 3:   contents: write
- 4:   pull-requests: write
- 5: on:
- 6:   pull_request:
- 7:     branches:
- 8:       - master
- 9:   workflow_dispatch:
-10: jobs:
-11:   phpcs_autofix:
-12:     runs-on: ubuntu-latest
-13:     steps:
-14:       - name: Checkout code
-15:         uses: actions/checkout@v7
-16:         with:
-17:           ref: ${{ github.head_ref }}
-18:       - name: Set up PHP
-19:         uses: shivammathur/setup-php@v2
-20:         with:
-21:           php-version: "8.1"
-22:           extensions: mbstring, xml, ctype, iconv, json
-23:           tools: composer
-24:       - name: Allow Composer plugins
-25:         run: |
-26:           composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
-27:           composer config --no-plugins allow-plugins.phpcompatibility/phpcs-compatinfo true
-28:           # Add any other plugins if they cause issues
-29:       - name: Install PHP_CodeSniffer and WordPress Coding Standards
-30:         run: |
-31:           composer require --dev squizlabs/php_codesniffer "*"
-32:           composer require --dev wp-coding-standards/wpcs "*"
-33:           composer require --dev phpcompatibility/phpcompatibility-wp "*"        
-34:       - name: Run PHPCBF to fix coding standards
-35:         run: vendor/bin/phpcbf --standard=phpcs.xml --extensions=php . || true
-36:       - name: Commit and Push PHPCBF fixes
-37:         env:
-38:           HEAD_REF: ${{ github.head_ref }}
-39:           REF_NAME: ${{ github.ref_name }}
-40:         run: |
-41:           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-42:           git config --local user.name "github-actions[bot]"
-43:           echo "Current git status:"
-44:           git status
-45:           # Add all changed files. phpcbf modifies files in place.
-46:           # We expect only .php files to be changed by phpcbf.
-47:           git add .
-48:           # Check again if staging made any difference to status, then commit
-49:           echo "Git status after add:"
-50:           git status
-51:           if git diff --staged --quiet; then
-52:             echo "No changes staged, nothing to commit."
-53:           else
-54:             echo "Staged changes found, attempting commit..."
-55:             git commit -m "Apply PHPCBF fixes [skip ci]" -m "Automated PHPCBF fixes." --no-verify
-56:             # Determine the branch to push to
-57:             # For PRs, github.head_ref is the source branch name.
-58:             # For workflow_dispatch, github.ref_name is the branch the workflow was run on.
-59:             if [[ -n "$HEAD_REF" ]]; then
-60:               BRANCH_NAME="$HEAD_REF"
-61:             else
-62:               BRANCH_NAME="$REF_NAME"
-63:             fi
-64:             echo "Pushing changes to branch: $BRANCH_NAME"
-65:             git push origin "$BRANCH_NAME"
-66:             echo "Changes pushed successfully."
-67:           fi
-```
-
 ## File: .github/workflows/phpcs.yml
 ```yaml
  1: on: pull_request
@@ -182,18 +111,6 @@ uninstall.php
 19:         SKIP_FOLDERS: "tests,.github,vendor"
 20:       with:
 21:         args: "WordPress"
-```
-
-## File: .github/dependabot.yml
-```yaml
-1: version: 2
-2: updates:
-3: - package-ecosystem: composer
-4:   directory: "/"
-5:   schedule:
-6:     interval: daily
-7:     time: "04:00"
-8:   open-pull-requests-limit: 10
 ```
 
 ## File: .gitignore
@@ -1341,27 +1258,6 @@ uninstall.php
 661: <http://www.gnu.org/licenses/>.
 ```
 
-## File: phpcs.xml
-```xml
- 1: <?xml version="1.0"?>
- 2: <ruleset name="">
- 3: 	<description>Generally-applicable sniffs for WordPress plugins</description>
- 4: 	<rule ref="WordPress">
- 5: 		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
- 6: 		<exclude name="WordPress.Files.FileName.InvalidClassFileName" />
- 7: 	</rule>
- 8: 	<rule ref="PHPCompatibility"/>
- 9: 	<config name="testVersion" value="7.3-"/>
-10: 	<arg name="extensions" value="php"/>
-11: 	<arg value="s"/>
-12: 	<exclude-pattern>*/dev-lib/*</exclude-pattern>
-13: 	<exclude-pattern>*/node_modules/*</exclude-pattern>
-14: 	<exclude-pattern>*/vendor/*</exclude-pattern>
-15: 	<exclude-pattern>*/algoliasearch-client-php/*</exclude-pattern>
-16: 	<exclude-pattern>.github/</exclude-pattern>	
-17: </ruleset>
-```
-
 ## File: repomix.config.json
 ```json
  1: {
@@ -1395,6 +1291,118 @@ uninstall.php
 29:     "encoding": "cl100k_base"
 30:   }
 31: }
+```
+
+## File: uninstall.php
+```php
+ 1: <?php
+ 2: /**
+ 3:  * Delete the saved options freom the database when we uninstall the plugin
+ 4:  * We do not do it when we deactivate the plugin, in case we want to maintain the data
+ 5:  *
+ 6:  * @package         algolia-woo-indexer
+ 7:  */
+ 8: /*
+ 9: *  If uninstall was not called from WordPress, then exit
+10: */
+11: if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+12: 	exit;
+13: }
+14: define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
+15: delete_option( ALGOWOO_DB_OPTION . '_application_id' );
+16: delete_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
+17: delete_option( ALGOWOO_DB_OPTION . '_search_api_key' );
+18: delete_option( ALGOWOO_DB_OPTION . '_index_name' );
+19: delete_option( ALGOWOO_DB_OPTION . '_index_in_stock' );
+20: delete_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );
+```
+
+## File: .github/workflows/phpcs-autofix.yml
+```yaml
+ 1: name: PHP CodeSniffer Autofix
+ 2: permissions:
+ 3:   contents: write
+ 4:   pull-requests: write
+ 5: on:
+ 6:   pull_request:
+ 7:     branches:
+ 8:       - master
+ 9:   workflow_dispatch:
+10: jobs:
+11:   phpcs_autofix:
+12:     runs-on: ubuntu-latest
+13:     steps:
+14:       - name: Checkout code
+15:         uses: actions/checkout@v7
+16:         with:
+17:           ref: ${{ github.head_ref }}
+18:       - name: Set up PHP
+19:         uses: shivammathur/setup-php@v2
+20:         with:
+21:           php-version: "8.4"
+22:           extensions: mbstring, xml, ctype, iconv, json
+23:           tools: composer
+24:       # composer.json already declares php_codesniffer, wpcs and
+25:       # phpcompatibility-wp under require-dev, and already sets the two
+26:       # required allow-plugins entries. Installing from it keeps the job
+27:       # reproducible and avoids rewriting composer.json inside the runner.
+28:       - name: Install dependencies
+29:         run: composer install --no-interaction --no-progress
+30:       - name: Run PHPCBF to fix coding standards
+31:         run: vendor/bin/phpcbf --standard=phpcs.xml --extensions=php . || true
+32:       - name: Commit and Push PHPCBF fixes
+33:         env:
+34:           HEAD_REF: ${{ github.head_ref }}
+35:           REF_NAME: ${{ github.ref_name }}
+36:         run: |
+37:           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+38:           git config --local user.name "github-actions[bot]"
+39:           echo "Current git status:"
+40:           git status
+41:           # Add all changed files. phpcbf modifies files in place.
+42:           # We expect only .php files to be changed by phpcbf.
+43:           git add .
+44:           # Check again if staging made any difference to status, then commit
+45:           echo "Git status after add:"
+46:           git status
+47:           if git diff --staged --quiet; then
+48:             echo "No changes staged, nothing to commit."
+49:           else
+50:             echo "Staged changes found, attempting commit..."
+51:             git commit -m "Apply PHPCBF fixes [skip ci]" -m "Automated PHPCBF fixes." --no-verify
+52:             # Determine the branch to push to
+53:             # For PRs, github.head_ref is the source branch name.
+54:             # For workflow_dispatch, github.ref_name is the branch the workflow was run on.
+55:             if [[ -n "$HEAD_REF" ]]; then
+56:               BRANCH_NAME="$HEAD_REF"
+57:             else
+58:               BRANCH_NAME="$REF_NAME"
+59:             fi
+60:             echo "Pushing changes to branch: $BRANCH_NAME"
+61:             git push origin "$BRANCH_NAME"
+62:             echo "Changes pushed successfully."
+63:           fi
+```
+
+## File: .github/dependabot.yml
+```yaml
+ 1: version: 2
+ 2: updates:
+ 3: - package-ecosystem: composer
+ 4:   directory: "/"
+ 5:   schedule:
+ 6:     interval: daily
+ 7:     time: "04:00"
+ 8:   open-pull-requests-limit: 10
+ 9: # Keeps the action tags in .github/workflows/ up to date. Without this
+10: # entry nothing watched them, which is how the end-of-life PHP pin and the
+11: # stale repomix pin went unnoticed.
+12: - package-ecosystem: github-actions
+13:   directory: "/"
+14:   schedule:
+15:     interval: weekly
+16:     time: "04:00"
+17:   open-pull-requests-limit: 10
 ```
 
 ## File: .roo/rules-ask/AGENTS.md
@@ -1675,6 +1683,112 @@ uninstall.php
 25: }
 ```
 
+## File: phpcs.xml
+```xml
+ 1: <?xml version="1.0"?>
+ 2: <ruleset name="">
+ 3: 	<description>Generally-applicable sniffs for WordPress plugins</description>
+ 4: 	<rule ref="WordPress">
+ 5: 		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
+ 6: 		<exclude name="WordPress.Files.FileName.InvalidClassFileName" />
+ 7: 	</rule>
+ 8: 	<rule ref="PHPCompatibility"/>
+ 9: 	<config name="testVersion" value="8.4-"/>
+10: 	<arg name="extensions" value="php"/>
+11: 	<arg value="s"/>
+12: 	<exclude-pattern>*/dev-lib/*</exclude-pattern>
+13: 	<exclude-pattern>*/node_modules/*</exclude-pattern>
+14: 	<exclude-pattern>*/vendor/*</exclude-pattern>
+15: 	<exclude-pattern>*/algoliasearch-client-php/*</exclude-pattern>
+16: 	<exclude-pattern>.github/</exclude-pattern>	
+17: </ruleset>
+```
+
+## File: readme.txt
+```
+ 1: === Algolia Woo Indexer ===
+ 2: Contributors: Daniel F
+ 3: Tags: algolia, woocommerce, search, algolia search, algolia indexing
+ 4: Requires at least: 7.1
+ 5: Requires PHP: 8.4
+ 6: Stable tag: 1.0.9
+ 7: License: AGPLv3 or later
+ 8: License URI: https://www.gnu.org/licenses/agpl-3.0.html
+ 9: 
+10: 
+11: == Description ==
+12: This plugin indexes products inside of WooCommerce and submits them to Algolia. 
+13: Add the Application ID, Search API Key, Write API Key, and index name. Copy the built-in Search API Key from Algolia for connection checks. For uploads, create a separate Write API Key with only Add records (addObject) permission, restricted to the exact product index. The Admin API Key is not required.
+14: 
+15: 
+16: == Installation ==
+17: * Upload `Algolia Woo Indexer` to the `/wp-content/plugins/` directory of your application
+18: * Login as Admin
+19: * Activate the plugin through the 'Plugins' menu in WordPress
+20: * Login to Algolia and go to "API keys"
+21: * Copy the built-in Search API Key for connection checks
+22: * Create a dedicated custom Write API Key with only Add records (addObject) permission, restricted to the exact product index name (avoid wildcards)
+23: * Add the Application ID to the plugin settings page
+24: * Paste the built-in Search API Key into the Search API Key field
+25: * Add the custom key to the Write API Key field on the plugin settings page
+26: * Enter the name of the index that should be used to index Woocommerce products
+27: 
+28: 
+29: == Frequently Asked Questions ==
+30: = Which API key permissions are required? =
+31: Use separate keys: the built-in Search API Key for connection checks, and a dedicated Write API Key with only Add records (addObject) permission restricted to the configured index for uploads. No key-management or index-listing permissions are needed. Never expose the Write API Key to a browser or storefront. Existing saved Write API Keys are retained; add the Search API Key to enable connection checks.
+32: 
+33: = How does the connection status work? =
+34: An emoji status notice appears at the top of the plugin settings page. It checks once per page load, including after saving, when Application ID, Search API Key, Write API Key, and index name are all set. A single search request with a five-second timeout, zero returned records, and analytics disabled checks the Search API Key without changing products. It does not run on other admin pages or poll in the background. The notice explains missing settings, rejected credentials or permissions, network failures, rate limits, and missing indices. A new index may need its first product upload before it can be searched. This check does not verify the separate Write API Key or completion of previous uploads.
+35: 
+36: Failed checks show the HTTP status and Algolia error message, or the WordPress network error when the request could not reach Algolia. Diagnostic text is length-limited, escaped, visible only to settings administrators, and redacts the configured API key. Raw HTML responses are not displayed.
+37: 
+38: = What if I previously saved an Admin API Key? =
+39: Existing settings are retained, but upgrading does not restrict or replace the saved key. Create an index-restricted write key in Algolia, replace the saved key in the plugin settings, and verify uploads. Rotate the previously used Admin API Key after checking whether other integrations depend on it.
+40: 
+41: = Why did an upload fail? =
+42: Check connectivity, the Application ID, index name, and the key's Add records (addObject) permission for that index. A Search API Key or a key restricted to another index cannot upload products.
+43: 
+44: 
+45: == Changelog ==
+46: 
+47: = 1.0.9 =
+48: * Require PHP 8.4 or newer
+49: * Require WooCommerce 11.2.1 or newer
+50: * Support dedicated index-restricted Write API Keys without key-management or index-listing permissions
+51: * Add a separate Search API Key field and check the connection once per settings-page load
+52: * Show emoji connection status and redacted HTTP or transport diagnostics at the top of the settings page
+53: * Handle Algolia upload errors and clarify API key setup
+54: * Mask the Write API Key field while retaining existing saved settings
+55: * Declare compatibility with WooCommerce High-Performance Order Storage and Cart/Checkout Blocks
+56: 
+57: = 1.0.8 =
+58: * Minor package updates
+59: 
+60: = 1.0.7 =
+61: * Add support for premium version
+62: 
+63: = 1.0 =
+64: * Initial release
+65: 
+66: 
+67: == Upgrade Notice ==
+68: = 1.0.9 =
+69: Requires PHP 8.4 and WooCommerce 11.2.1 or newer. Replace any previously saved Admin API Key with a dedicated Write API Key restricted to the configured index with only Add records (addObject) permission. Paste the built-in Search API Key into the separate Search API Key field for connection checks. Existing settings are retained. WooCommerce HPOS and Cart/Checkout Blocks compatibility is now declared.
+70: 
+71: 
+72: == License ==
+73: This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+74: 
+75: 
+76: == Version history ==
+77: 
+78: 1.0.9 - Restricted Write API Key support and WooCommerce feature compatibility declarations
+79: 1.0.8 - Minor package updates
+80: 1.0.7 - Add support for premium version
+81: 1.0   - Initial version
+```
+
 ## File: renovate.json
 ```json
 1: {
@@ -1682,30 +1796,6 @@ uninstall.php
 3:     "config:recommended"
 4:   ]
 5: }
-```
-
-## File: uninstall.php
-```php
- 1: <?php
- 2: /**
- 3:  * Delete the saved options freom the database when we uninstall the plugin
- 4:  * We do not do it when we deactivate the plugin, in case we want to maintain the data
- 5:  *
- 6:  * @package         algolia-woo-indexer
- 7:  */
- 8: /*
- 9: *  If uninstall was not called from WordPress, then exit
-10: */
-11: if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-12: 	exit;
-13: }
-14: define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
-15: delete_option( ALGOWOO_DB_OPTION . '_application_id' );
-16: delete_option( ALGOWOO_DB_OPTION . '_admin_api_key' );
-17: delete_option( ALGOWOO_DB_OPTION . '_search_api_key' );
-18: delete_option( ALGOWOO_DB_OPTION . '_index_name' );
-19: delete_option( ALGOWOO_DB_OPTION . '_index_in_stock' );
-20: delete_option( ALGOWOO_DB_OPTION . '_automatically_send_new_products' );
 ```
 
 ## File: .github/workflows/repomix.yml
@@ -2035,91 +2125,6 @@ uninstall.php
  99: 		<?php
 100: 	}
 101: }
-```
-
-## File: readme.txt
-```
- 1: === Algolia Woo Indexer ===
- 2: Contributors: Daniel F
- 3: Tags: algolia, woocommerce, search, algolia search, algolia indexing
- 4: Requires at least: 7.1
- 5: Requires PHP: 8.4
- 6: Stable tag: 1.0.9
- 7: License: AGPLv3 or later
- 8: License URI: https://www.gnu.org/licenses/agpl-3.0.html
- 9: 
-10: 
-11: == Description ==
-12: This plugin indexes products inside of WooCommerce and submits them to Algolia. 
-13: Add the Application ID, Search API Key, Write API Key, and index name. Copy the built-in Search API Key from Algolia for connection checks. For uploads, create a separate Write API Key with only Add records (addObject) permission, restricted to the exact product index. The Admin API Key is not required.
-14: 
-15: 
-16: == Installation ==
-17: * Upload `Algolia Woo Indexer` to the `/wp-content/plugins/` directory of your application
-18: * Login as Admin
-19: * Activate the plugin through the 'Plugins' menu in WordPress
-20: * Login to Algolia and go to "API keys"
-21: * Copy the built-in Search API Key for connection checks
-22: * Create a dedicated custom Write API Key with only Add records (addObject) permission, restricted to the exact product index name (avoid wildcards)
-23: * Add the Application ID to the plugin settings page
-24: * Paste the built-in Search API Key into the Search API Key field
-25: * Add the custom key to the Write API Key field on the plugin settings page
-26: * Enter the name of the index that should be used to index Woocommerce products
-27: 
-28: 
-29: == Frequently Asked Questions ==
-30: = Which API key permissions are required? =
-31: Use separate keys: the built-in Search API Key for connection checks, and a dedicated Write API Key with only Add records (addObject) permission restricted to the configured index for uploads. No key-management or index-listing permissions are needed. Never expose the Write API Key to a browser or storefront. Existing saved Write API Keys are retained; add the Search API Key to enable connection checks.
-32: 
-33: = How does the connection status work? =
-34: An emoji status notice appears at the top of the plugin settings page. It checks once per page load, including after saving, when Application ID, Search API Key, Write API Key, and index name are all set. A single search request with a five-second timeout, zero returned records, and analytics disabled checks the Search API Key without changing products. It does not run on other admin pages or poll in the background. The notice explains missing settings, rejected credentials or permissions, network failures, rate limits, and missing indices. A new index may need its first product upload before it can be searched. This check does not verify the separate Write API Key or completion of previous uploads.
-35: 
-36: Failed checks show the HTTP status and Algolia error message, or the WordPress network error when the request could not reach Algolia. Diagnostic text is length-limited, escaped, visible only to settings administrators, and redacts the configured API key. Raw HTML responses are not displayed.
-37: 
-38: = What if I previously saved an Admin API Key? =
-39: Existing settings are retained, but upgrading does not restrict or replace the saved key. Create an index-restricted write key in Algolia, replace the saved key in the plugin settings, and verify uploads. Rotate the previously used Admin API Key after checking whether other integrations depend on it.
-40: 
-41: = Why did an upload fail? =
-42: Check connectivity, the Application ID, index name, and the key's Add records (addObject) permission for that index. A Search API Key or a key restricted to another index cannot upload products.
-43: 
-44: 
-45: == Changelog ==
-46: 
-47: = 1.0.9 =
-48: * Require PHP 8.4 or newer
-49: * Require WooCommerce 11.2.1 or newer
-50: * Support dedicated index-restricted Write API Keys without key-management or index-listing permissions
-51: * Add a separate Search API Key field and check the connection once per settings-page load
-52: * Show emoji connection status and redacted HTTP or transport diagnostics at the top of the settings page
-53: * Handle Algolia upload errors and clarify API key setup
-54: * Mask the Write API Key field while retaining existing saved settings
-55: * Declare compatibility with WooCommerce High-Performance Order Storage and Cart/Checkout Blocks
-56: 
-57: = 1.0.8 =
-58: * Minor package updates
-59: 
-60: = 1.0.7 =
-61: * Add support for premium version
-62: 
-63: = 1.0 =
-64: * Initial release
-65: 
-66: 
-67: == Upgrade Notice ==
-68: = 1.0.9 =
-69: Requires PHP 8.4 and WooCommerce 11.2.1 or newer. Replace any previously saved Admin API Key with a dedicated Write API Key restricted to the configured index with only Add records (addObject) permission. Paste the built-in Search API Key into the separate Search API Key field for connection checks. Existing settings are retained. WooCommerce HPOS and Cart/Checkout Blocks compatibility is now declared.
-70: 
-71: 
-72: == License ==
-73: This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-74: 
-75: 
-76: == Version history ==
-77: 
-78: 1.0.9 - Restricted Write API Key support and WooCommerce feature compatibility declarations
-79: 1.0.8 - Minor package updates
-80: 1.0.7 - Add support for premium version
-81: 1.0   - Initial version
 ```
 
 ## File: classes/class-send-products.php
