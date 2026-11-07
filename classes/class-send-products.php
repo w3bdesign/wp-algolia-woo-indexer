@@ -89,6 +89,11 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 		/**
 		 * Send WooCommerce products to Algolia
 		 *
+		 * Called statically from hook callbacks, so the requirement checks have to
+		 * be reached statically.
+		 *
+		 * @SuppressWarnings(PHPMD.StaticAccess)
+		 *
 		 * @param Int $id Product to send to Algolia if we send only a single product
 		 * @return void
 		 */
@@ -98,7 +103,17 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 			 */
 
 			$base_plugin_directory = str_replace( 'classes', '', __DIR__ );
-			require_once $base_plugin_directory . '/vendor/autoload.php';
+			$autoloader            = $base_plugin_directory . '/vendor/autoload.php';
+
+			if ( ! file_exists( $autoloader ) ) {
+				Algolia_Check_Requirements::queue_admin_notice(
+					__( 'The Algolia PHP client is missing. Run "composer install" in the plugin directory.', 'algolia-woo-indexer' )
+				);
+
+				return;
+			}
+
+			require_once $autoloader;
 
 			/**
 			 * Fetch the required variables from the Settings API
@@ -117,7 +132,9 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 			 * Display admin notice and return if not all values have been set
 			 */
 
-			Algolia_Check_Requirements::check_algolia_input_values( $algolia_application_id, $algolia_api_key, $algolia_index_name );
+			if ( ! Algolia_Check_Requirements::check_algolia_input_values( $algolia_application_id, $algolia_api_key, $algolia_index_name ) ) {
+				return;
+			}
 
 			/**
 			 * Initiate the Algolia client
@@ -213,11 +230,16 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 			}
 
 			if ( 'Algolia\AlgoliaSearch\Response\NullResponse' === get_class( $result ) ) {
-				wp_die( esc_html__( 'No response from the server. Please check your settings and try again', 'algolia_woo_indexer_settings' ) );
+				Algolia_Check_Requirements::queue_admin_notice(
+					__( 'No response from the server. Please check your settings and try again.', 'algolia-woo-indexer' )
+				);
+
+				return;
 			}
 
 			/**
-			 * Display success message
+			 * Queue the success message so that it is rendered on admin_notices
+			 * rather than echoed from the middle of an admin_init callback.
 			 */
 			$product_count = count( $records );
 			$message       = sprintf(
@@ -231,9 +253,16 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 				number_format_i18n( $product_count ),
 				$algolia_index_name
 			);
-			echo '<div class="notice notice-success is-dismissible">
-					 	<p>' . esc_html( $message ) . '</p>
-					  		</div>';
+
+			add_action(
+				'admin_notices',
+				function () use ( $message ) {
+					printf(
+						'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+						esc_html( $message )
+					);
+				}
+			);
 		}
 	}
 }
