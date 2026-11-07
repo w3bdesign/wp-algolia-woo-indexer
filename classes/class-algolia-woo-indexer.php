@@ -126,6 +126,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Check if we are going to send products by verifying send products nonce
 		 *
+		 * Registered as a static `admin_init` callback, so the collaborating classes
+		 * have to be reached statically.
+		 *
+		 * @SuppressWarnings(PHPMD.StaticAccess)
+		 *
 		 * @return void
 		 */
 		public static function maybe_send_products() {
@@ -136,6 +141,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 
 		/**
 		 * Initialize class, setup settings sections and fields
+		 *
+		 * Called statically from the constructor before any instance is available,
+		 * so the requirement checks have to be reached statically.
+		 *
+		 * @SuppressWarnings(PHPMD.StaticAccess)
 		 *
 		 * @return void
 		 */
@@ -210,6 +220,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Send a single product to Algolia once a new product has been published
 		 *
+		 * Registered as a static `save_post` callback, so the sender has to be
+		 * reached statically.
+		 *
+		 * @SuppressWarnings(PHPMD.StaticAccess)
+		 *
 		 * @param int   $post_id ID of the product.
 		 * @param array $post Post array.
 		 *
@@ -225,6 +240,11 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Verify nonces before we update options and settings
 		 * Also retrieve the value from the send_products_to_algolia hidden field to check if we are sending products to Algolia
+		 *
+		 * Registered as a static `admin_init` callback, so the nonce verifier has to
+		 * be reached statically.
+		 *
+		 * @SuppressWarnings(PHPMD.StaticAccess)
 		 *
 		 * @return void
 		 */
