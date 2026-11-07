@@ -54,3 +54,20 @@ $algowooindexer = \Algowoo\Algolia_Woo_Indexer::get_instance();
 
 register_activation_hook( __FILE__, array( $algowooindexer, 'activate_plugin' ) );
 register_deactivation_hook( __FILE__, array( $algowooindexer, 'deactivate_plugin' ) );
+
+/**
+ * Declare compatibility with WooCommerce High-Performance Order Storage and
+ * Cart/Checkout Blocks. This plugin only reads products, so it is unaffected by
+ * the order storage backend.
+ */
+add_action(
+	'before_woocommerce_init',
+	function () {
+		if ( ! class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+			return;
+		}
+
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
+	}
+);
