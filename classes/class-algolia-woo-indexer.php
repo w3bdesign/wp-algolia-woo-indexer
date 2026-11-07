@@ -83,7 +83,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			if ( is_admin() ) {
 				$arguments = array(
 					'type'              => 'string',
-					'sanitize_callback' => 'settings_fields_validate_options',
+					'sanitize_callback' => array( self::class, 'settings_fields_validate_options' ),
 					'default'           => null,
 				);
 				register_setting( 'algolia_woo_options', 'algolia_woo_options', $arguments );
@@ -177,20 +177,20 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 			/**
 			 * Add actions to setup admin menu
 			 */
+			/**
+			 * Register the automatic indexing hook outside of is_admin() so that products
+			 * published through the REST API, WP-CLI or a scheduled post are also indexed.
+			 */
+			if ( '1' === $auto_send ) {
+				add_action( 'save_post', array( $ob_class, 'send_new_product_to_algolia' ), 10, 2 );
+			}
+
 			if ( is_admin() ) {
 				add_action( 'admin_menu', array( $ob_class, 'admin_menu' ) );
 				add_action( 'admin_enqueue_scripts', array( $ob_class, 'enqueue_settings_styles' ) );
 				add_action( 'admin_init', array( $ob_class, 'setup_settings_sections' ) );
 				add_action( 'admin_init', array( $ob_class, 'update_settings_options' ) );
 				add_action( 'admin_init', array( $ob_class, 'maybe_send_products' ) );
-
-				/**
-				 * Register hook to automatically send new products if the option is set
-				 */
-
-				if ( '1' === $auto_send ) {
-					add_action( 'save_post', array( $ob_class, 'send_new_product_to_algolia' ), 10, 3 );
-				}
 
 				self::$plugin_url = admin_url( 'options-general.php?page=algolia-woo-indexer-settings' );
 
@@ -229,65 +229,83 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * @return void
 		 */
 		public static function update_settings_options() {
-			Algolia_Verify_Nonces::verify_settings_nonce();
-
-			if ( Algolia_Verify_Nonces::verify_send_products_nonce() ) {
+			/**
+			 * Both the nonce and the manage_options capability are enforced here before
+			 * anything is written to the database.
+			 */
+			if ( ! Algolia_Verify_Nonces::verify_settings_nonce() ) {
 				return;
 			}
 
-			$application_id = filter_input( INPUT_POST, 'algolia_woo_indexer_application_id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-			$api_key        = filter_input( INPUT_POST, 'algolia_woo_indexer_admin_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-			$search_api_key = filter_input( INPUT_POST, 'algolia_woo_indexer_search_api_key', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-			$index_name     = filter_input( INPUT_POST, 'algolia_woo_indexer_index_name', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-			$auto_send      = filter_input( INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-
-			$sanitized_app_id         = sanitize_text_field( $application_id['id'] );
-			$sanitized_api_key        = sanitize_text_field( $api_key['key'] );
-			$sanitized_search_api_key = sanitize_text_field( $search_api_key['key'] ?? '' );
-			$sanitized_index_name     = sanitize_text_field( $index_name['name'] );
-			$sanitized_auto_send      = ( ! empty( $auto_send ) ) ? 1 : 0;
-
 			$options = array(
-				ALGOWOO_DB_OPTION . ALGOLIA_APP_ID         => $sanitized_app_id,
-				ALGOWOO_DB_OPTION . ALGOLIA_API_KEY        => $sanitized_api_key,
-				ALGOWOO_DB_OPTION . ALGOLIA_SEARCH_API_KEY => $sanitized_search_api_key,
-				ALGOWOO_DB_OPTION . INDEX_NAME             => $sanitized_index_name,
-				ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS => $sanitized_auto_send,
+				ALGOWOO_DB_OPTION . ALGOLIA_APP_ID         => self::get_posted_setting( 'algolia_woo_indexer_application_id', 'id' ),
+				ALGOWOO_DB_OPTION . ALGOLIA_API_KEY        => self::get_posted_setting( 'algolia_woo_indexer_admin_api_key', 'key' ),
+				ALGOWOO_DB_OPTION . ALGOLIA_SEARCH_API_KEY => self::get_posted_setting( 'algolia_woo_indexer_search_api_key', 'key' ),
+				ALGOWOO_DB_OPTION . INDEX_NAME             => self::get_posted_setting( 'algolia_woo_indexer_index_name', 'name' ),
 			);
 
 			foreach ( $options as $option_key => $option_value ) {
-				if ( isset( $option_value ) && ( ! empty( $option_value ) ) ) {
+				if ( '' !== $option_value ) {
 					update_option( $option_key, $option_value );
 				}
 			}
+
+			/**
+			 * The checkbox is absent from the POST data when unchecked, so the value 0 has
+			 * to be written unconditionally for automatic indexing to be switchable off.
+			 */
+			$auto_send = filter_input( INPUT_POST, 'algolia_woo_indexer_automatically_send_new_products', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+			update_option( ALGOWOO_DB_OPTION . AUTOMATICALLY_SEND_NEW_PRODUCTS, empty( $auto_send ) ? '0' : '1' );
 		}
 
+		/**
+		 * Read a single submitted settings value, unslash it and sanitize it.
+		 *
+		 * @param string $field_name Name of the POST field holding the value array.
+		 * @param string $key        Array key inside the POST field.
+		 * @return string Sanitized value, or an empty string when it was not submitted.
+		 */
+		private static function get_posted_setting( $field_name, $key ) {
+			$field = filter_input( INPUT_POST, $field_name, FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 
+			if ( ! is_array( $field ) || ! isset( $field[ $key ] ) || ! is_string( $field[ $key ] ) ) {
+				return '';
+			}
 
+			return sanitize_text_field( wp_unslash( $field[ $key ] ) );
+		}
 
 		/**
-		 * Sanitize input in settings fields and filter through regex to accept only a-z and A-Z
+		 * Sanitize the registered setting.
 		 *
-		 * @param string $input Settings text data
-		 * @return array
+		 * Algolia credentials and index names may contain digits and punctuation, so the
+		 * value is only stripped of unsafe characters rather than filtered to letters.
+		 *
+		 * @param mixed $input Submitted settings data.
+		 * @return array Sanitized settings data.
 		 */
 		public static function settings_fields_validate_options( $input ) {
-			$valid         = array();
-			$valid['name'] = preg_replace(
-				'/[^a-zA-Z\s]/',
-				'',
-				$input['name']
-			);
+			if ( ! is_array( $input ) ) {
+				return array();
+			}
+
+			$valid = array();
+			foreach ( $input as $key => $value ) {
+				$valid[ sanitize_key( $key ) ] = is_string( $value ) ? sanitize_text_field( $value ) : '';
+			}
+
 			return $valid;
 		}
 
 		/**
 		 * Load text domain for translations
 		 *
+		 * The languages directory sits in the plugin root, one level above this class file.
+		 *
 		 * @return void
 		 */
 		public static function load_textdomain() {
-			load_plugin_textdomain( 'algolia-woo-indexer', false, basename( __DIR__ ) . '/languages/' );
+			load_plugin_textdomain( 'algolia-woo-indexer', false, basename( dirname( __DIR__ ) ) . '/languages/' );
 		}
 
 		/**
