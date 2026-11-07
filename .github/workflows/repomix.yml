@@ -3,7 +3,7 @@ name: Repository Documentation
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch: # allows manual triggering
 
 permissions:
@@ -31,7 +31,7 @@ jobs:
           node-version: "26"
 
       - name: Install Repomix
-        run: npm install -g --ignore-scripts repomix@1.18.0
+        run: npm install -g --ignore-scripts repomix@1.18.1
 
       - name: Generate Repository Documentation
         run: |
@@ -88,7 +88,7 @@ jobs:
               exit 1
             fi
             
-            echo "Pushing to main branch..."
+            echo "Pushing to master branch..."
             if ! git push; then
               echo "Error: Failed to push changes"
               exit 1
