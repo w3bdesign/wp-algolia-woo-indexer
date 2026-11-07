@@ -6,3 +6,13 @@ updates:
     interval: daily
     time: "04:00"
   open-pull-requests-limit: 10
+
+# Keeps the action tags in .github/workflows/ up to date. Without this
+# entry nothing watched them, which is how the end-of-life PHP pin and the
+# stale repomix pin went unnoticed.
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "04:00"
+  open-pull-requests-limit: 10
