@@ -22,11 +22,6 @@ if ( ! class_exists( 'Algolia_Verify_Nonces' ) ) {
 	class Algolia_Verify_Nonces {
 
 		/**
-		 * Capability required to change plugin settings or trigger indexing.
-		 */
-		const REQUIRED_CAPABILITY = 'manage_options';
-
-		/**
 		 * Verify the settings form nonce before we update options and settings.
 		 *
 		 * A nonce only protects against CSRF, so the capability is checked as well.
@@ -43,7 +38,7 @@ if ( ! class_exists( 'Algolia_Verify_Nonces' ) ) {
 				return false;
 			}
 
-			if ( ! current_user_can( self::REQUIRED_CAPABILITY ) ) {
+			if ( ! current_user_can( 'manage_options' ) ) {
 				wp_die( esc_html__( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html__( 'Error!', 'algolia-woo-indexer' ), array( 'response' => 403 ) );
 			}
 
@@ -72,7 +67,7 @@ if ( ! class_exists( 'Algolia_Verify_Nonces' ) ) {
 				return false;
 			}
 
-			if ( ! current_user_can( self::REQUIRED_CAPABILITY ) ) {
+			if ( ! current_user_can( 'manage_options' ) ) {
 				wp_die( esc_html__( 'Action is not allowed.', 'algolia-woo-indexer' ), esc_html__( 'Error!', 'algolia-woo-indexer' ), array( 'response' => 403 ) );
 			}
 
