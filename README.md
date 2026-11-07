@@ -97,6 +97,6 @@ assist.
 
 [issues]: https://github.com/w3bdesign/algolia-woo-indexer/issues
 
-### TODO
+## TODO
 
 - Upgrade Algolia package and check that it works correctly
