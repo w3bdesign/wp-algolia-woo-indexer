@@ -9,7 +9,7 @@
     }
   ],
   "require": {
-    "algolia/algoliasearch-client-php": "^2.6"
+    "algolia/algoliasearch-client-php": "^4.53"
   },
   "config": {
     "allow-plugins": {
