@@ -245,11 +245,11 @@ one says nothing about the others.
      Mockery's global `mock()` function and the `Overrides_Built_Ins` trait
    - `phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited` where a
      test sets `$wp_version`, which production reads
-   Keep test method names at 40 characters or fewer (`LongMethodName`) and
-   test classes at 10 methods or fewer (`TooManyMethods`, data providers
-   count). Split a class around a shared abstract base in `tests/Support/`
-   rather than suppressing. Read globals with `global $wp_version;`, not
-   `$GLOBALS[...]`, which trips `Superglobals`
+     Keep test method names at 40 characters or fewer (`LongMethodName`) and
+     test classes at 10 methods or fewer (`TooManyMethods`, data providers
+     count). Split a class around a shared abstract base in `tests/Support/`
+     rather than suppressing. Read globals with `global $wp_version;`, not
+     `$GLOBALS[...]`, which trips `Superglobals`
 3. **A VIP-style PHPCS scanner** that reports `Squiz.Commenting.*` and
    `Generic.Commenting.*` errors the local `phpcs.xml` does not. Recurring
    ones: no blank line between `<?php` and the file docblock, `@param`
