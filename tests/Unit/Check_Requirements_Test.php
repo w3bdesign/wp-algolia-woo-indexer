@@ -17,10 +17,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Covers the version, settings and PHP extension checks.
  *
- * PHPMD suppressions: the plugin API, Mockery and the built-in override registry are static and test names describe the behaviour under test.
+ * PHPMD suppressions: the plugin API, Mockery and the built-in override
+ * registry are static, test names describe the behaviour under test, and one
+ * test class per production class keeps related tests together.
  *
  * @SuppressWarnings(PHPMD.StaticAccess)
  * @SuppressWarnings(PHPMD.LongMethodName)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
  */
 #[CoversClass( Algolia_Check_Requirements::class )]
 final class Check_Requirements_Test extends Test_Case {
@@ -81,13 +84,14 @@ final class Check_Requirements_Test extends Test_Case {
 	/**
 	 * The WordPress check compares the global wp_version to the minimum.
 	 *
-	 * @param string $wp_version WordPress version under test.
-	 * @param bool   $expected   Expected check result.
+	 * @param string $version  WordPress version under test.
+	 * @param bool   $expected Expected check result.
 	 * @return void
 	 */
 	#[DataProvider( 'wp_versions' )]
-	public function test_wp_version_check( $wp_version, $expected ) {
-		$GLOBALS['wp_version'] = $wp_version; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restored in tearDown().
+	public function test_wp_version_check( $version, $expected ) {
+		global $wp_version;
+		$wp_version = $version; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restored in tearDown().
 
 		self::assertSame( $expected, Algolia_Check_Requirements::algolia_wp_version_check() );
 	}

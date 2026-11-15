@@ -17,10 +17,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Covers the connection check, its diagnostics and the status notice.
  *
- * PHPMD suppressions: the plugin API, Mockery and the built-in override registry are static and test names describe the behaviour under test.
+ * PHPMD suppressions: the plugin API, Mockery and the built-in override
+ * registry are static, test names describe the behaviour under test, and one
+ * test class per production class keeps related tests together.
  *
  * @SuppressWarnings(PHPMD.StaticAccess)
  * @SuppressWarnings(PHPMD.LongMethodName)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
  */
 #[CoversClass( AlgoliaConnectionStatus::class )]
 final class Connection_Status_Test extends Test_Case {

@@ -16,9 +16,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Covers the Settings API section and field renderers.
  *
- * PHPMD suppressions: test names describe the behaviour under test.
+ * PHPMD suppressions: test names describe the behaviour under test, and one
+ * test class per production class keeps related tests together.
  *
  * @SuppressWarnings(PHPMD.LongMethodName)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
  */
 #[CoversClass( AlgoliaSettingsFields::class )]
 final class Settings_Fields_Test extends Test_Case {

@@ -23,10 +23,13 @@ use ReflectionProperty;
 /**
  * Covers hook registration, settings, the settings page and activation.
  *
- * PHPMD suppressions: the plugin API, Mockery and the built-in override registry are static and test names describe the behaviour under test.
+ * PHPMD suppressions: the plugin API, Mockery and the built-in override
+ * registry are static, test names describe the behaviour under test, and one
+ * test class per production class keeps related tests together.
  *
  * @SuppressWarnings(PHPMD.StaticAccess)
  * @SuppressWarnings(PHPMD.LongMethodName)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
  */
 #[CoversClass( Algolia_Woo_Indexer::class )]
 final class Algolia_Woo_Indexer_Test extends Test_Case {
@@ -199,8 +202,9 @@ final class Algolia_Woo_Indexer_Test extends Test_Case {
 	 * @return void
 	 */
 	public function test_init_warns_when_wordpress_is_too_old() {
-		$GLOBALS['wp_version'] = '6.9'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restored in tearDown().
-		$notices               = $this->capture_hook_callbacks( 'admin_notices' );
+		global $wp_version;
+		$wp_version = '6.9'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restored in tearDown().
+		$notices    = $this->capture_hook_callbacks( 'admin_notices' );
 
 		Algolia_Woo_Indexer::init();
 

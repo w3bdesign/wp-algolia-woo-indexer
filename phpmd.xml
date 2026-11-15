@@ -16,9 +16,29 @@
 	</rule>
 
 	<rule ref="rulesets/cleancode.xml" />
-	<rule ref="rulesets/codesize.xml" />
 	<rule ref="rulesets/design.xml" />
 	<rule ref="rulesets/unusedcode.xml" />
+
+	<!--
+		Match Codacy, which blocks merges: at most 10 methods per class, and only
+		getters and setters are exempt. PHPMD's own default allows 25 and also
+		exempts is*, has*, with* and test* methods, which hid findings locally.
+	-->
+	<rule ref="rulesets/codesize.xml">
+		<exclude name="TooManyMethods" />
+	</rule>
+	<rule ref="rulesets/codesize.xml/TooManyMethods">
+		<properties>
+			<property name="maximum" value="10" />
+			<property name="ignorepattern" value="(^(set|get))i" />
+		</properties>
+	</rule>
+
+	<!--
+		Codacy enables Superglobals. The rest of the controversial rule set is
+		left out because its CamelCase rules conflict with WordPress naming.
+	-->
+	<rule ref="rulesets/controversial.xml/Superglobals" />
 
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/tests/fixtures/*</exclude-pattern>

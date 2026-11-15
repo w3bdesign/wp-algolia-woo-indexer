@@ -221,18 +221,25 @@ one says nothing about the others.
    10.0 alpha passes cleanly on `classes/` and `tests/`
 2. **Codacy, running PHPMD.** It **blocks merges** and uses its own
    configuration, so it ignores the local `phpmd.xml`. Run
-   `composer phpmd` locally: `phpmd.xml` excludes only `LongVariable`, and
-   `phpmd.baseline.xml` records the 7 pre-existing findings in `classes/` so
+   `composer phpmd` locally. `phpmd.xml` mirrors the Codacy rules seen so
+   far: `TooManyMethods` with a maximum of 10 that also counts `test_*`
+   methods, and `Superglobals`. PHPMD's own defaults are looser and hid both
+   from local runs. The only rule excluded is `LongVariable`.
+   `phpmd.baseline.xml` records the 9 pre-existing findings in `classes/` so
    that only new violations fail. Do not grow the baseline to hide new
-   findings. Its `StaticAccess` rule fires on this codebase's
+   findings. If Codacy reports something `composer phpmd` did not, align
+   `phpmd.xml` with it rather than only fixing the instance Its `StaticAccess` rule fires on this codebase's
    deliberate static style. The accepted workaround is a
    `@SuppressWarnings(PHPMD.StaticAccess)` line in the docblock of the
    static hook callback, not a refactor to dependency injection. It is
    already applied to `maybe_send_products()`, `init()`,
    `send_new_product_to_algolia()`, `update_settings_options()` and
    `Algolia_Send_Products::send_products_to_algolia()`. Test classes use
-   class-level `@SuppressWarnings(PHPMD.StaticAccess)` and
-   `@SuppressWarnings(PHPMD.LongMethodName)` for the same reason
+   class-level `@SuppressWarnings(PHPMD.StaticAccess)`,
+   `@SuppressWarnings(PHPMD.LongMethodName)` and, where a class has more than
+   10 tests, `@SuppressWarnings(PHPMD.TooManyMethods)`. Read globals in tests
+   with `global $wp_version;`, not `$GLOBALS[...]`, which trips
+   `Superglobals`
 3. **A VIP-style PHPCS scanner** that reports `Squiz.Commenting.*` and
    `Generic.Commenting.*` errors the local `phpcs.xml` does not. Recurring
    ones: no blank line between `<?php` and the file docblock, `@param`
@@ -249,6 +256,13 @@ one says nothing about the others.
 - Fix coding standards: `composer phpcbf`. `phpcs-autofix.yml` also
   applies automatic fixes in CI
 - Run PHPMD: `composer phpmd`
+- **GitHub Actions are pinned to full commit SHAs** with a trailing version
+  comment (`uses: actions/checkout@<40-char sha> # v7.0.1`), never to a tag
+  such as `@v7`, because tags can be moved. Dependabot's `github-actions`
+  entry updates the SHA and the comment together. Pin new actions the same
+  way. Resolve a SHA with
+  `git ls-remote https://github.com/<owner>/<repo> 'refs/tags/<tag>^{}'`,
+  falling back to `refs/tags/<tag>` for lightweight tags
 
 ## Unit tests
 

@@ -85,8 +85,9 @@ abstract class Test_Case extends TestCase {
 		parent::setUp();
 		Monkey\setUp();
 
-		$this->original_wp_version = $GLOBALS['wp_version'] ?? null;
-		$GLOBALS['wp_version']     = '7.1'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Test fixture, restored in tearDown().
+		global $wp_version;
+		$this->original_wp_version = $wp_version ?? null;
+		$wp_version                = '7.1'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Test fixture, restored in tearDown().
 
 		Functions\stubTranslationFunctions();
 		Functions\stubEscapeFunctions();
@@ -133,7 +134,8 @@ abstract class Test_Case extends TestCase {
 		Built_In_Functions::reset();
 		$this->reset_plugin_statics();
 
-		$GLOBALS['wp_version'] = $this->original_wp_version; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restores the value saved in setUp().
+		global $wp_version;
+		$wp_version = $this->original_wp_version; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restores the value saved in setUp().
 
 		Monkey\tearDown();
 		parent::tearDown();
