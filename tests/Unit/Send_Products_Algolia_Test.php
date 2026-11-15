@@ -12,7 +12,6 @@ use Algolia\AlgoliaSearch\Response\NullResponse;
 use Algowoo\Algolia_Send_Products;
 use Algowoo\Tests\Support\Test_Case;
 use Brain\Monkey\Functions;
-use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -27,10 +26,10 @@ use stdClass;
  * real class is autoloaded, and it lasts for the whole process, so every test
  * here runs in its own process.
  *
- * PHPMD suppressions: the plugin API, Mockery and the built-in override registry are static and test names describe the behaviour under test.
+ * PHPMD suppression: the plugin's API is static, so it has to be called
+ * statically until the production code is refactored.
  *
  * @SuppressWarnings(PHPMD.StaticAccess)
- * @SuppressWarnings(PHPMD.LongMethodName)
  */
 #[CoversClass( Algolia_Send_Products::class )]
 #[RunTestsInSeparateProcesses]
@@ -66,15 +65,15 @@ final class Send_Products_Algolia_Test extends Test_Case {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->index = Mockery::mock();
-		$client      = Mockery::mock();
+		$this->index = mock();
+		$client      = mock();
 		$client->shouldReceive( 'initIndex' )->andReturnUsing(
 			function ( $index_name ) {
 				$this->client_args[] = $index_name;
 				return $this->index;
 			}
 		);
-		Mockery::mock( 'alias:Algolia\AlgoliaSearch\SearchClient' )
+		mock( 'alias:Algolia\AlgoliaSearch\SearchClient' )
 			->shouldReceive( 'create' )
 			->andReturnUsing(
 				function ( $app_id, $api_key ) use ( $client ) {
@@ -106,7 +105,7 @@ final class Send_Products_Algolia_Test extends Test_Case {
 	 * @return MockInterface
 	 */
 	private function product( $product_id, $type, $image ) {
-		$product = Mockery::mock();
+		$product = mock();
 		$product->shouldReceive( 'is_type' )->andReturnUsing(
 			static function ( $checked_type ) use ( $type ) {
 				return $checked_type === $type;
@@ -130,7 +129,7 @@ final class Send_Products_Algolia_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_sends_all_products_and_queues_plural_success_notice() {
+	public function test_sends_all_products() {
 		Functions\expect( 'wc_get_products' )
 			->once()
 			->with(
@@ -188,7 +187,7 @@ final class Send_Products_Algolia_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_sends_single_product_and_queues_singular_success_notice() {
+	public function test_sends_single_product() {
 		Functions\expect( 'wc_get_products' )
 			->once()
 			->with(
@@ -212,7 +211,7 @@ final class Send_Products_Algolia_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_non_string_options_fall_back_to_placeholder() {
+	public function test_non_string_options_use_placeholder() {
 		$this->stub_options( array() );
 		Functions\when( 'wc_get_products' )->justReturn( array() );
 
@@ -261,7 +260,7 @@ final class Send_Products_Algolia_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_null_response_queues_no_response_notice() {
+	public function test_null_response_queues_notice() {
 		Functions\when( 'wc_get_products' )->justReturn( array( $this->product( 1, 'simple', '' ) ) );
 		$this->index->shouldReceive( 'saveObjects' )->once()->andReturn( new NullResponse() );
 		$notices = $this->capture_hook_callbacks( 'admin_notices' );

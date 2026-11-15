@@ -17,14 +17,11 @@ use ReflectionProperty;
 
 /**
  * Sets up Brain Monkey, common WordPress stubs and isolation between tests.
- *
- * PHPMD suppressions: the plugin API, Mockery and the built-in override registry are static.
- *
- * @SuppressWarnings(PHPMD.StaticAccess)
  */
 abstract class Test_Case extends TestCase {
 
 	use MockeryPHPUnitIntegration;
+	use Overrides_Built_Ins;
 
 	/**
 	 * Plugin class files, in the order algolia-woo-indexer.php loads them.
@@ -105,9 +102,7 @@ abstract class Test_Case extends TestCase {
 				'wp_html_excerpt'     => static function ( $text, $length, $more = '' ) {
 					return mb_strlen( $text ) > $length ? mb_substr( $text, 0, $length ) . $more : $text;
 				},
-				'wp_json_encode'      => static function ( $data ) {
-					return json_encode( $data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- This is the wp_json_encode() stub.
-				},
+				'wp_json_encode'      => 'json_encode',
 				'number_format_i18n'  => static function ( $number ) {
 					return number_format( (float) $number );
 				},
@@ -119,8 +114,8 @@ abstract class Test_Case extends TestCase {
 
 		Functions\when( 'wp_die' )->alias(
 			static function ( $message = '', $title = '', $args = array() ) {
-				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Never rendered; tests assert on the raw message.
-				throw new Wp_Die_Exception( (string) $message, (string) $title, (array) $args );
+				$exception = new Wp_Die_Exception( esc_html( (string) $message ), esc_html( (string) $title ), (array) $args );
+				throw $exception;
 			}
 		);
 	}
@@ -131,7 +126,7 @@ abstract class Test_Case extends TestCase {
 	 * @return void
 	 */
 	protected function tearDown(): void {
-		Built_In_Functions::reset();
+		$this->reset_built_ins();
 		$this->reset_plugin_statics();
 
 		global $wp_version;

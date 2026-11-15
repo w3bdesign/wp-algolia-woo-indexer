@@ -8,19 +8,17 @@
 namespace Algowoo\Tests\Unit;
 
 use Algowoo\Algolia_Send_Products;
-use Algowoo\Tests\Support\Built_In_Functions;
 use Algowoo\Tests\Support\Test_Case;
 use Brain\Monkey\Functions;
-use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Covers price selection and the early exits of send_products_to_algolia().
  *
- * PHPMD suppressions: the plugin API, Mockery and the built-in override registry are static and test names describe the behaviour under test.
+ * PHPMD suppression: the plugin's API is static, so it has to be called
+ * statically until the production code is refactored.
  *
  * @SuppressWarnings(PHPMD.StaticAccess)
- * @SuppressWarnings(PHPMD.LongMethodName)
  */
 #[CoversClass( Algolia_Send_Products::class )]
 final class Send_Products_Test extends Test_Case {
@@ -31,7 +29,7 @@ final class Send_Products_Test extends Test_Case {
 	 * @return void
 	 */
 	public function test_simple_product_prices() {
-		$product = Mockery::mock();
+		$product = mock();
 		$product->shouldReceive( 'is_type' )->with( 'simple' )->andReturn( true );
 		$product->shouldReceive( 'get_sale_price' )->andReturn( '5' );
 		$product->shouldReceive( 'get_regular_price' )->andReturn( '10' );
@@ -51,7 +49,7 @@ final class Send_Products_Test extends Test_Case {
 	 * @return void
 	 */
 	public function test_variable_product_prices() {
-		$product = Mockery::mock();
+		$product = mock();
 		$product->shouldReceive( 'is_type' )->with( 'simple' )->andReturn( false );
 		$product->shouldReceive( 'is_type' )->with( 'variable' )->andReturn( true );
 		$product->shouldReceive( 'get_variation_sale_price' )->once()->with( 'min', true )->andReturn( '3' );
@@ -71,8 +69,8 @@ final class Send_Products_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_other_product_types_get_zero_prices() {
-		$product = Mockery::mock();
+	public function test_other_types_get_zero_prices() {
+		$product = mock();
 		$product->shouldReceive( 'is_type' )->andReturn( false );
 
 		self::assertSame(
@@ -91,7 +89,7 @@ final class Send_Products_Test extends Test_Case {
 	 */
 	public function test_missing_autoloader_queues_notice() {
 		$checked_paths = array();
-		Built_In_Functions::override(
+		$this->override_built_in(
 			'file_exists',
 			static function ( $path ) use ( &$checked_paths ) {
 				$checked_paths[] = $path;
@@ -115,7 +113,7 @@ final class Send_Products_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_incomplete_settings_stop_before_fetching_products() {
+	public function test_incomplete_settings_stop_early() {
 		$this->stub_options(
 			array(
 				'_algolia_woo_indexer_application_id' => 'APP',

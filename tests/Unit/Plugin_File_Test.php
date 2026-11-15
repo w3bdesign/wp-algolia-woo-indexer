@@ -11,7 +11,6 @@ use Algowoo\Algolia_Woo_Indexer;
 use ArrayObject;
 use Algowoo\Tests\Support\Test_Case;
 use Brain\Monkey\Functions;
-use Mockery;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
@@ -20,11 +19,6 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
  *
  * There is no CoversClass attribute, because a plain file has no class to
  * name. Coverage is attributed to whatever the test executes.
- *
- * PHPMD suppressions: the plugin API, Mockery and the built-in override registry are static and test names describe the behaviour under test.
- *
- * @SuppressWarnings(PHPMD.StaticAccess)
- * @SuppressWarnings(PHPMD.LongMethodName)
  */
 final class Plugin_File_Test extends Test_Case {
 
@@ -53,7 +47,7 @@ final class Plugin_File_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_registers_lifecycle_hooks_on_singleton() {
+	public function test_registers_lifecycle_hooks() {
 		$plugin_file  = self::plugin_dir() . '/algolia-woo-indexer.php';
 		$registered   = array();
 		$record_hooks = static function ( $kind ) use ( &$registered ) {
@@ -66,7 +60,8 @@ final class Plugin_File_Test extends Test_Case {
 
 		$this->load_plugin_file();
 
-		$instance = Algolia_Woo_Indexer::get_instance();
+		$instance = $this->get_static_property( Algolia_Woo_Indexer::class, 'instance' );
+		self::assertInstanceOf( Algolia_Woo_Indexer::class, $instance );
 		self::assertSame( array( $plugin_file, array( $instance, 'activate_plugin' ) ), $registered['activation'] );
 		self::assertSame( array( $plugin_file, array( $instance, 'deactivate_plugin' ) ), $registered['deactivation'] );
 	}
@@ -76,7 +71,7 @@ final class Plugin_File_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_compatibility_callback_skips_without_woocommerce() {
+	public function test_compat_skipped_without_woocommerce() {
 		Functions\when( 'register_activation_hook' )->justReturn( null );
 		Functions\when( 'register_deactivation_hook' )->justReturn( null );
 
@@ -95,9 +90,9 @@ final class Plugin_File_Test extends Test_Case {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_compatibility_callback_declares_hpos_and_blocks() {
+	public function test_declares_hpos_and_blocks() {
 		$plugin_file = self::plugin_dir() . '/algolia-woo-indexer.php';
-		$features    = Mockery::mock( 'alias:Automattic\WooCommerce\Utilities\FeaturesUtil' );
+		$features    = mock( 'alias:Automattic\WooCommerce\Utilities\FeaturesUtil' );
 		$features->shouldReceive( 'declare_compatibility' )->once()->with( 'custom_order_tables', $plugin_file, true );
 		$features->shouldReceive( 'declare_compatibility' )->once()->with( 'cart_checkout_blocks', $plugin_file, true );
 		Functions\when( 'register_activation_hook' )->justReturn( null );

@@ -12,8 +12,10 @@ namespace Algowoo\Tests\Support;
  *
  * The plugin classes live in the Algowoo namespace and call built-ins such as
  * filter_input() unqualified, so PHP resolves Algowoo\filter_input() first.
- * tests/shims.php defines those namespaced functions and routes every call
- * through this registry, which falls back to the real built-in.
+ * tests/shims.php defines those namespaced functions. Because they are plain
+ * functions, they reach the shared instance through the global
+ * $algowoo_built_ins, created in tests/bootstrap.php. Tests use the
+ * Overrides_Built_Ins trait rather than this class directly.
  */
 final class Built_In_Functions {
 
@@ -22,7 +24,7 @@ final class Built_In_Functions {
 	 *
 	 * @var array<string, callable>
 	 */
-	private static $overrides = array();
+	private $overrides = array();
 
 	/**
 	 * Replace a built-in function until the next reset().
@@ -31,37 +33,8 @@ final class Built_In_Functions {
 	 * @param callable $callback Replacement receiving the original arguments.
 	 * @return void
 	 */
-	public static function override( $name, callable $callback ) {
-		self::$overrides[ $name ] = $callback;
-	}
-
-	/**
-	 * Make filter_input( INPUT_POST, ... ) read from the given array.
-	 *
-	 * Mirrors the real behaviour for FILTER_DEFAULT: a missing field is null,
-	 * and a value whose shape does not match FILTER_REQUIRE_ARRAY is false.
-	 *
-	 * @param array $post Simulated POST data.
-	 * @return void
-	 */
-	public static function set_post_data( array $post ) {
-		self::override(
-			'filter_input',
-			static function ( $type, $var_name, $filter = FILTER_DEFAULT, $options = 0 ) use ( $post ) {
-				unset( $filter );
-				if ( INPUT_POST !== $type || ! array_key_exists( $var_name, $post ) ) {
-					return null;
-				}
-
-				$value         = $post[ $var_name ];
-				$require_array = is_int( $options ) && ( $options & FILTER_REQUIRE_ARRAY );
-				if ( is_array( $value ) !== (bool) $require_array ) {
-					return false;
-				}
-
-				return $value;
-			}
-		);
+	public function override( $name, callable $callback ) {
+		$this->overrides[ $name ] = $callback;
 	}
 
 	/**
@@ -71,9 +44,9 @@ final class Built_In_Functions {
 	 * @param array  $args Arguments passed by the plugin code.
 	 * @return mixed
 	 */
-	public static function call( $name, array $args ) {
-		if ( isset( self::$overrides[ $name ] ) ) {
-			return ( self::$overrides[ $name ] )( ...$args );
+	public function call( $name, array $args ) {
+		if ( isset( $this->overrides[ $name ] ) ) {
+			return ( $this->overrides[ $name ] )( ...$args );
 		}
 
 		return ( '\\' . $name )( ...$args );
@@ -84,7 +57,7 @@ final class Built_In_Functions {
 	 *
 	 * @return void
 	 */
-	public static function reset() {
-		self::$overrides = array();
+	public function reset() {
+		$this->overrides = array();
 	}
 }

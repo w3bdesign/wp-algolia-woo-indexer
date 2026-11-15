@@ -228,18 +228,28 @@ one says nothing about the others.
    `phpmd.baseline.xml` records the 9 pre-existing findings in `classes/` so
    that only new violations fail. Do not grow the baseline to hide new
    findings. If Codacy reports something `composer phpmd` did not, align
-   `phpmd.xml` with it rather than only fixing the instance Its `StaticAccess` rule fires on this codebase's
-   deliberate static style. The accepted workaround is a
+   `phpmd.xml` with it rather than only fixing the instance.
+   Its `StaticAccess` rule fires on this codebase's deliberate static
+   style. The accepted workaround is a
    `@SuppressWarnings(PHPMD.StaticAccess)` line in the docblock of the
    static hook callback, not a refactor to dependency injection. It is
    already applied to `maybe_send_products()`, `init()`,
    `send_new_product_to_algolia()`, `update_settings_options()` and
-   `Algolia_Send_Products::send_products_to_algolia()`. Test classes use
-   class-level `@SuppressWarnings(PHPMD.StaticAccess)`,
-   `@SuppressWarnings(PHPMD.LongMethodName)` and, where a class has more than
-   10 tests, `@SuppressWarnings(PHPMD.TooManyMethods)`. Read globals in tests
-   with `global $wp_version;`, not `$GLOBALS[...]`, which trips
-   `Superglobals`
+   `Algolia_Send_Products::send_products_to_algolia()`.
+   **Do not add suppressions to make a finding go away without asking the
+   maintainer first. Fix the finding instead.** The only suppressions in
+   `tests/` are:
+   - a class-level `@SuppressWarnings(PHPMD.StaticAccess)` on test classes
+     that call the plugin's static API, which cannot be avoided until that
+     API is refactored. Never use it to cover Mockery or helper statics: use
+     Mockery's global `mock()` function and the `Overrides_Built_Ins` trait
+   - `phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited` where a
+     test sets `$wp_version`, which production reads
+   Keep test method names at 40 characters or fewer (`LongMethodName`) and
+   test classes at 10 methods or fewer (`TooManyMethods`, data providers
+   count). Split a class around a shared abstract base in `tests/Support/`
+   rather than suppressing. Read globals with `global $wp_version;`, not
+   `$GLOBALS[...]`, which trips `Superglobals`
 3. **A VIP-style PHPCS scanner** that reports `Squiz.Commenting.*` and
    `Generic.Commenting.*` errors the local `phpcs.xml` does not. Recurring
    ones: no blank line between `<?php` and the file docblock, `@param`
@@ -281,8 +291,10 @@ one says nothing about the others.
   The plugin calls `filter_input()`, `extension_loaded()`,
   `function_exists()`, `file_exists()` and `version_compare()` unqualified
   inside `namespace Algowoo`, so `tests/shims.php` defines `Algowoo\*`
-  versions that delegate to `Built_In_Functions`. Use
-  `Built_In_Functions::set_post_data()` to simulate `$_POST`, because
+  versions that delegate to a `Built_In_Functions` instance held in the
+  global `$algowoo_built_ins`, created in `tests/bootstrap.php`. In tests,
+  use `$this->override_built_in()` and `$this->set_post_data()` from the
+  `Overrides_Built_Ins` trait; the latter simulates `$_POST`, because
   `filter_input()` never sees request data under the CLI. Shims must exist
   before any plugin file loads, because PHP caches how an unqualified call
   resolves. To fake another built-in, add a shim there
@@ -292,7 +304,9 @@ one says nothing about the others.
   alias and assert on them instead, or don't stub it in `setUp()`
 - Anything that reaches `SearchClient::create()` lives in
   `Send_Products_Algolia_Test`, which runs each test in a separate process
-  with a Mockery `alias:` mock. `Uninstall_Test` also runs in a separate
+  with a Mockery `alias:` mock created through the global `mock()` helper.
+  `tests/fixtures/class-wp-error.php` is a minimal `WP_Error` for transport
+  error tests. `Uninstall_Test` also runs in a separate
   process with `$load_plugin_classes = false`, because `uninstall.php`
   defines `ALGOWOO_DB_OPTION` itself
 - The bundled Algolia client v2.8.0 raises deprecation notices on PHP 8.5

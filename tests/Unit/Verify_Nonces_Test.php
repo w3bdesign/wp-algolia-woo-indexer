@@ -8,7 +8,6 @@
 namespace Algowoo\Tests\Unit;
 
 use Algowoo\Algolia_Verify_Nonces;
-use Algowoo\Tests\Support\Built_In_Functions;
 use Algowoo\Tests\Support\Test_Case;
 use Algowoo\Tests\Support\Wp_Die_Exception;
 use Brain\Monkey\Functions;
@@ -18,10 +17,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Covers the settings and send-products form verification.
  *
- * PHPMD suppressions: the plugin API, Mockery and the built-in override registry are static and test names describe the behaviour under test.
+ * PHPMD suppression: the plugin's API is static, so it has to be called
+ * statically until the production code is refactored.
  *
  * @SuppressWarnings(PHPMD.StaticAccess)
- * @SuppressWarnings(PHPMD.LongMethodName)
  */
 #[CoversClass( Algolia_Verify_Nonces::class )]
 final class Verify_Nonces_Test extends Test_Case {
@@ -72,8 +71,8 @@ final class Verify_Nonces_Test extends Test_Case {
 	 * @return void
 	 */
 	#[DataProvider( 'settings_not_submitted' )]
-	public function test_settings_nonce_returns_false_when_form_not_submitted( array $post ) {
-		Built_In_Functions::set_post_data( $post );
+	public function test_settings_form_not_submitted( array $post ) {
+		$this->set_post_data( $post );
 		Functions\expect( 'current_user_can' )->never();
 		Functions\expect( 'wp_verify_nonce' )->never();
 
@@ -85,8 +84,8 @@ final class Verify_Nonces_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_settings_nonce_dies_without_capability() {
-		Built_In_Functions::set_post_data( array( self::SETTINGS_FIELD => 'abc' ) );
+	public function test_settings_needs_capability() {
+		$this->set_post_data( array( self::SETTINGS_FIELD => 'abc' ) );
 		Functions\expect( 'current_user_can' )->once()->with( 'manage_options' )->andReturn( false );
 		Functions\expect( 'wp_verify_nonce' )->never();
 
@@ -98,8 +97,8 @@ final class Verify_Nonces_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_settings_nonce_dies_on_invalid_nonce() {
-		Built_In_Functions::set_post_data( array( self::SETTINGS_FIELD => 'forged' ) );
+	public function test_settings_rejects_bad_nonce() {
+		$this->set_post_data( array( self::SETTINGS_FIELD => 'forged' ) );
 		Functions\when( 'current_user_can' )->justReturn( true );
 		Functions\expect( 'wp_verify_nonce' )->once()->with( 'forged', self::SETTINGS_ACTION )->andReturn( false );
 
@@ -111,8 +110,8 @@ final class Verify_Nonces_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_settings_nonce_accepts_valid_nonce() {
-		Built_In_Functions::set_post_data( array( self::SETTINGS_FIELD => ' abc\\123 ' ) );
+	public function test_settings_accepts_valid_nonce() {
+		$this->set_post_data( array( self::SETTINGS_FIELD => ' abc\\123 ' ) );
 		Functions\when( 'current_user_can' )->justReturn( true );
 		Functions\expect( 'wp_verify_nonce' )->once()->with( 'abc123', self::SETTINGS_ACTION )->andReturn( 1 );
 
@@ -124,8 +123,8 @@ final class Verify_Nonces_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_send_nonce_returns_false_without_send_flag() {
-		Built_In_Functions::set_post_data( array( self::SEND_FIELD => 'abc' ) );
+	public function test_send_form_not_submitted() {
+		$this->set_post_data( array( self::SEND_FIELD => 'abc' ) );
 		Functions\expect( 'current_user_can' )->never();
 		Functions\expect( 'wp_verify_nonce' )->never();
 
@@ -137,8 +136,8 @@ final class Verify_Nonces_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_send_nonce_dies_without_capability() {
-		Built_In_Functions::set_post_data(
+	public function test_send_needs_capability() {
+		$this->set_post_data(
 			array(
 				self::SEND_FLAG  => 'true',
 				self::SEND_FIELD => 'abc',
@@ -155,8 +154,8 @@ final class Verify_Nonces_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_send_nonce_dies_when_nonce_missing() {
-		Built_In_Functions::set_post_data( array( self::SEND_FLAG => 'true' ) );
+	public function test_send_rejects_missing_nonce() {
+		$this->set_post_data( array( self::SEND_FLAG => 'true' ) );
 		Functions\when( 'current_user_can' )->justReturn( true );
 		Functions\expect( 'wp_verify_nonce' )->never();
 
@@ -168,8 +167,8 @@ final class Verify_Nonces_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_send_nonce_dies_on_invalid_nonce() {
-		Built_In_Functions::set_post_data(
+	public function test_send_rejects_bad_nonce() {
+		$this->set_post_data(
 			array(
 				self::SEND_FLAG  => 'true',
 				self::SEND_FIELD => 'forged',
@@ -186,8 +185,8 @@ final class Verify_Nonces_Test extends Test_Case {
 	 *
 	 * @return void
 	 */
-	public function test_send_nonce_accepts_valid_request() {
-		Built_In_Functions::set_post_data(
+	public function test_send_accepts_valid_request() {
+		$this->set_post_data(
 			array(
 				self::SEND_FLAG  => 'true',
 				self::SEND_FIELD => 'abc',
