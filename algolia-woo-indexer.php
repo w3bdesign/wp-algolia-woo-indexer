@@ -5,7 +5,7 @@
  * Text Domain:     algolia-woo-indexer
  * Author:          Daniel Fjeldstad
  * Requires at least: 7.1
- * Requires PHP: 8.4
+ * Requires PHP: 8.5
  * WC requires at least: 11.2.1
  * Version:         1.0.9
  * License:         AGPLv3 or later

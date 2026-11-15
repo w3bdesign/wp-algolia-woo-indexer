@@ -2,7 +2,7 @@
 Contributors: Daniel F
 Tags: algolia, woocommerce, search, algolia search, algolia indexing
 Requires at least: 7.1
-Requires PHP: 8.4
+Requires PHP: 8.5
 Stable tag: 1.0.9
 License: AGPLv3 or later
 License URI: https://www.gnu.org/licenses/agpl-3.0.html
@@ -43,6 +43,10 @@ Check connectivity, the Application ID, index name, and the key's Add records (a
 
 
 == Changelog ==
+
+= Unreleased =
+* Require PHP 8.5 or newer
+* Add a PHPUnit test suite and PHPMD configuration
 
 = 1.0.9 =
 * Require PHP 8.4 or newer

@@ -9,17 +9,37 @@
     }
   ],
   "require": {
+    "php": ">=8.5",
     "algolia/algoliasearch-client-php": "^2.6"
   },
   "config": {
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true,
       "phpcompatibility/phpcs-compatinfo": true
+    },
+    "platform": {
+      "php": "8.5.0"
     }
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "*",
     "wp-coding-standards/wpcs": "*",
-    "phpcompatibility/phpcompatibility-wp": "*"
+    "phpcompatibility/phpcompatibility-wp": "*",
+    "phpunit/phpunit": "^13.4",
+    "brain/monkey": "^2.7",
+    "mockery/mockery": "^1.6",
+    "phpmd/phpmd": "^3.0"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Algowoo\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit",
+    "test:coverage": "@php -d pcov.enabled=1 vendor/bin/phpunit --coverage-text --coverage-clover=build/coverage/clover.xml",
+    "phpcs": "phpcs .",
+    "phpcbf": "phpcbf .",
+    "phpmd": "phpmd analyze classes tests algolia-woo-indexer.php uninstall.php --ruleset phpmd.xml --no-progress"
   }
 }

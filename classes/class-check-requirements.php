@@ -12,7 +12,7 @@ namespace Algowoo;
  * Define minimum required versions of PHP and WordPress.
  * Keep these in sync with the plugin header, readme.txt and README.md.
  */
-define( 'ALGOLIA_MIN_PHP_VERSION', '8.4' );
+define( 'ALGOLIA_MIN_PHP_VERSION', '8.5' );
 define( 'ALGOLIA_MIN_WP_VERSION', '7.1' );
 
 /**

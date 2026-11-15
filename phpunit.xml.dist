@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         cacheDirectory=".phpunit.cache"
+         colors="true"
+         beStrictAboutOutputDuringTests="true"
+         failOnRisky="true"
+         failOnWarning="true"
+         failOnNotice="true"
+         failOnDeprecation="true"
+         failOnPhpunitDeprecation="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnPhpunitDeprecations="true">
+	<testsuites>
+		<testsuite name="unit">
+			<directory suffix="_Test.php">tests/Unit</directory>
+		</testsuite>
+	</testsuites>
+
+	<source ignoreIndirectDeprecations="true">
+		<include>
+			<directory suffix=".php">classes</directory>
+			<file>algolia-woo-indexer.php</file>
+			<file>uninstall.php</file>
+		</include>
+	</source>
+</phpunit>
