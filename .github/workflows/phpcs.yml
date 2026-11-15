@@ -12,11 +12,11 @@ jobs:
     name: Run PHPCS inspection
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         ref: ${{ github.event.pull_request.head.sha }}
     - name: Run PHPCS inspection
-      uses: rtCamp/action-phpcs-code-review@v3.1.1
+      uses: rtCamp/action-phpcs-code-review@fa47f3f2edd41a479d7f02688caf6fbdaba29175 # v3.1.1
       env:
         GH_BOT_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
         SKIP_FOLDERS: "tests,.github,vendor"

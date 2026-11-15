@@ -42,5 +42,7 @@ and must not contradict it.
 - `uninstall.php` only runs when `WP_UNINSTALL_PLUGIN` is defined, and it
   deletes options by literal suffix. An option added without a matching
   `delete_option()` line will be orphaned
-- There is no test suite. Reproduce inside a real WordPress plus
-  WooCommerce install
+- Unit tests (`composer test`) cover the plugin logic with WordPress and
+  Algolia mocked; see "Unit tests" in the root `AGENTS.md`. Integration
+  behaviour, such as real hooks, the database or Algolia itself, still has to
+  be reproduced inside a real WordPress plus WooCommerce install

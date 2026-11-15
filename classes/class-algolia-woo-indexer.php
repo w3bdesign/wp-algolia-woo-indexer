@@ -29,8 +29,9 @@ if ( ! function_exists( 'is_plugin_active' ) ) {
 if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 	/**
 	 * Algolia WooIndexer main class
+	 *
+	 * @todo Rename class "Algolia_Woo_Indexer" to match the regular expression ^[A-Z][a-zA-Z0-9]*$.
 	 */
-	// TODO Rename class "Algolia_Woo_Indexer" to match the regular expression ^[A-Z][a-zA-Z0-9]*$.
 	class Algolia_Woo_Indexer {
 
 		const PLUGIN_NAME      = 'Algolia Woo Indexer';

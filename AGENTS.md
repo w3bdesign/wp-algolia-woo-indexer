@@ -6,10 +6,13 @@ repository.
 ## Requirements
 
 - Plugin header in `algolia-woo-indexer.php` requires WordPress 7.1+,
-  PHP 8.4+, WooCommerce 11.2.1+
+  PHP 8.5+, WooCommerce 11.2.1+
 - Runtime checks use `ALGOLIA_MIN_PHP_VERSION` / `ALGOLIA_MIN_WP_VERSION`,
   defined in `classes/class-check-requirements.php`. Keep them in sync with
-  the plugin header, `readme.txt` and `README.md`
+  the plugin header, `readme.txt` and `README.md`. `composer.json` also
+  declares `"php": ">=8.5"` and pins `config.platform.php` to 8.5, and
+  `phpcs.xml` sets `testVersion` to `8.5-`. Raise them together. A unit test
+  asserts that the constant matches the plugin header
 - **`Requires at least: 7.1` is correct and is not a typo.** WordPress 7.0
   and 7.1 exist and 7.1.x is the current release line. Do not "fix" this to
   6.x. Verify any WordPress version claim against
@@ -212,16 +215,41 @@ one says nothing about the others.
    `PHPCompatibility`, excluding
    `WordPress.Files.FileName.NotHyphenatedLowercase` and
    `WordPress.Files.FileName.InvalidClassFileName`, ignoring `vendor`,
-   `node_modules`, `dev-lib`, `.github` and `algoliasearch-client-php`. Its
-   `testVersion` is still `7.3-`, stale versus the PHP 8.4 requirement
-2. **Codacy, running PHPMD.** It is not configured anywhere in the repo and
-   it **blocks merges**. Its `StaticAccess` rule fires on this codebase's
-   deliberate static style. The accepted workaround is a
+   `node_modules`, `dev-lib`, `.github` and `algoliasearch-client-php`.
+   `testVersion` is `8.5-`. `tests/` is checked too. The installed
+   PHPCompatibility 9.3.5 predates PHP 8, so it cannot flag 8.x issues; the
+   10.0 alpha passes cleanly on `classes/` and `tests/`
+2. **Codacy, running PHPMD.** It **blocks merges** and uses its own
+   configuration, so it ignores the local `phpmd.xml`. Run
+   `composer phpmd` locally. `phpmd.xml` mirrors the Codacy rules seen so
+   far: `TooManyMethods` with a maximum of 10 that also counts `test_*`
+   methods, and `Superglobals`. PHPMD's own defaults are looser and hid both
+   from local runs. The only rule excluded is `LongVariable`.
+   `phpmd.baseline.xml` records the 9 pre-existing findings in `classes/` so
+   that only new violations fail. Do not grow the baseline to hide new
+   findings. If Codacy reports something `composer phpmd` did not, align
+   `phpmd.xml` with it rather than only fixing the instance.
+   Its `StaticAccess` rule fires on this codebase's deliberate static
+   style. The accepted workaround is a
    `@SuppressWarnings(PHPMD.StaticAccess)` line in the docblock of the
    static hook callback, not a refactor to dependency injection. It is
    already applied to `maybe_send_products()`, `init()`,
    `send_new_product_to_algolia()`, `update_settings_options()` and
-   `Algolia_Send_Products::send_products_to_algolia()`
+   `Algolia_Send_Products::send_products_to_algolia()`.
+   **Do not add suppressions to make a finding go away without asking the
+   maintainer first. Fix the finding instead.** The only suppressions in
+   `tests/` are:
+   - a class-level `@SuppressWarnings(PHPMD.StaticAccess)` on test classes
+     that call the plugin's static API, which cannot be avoided until that
+     API is refactored. Never use it to cover Mockery or helper statics: use
+     Mockery's global `mock()` function and the `Overrides_Built_Ins` trait
+   - `phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited` where a
+     test sets `$wp_version`, which production reads
+     Keep test method names at 40 characters or fewer (`LongMethodName`) and
+     test classes at 10 methods or fewer (`TooManyMethods`, data providers
+     count). Split a class around a shared abstract base in `tests/Support/`
+     rather than suppressing. Read globals with `global $wp_version;`, not
+     `$GLOBALS[...]`, which trips `Superglobals`
 3. **A VIP-style PHPCS scanner** that reports `Squiz.Commenting.*` and
    `Generic.Commenting.*` errors the local `phpcs.xml` does not. Recurring
    ones: no blank line between `<?php` and the file docblock, `@param`
@@ -231,8 +259,57 @@ one says nothing about the others.
 ## Development Commands
 
 - Install dependencies: `composer install`
-- Run PHP_CodeSniffer: `vendor/bin/phpcs`
-- Fix coding standards: `vendor/bin/phpcbf`. `phpcs-autofix.yml` also
+- Run the unit tests: `composer test`
+- Coverage report: `composer test:coverage` (needs the `pcov` extension)
+- Run PHP_CodeSniffer: `composer phpcs`. `phpcs.xml` lists no files, so a
+  bare `vendor/bin/phpcs` errors; pass a path (`vendor/bin/phpcs .`)
+- Fix coding standards: `composer phpcbf`. `phpcs-autofix.yml` also
   applies automatic fixes in CI
-- There is no test suite. Plugin behaviour must be verified inside a
-  WordPress + WooCommerce environment
+- Run PHPMD: `composer phpmd`
+- **GitHub Actions are pinned to full commit SHAs** with a trailing version
+  comment (`uses: actions/checkout@<40-char sha> # v7.0.1`), never to a tag
+  such as `@v7`, because tags can be moved. Dependabot's `github-actions`
+  entry updates the SHA and the comment together. Pin new actions the same
+  way. Resolve a SHA with
+  `git ls-remote https://github.com/<owner>/<repo> 'refs/tags/<tag>^{}'`,
+  falling back to `refs/tags/<tag>` for lightweight tags
+
+## Unit tests
+
+- PHPUnit 13 with Brain Monkey and Mockery, with no WordPress install.
+  `tests/Unit/*_Test.php` holds the tests and `tests/Support/` holds the
+  shared base class and helpers. Class and file names use WordPress style
+  (`Send_Products_Test`) so PHPCS passes without exclusions
+- CI: `.github/workflows/phpunit.yml` runs the suite on PHP 8.5, **fails
+  below 90% line coverage**, and runs PHP 8.6 as a non-blocking job. The
+  only uncovered lines are the `exit;` direct-access guards
+- `tests/bootstrap.php` defines `ABSPATH` to point at `tests/fixtures/wordpress/`,
+  whose `wp-admin/includes/plugin.php` is deliberately empty. `Test_Case`
+  loads the class files once per process, in the main plugin file's order.
+  The global `define()`s mean they can never be loaded twice
+- **PHP built-ins are faked through namespaced shims, not Brain Monkey.**
+  The plugin calls `filter_input()`, `extension_loaded()`,
+  `function_exists()`, `file_exists()` and `version_compare()` unqualified
+  inside `namespace Algowoo`, so `tests/shims.php` defines `Algowoo\*`
+  versions that delegate to a `Built_In_Functions` instance held in the
+  global `$algowoo_built_ins`, created in `tests/bootstrap.php`. In tests,
+  use `$this->override_built_in()` and `$this->set_post_data()` from the
+  `Overrides_Built_Ins` trait; the latter simulates `$_POST`, because
+  `filter_input()` never sees request data under the CLI. Shims must exist
+  before any plugin file loads, because PHP caches how an unqualified call
+  resolves. To fake another built-in, add a shim there
+- **Brain Monkey trap:** when a function is stubbed with `Functions\when()`
+  in `setUp()`, a later `Functions\expect()` for that function in the test
+  is silently ignored, including `->never()`. Record calls in the `when()`
+  alias and assert on them instead, or don't stub it in `setUp()`
+- Anything that reaches `SearchClient::create()` lives in
+  `Send_Products_Algolia_Test`, which runs each test in a separate process
+  with a Mockery `alias:` mock created through the global `mock()` helper.
+  `tests/fixtures/class-wp-error.php` is a minimal `WP_Error` for transport
+  error tests. `Uninstall_Test` also runs in a separate
+  process with `$load_plugin_classes = false`, because `uninstall.php`
+  defines `ALGOWOO_DB_OPTION` itself
+- The bundled Algolia client v2.8.0 raises deprecation notices on PHP 8.5
+  (implicitly nullable parameters, `ArrayAccess` return types,
+  `curl_close()`). `ignoreIndirectDeprecations` keeps them from failing the
+  suite, while deprecations in plugin code still fail it

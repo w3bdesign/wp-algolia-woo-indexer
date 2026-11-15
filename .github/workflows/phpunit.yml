@@ -1,0 +1,82 @@
+name: PHPUnit
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phpunit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phpunit:
+    name: PHPUnit (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    # PHP 8.6 is not yet the minimum version, so a failure there is reported but does not block.
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: "8.5"
+            experimental: false
+            coverage: true
+          - php: "8.6"
+            experimental: true
+            coverage: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, curl, xml, dom, json, tokenizer
+          coverage: ${{ matrix.coverage && 'pcov' || 'none' }}
+          tools: composer
+
+      # composer.lock is not committed, so dependencies resolve fresh on each run.
+      # The platform config in composer.json pins resolution to PHP 8.5.
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Run PHPUnit
+        if: ${{ !matrix.coverage }}
+        run: vendor/bin/phpunit --colors=always
+
+      - name: Run PHPUnit with coverage
+        if: ${{ matrix.coverage }}
+        run: vendor/bin/phpunit --colors=always --coverage-text --coverage-clover=build/coverage/clover.xml
+
+      - name: Enforce minimum line coverage
+        if: ${{ matrix.coverage }}
+        env:
+          MIN_LINE_COVERAGE: "90"
+        run: |
+          php -r '
+            $metrics = simplexml_load_file("build/coverage/clover.xml")->project->metrics;
+            $covered = (int) $metrics["coveredstatements"];
+            $total   = (int) $metrics["statements"];
+            $percent = $total > 0 ? 100 * $covered / $total : 0;
+            $minimum = (float) getenv("MIN_LINE_COVERAGE");
+            $line    = sprintf("Line coverage: %.2f%% (%d/%d), minimum %.0f%%", $percent, $covered, $total, $minimum);
+            file_put_contents(getenv("GITHUB_STEP_SUMMARY"), "### PHPUnit\n\n" . $line . "\n", FILE_APPEND);
+            echo $line, PHP_EOL;
+            exit($percent >= $minimum ? 0 : 1);
+          '
+
+      - name: Upload coverage report
+        if: ${{ matrix.coverage && always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-clover
+          path: build/coverage/clover.xml
+          if-no-files-found: ignore

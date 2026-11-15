@@ -25,7 +25,9 @@ notes and must not contradict it.
 - Version requirements are declared in four places and must agree: the
   plugin header, `ALGOLIA_MIN_PHP_VERSION` / `ALGOLIA_MIN_WP_VERSION` in
   `classes/class-check-requirements.php`, `readme.txt` and `README.md`.
-  Current values are WordPress 7.1+, PHP 8.4+, WooCommerce 11.2.1+
+  The PHP minimum is also in `composer.json` and in `phpcs.xml`'s
+  `testVersion`. Current values are WordPress 7.1+, PHP 8.5+,
+  WooCommerce 11.2.1+
 - Licence is AGPL-3.0, declared in `LICENSE`, `readme.txt`,
   `algolia-woo-indexer.php`, `composer.json` and `README.md`
 - Constants are global `define()`s at the top of

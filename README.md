@@ -43,6 +43,10 @@ solutions.
   present
 - AI Repository documentation located in `/DOCS/repository_context.txt`
 - PHPCS Autofix with Github actions
+- PHPUnit test suite with at least 90% line coverage, enforced in GitHub
+  Actions. Run it with `composer test`, or `composer test:coverage` for a
+  coverage report (needs the `pcov` extension)
+- PHPMD configuration (`phpmd.xml`), run with `composer phpmd`
 - AI Assistant guidance files (`AGENTS.md` and `.roo/rules-*/AGENTS.md`) for
   immediate productivity with AI coding tools
 
@@ -52,7 +56,7 @@ solutions.
 - Access to install and activate plugins (usually administrator rights)
 - WordPress 7.1 or newer
 - WooCommerce 11.2.1 or newer
-- PHP 8.4 or newer
+- PHP 8.5 or newer
 - PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
 - All products MUST have a category assigned (Uncategorized is not a
   category), or they will not be submitted

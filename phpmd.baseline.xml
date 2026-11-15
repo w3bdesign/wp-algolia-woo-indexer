@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<phpmd-baseline>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="classes/class-algolia-connection-status.php" method="get_algolia_response_status"/>
+  <violation rule="PHPMD\Rule\CleanCode\StaticAccess" file="classes/class-algolia-settings-fields.php"/>
+  <violation rule="PHPMD\Rule\Design\TooManyPublicMethods" file="classes/class-algolia-woo-indexer.php"/>
+  <violation rule="PHPMD\Rule\Design\TooManyMethods" file="classes/class-algolia-woo-indexer.php"/>
+  <violation rule="PHPMD\Rule\Controversial\Superglobals" file="classes/class-check-requirements.php" method="algolia_wp_version_check"/>
+  <violation rule="PHPMD\Rule\Naming\ShortVariable" file="classes/class-send-products.php"/>
+  <violation rule="PHPMD\Rule\CyclomaticComplexity" file="classes/class-send-products.php" method="send_products_to_algolia"/>
+  <violation rule="PHPMD\Rule\Design\NPathComplexity" file="classes/class-send-products.php" method="send_products_to_algolia"/>
+  <violation rule="PHPMD\Rule\Design\ExcessiveMethodLength" file="classes/class-send-products.php" method="send_products_to_algolia"/>
+</phpmd-baseline>
