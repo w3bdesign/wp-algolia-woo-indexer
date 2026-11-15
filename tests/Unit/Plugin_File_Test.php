@@ -94,13 +94,26 @@ final class Plugin_File_Test extends Test_Case {
 	 */
 	public function test_declares_hpos_and_blocks() {
 		$plugin_file = self::plugin_dir() . '/algolia-woo-indexer.php';
-		$features    = mock( 'alias:Automattic\WooCommerce\Utilities\FeaturesUtil' );
-		$features->shouldReceive( 'declare_compatibility' )->once()->with( 'custom_order_tables', $plugin_file, true );
-		$features->shouldReceive( 'declare_compatibility' )->once()->with( 'cart_checkout_blocks', $plugin_file, true );
+		$declared    = new ArrayObject();
+		mock( 'alias:Automattic\WooCommerce\Utilities\FeaturesUtil' )
+			->shouldReceive( 'declare_compatibility' )
+			->andReturnUsing(
+				static function ( ...$args ) use ( $declared ) {
+					$declared[] = $args;
+				}
+			);
 		Functions\when( 'register_activation_hook' )->justReturn( null );
 		Functions\when( 'register_deactivation_hook' )->justReturn( null );
 
 		$callbacks = $this->load_plugin_file();
 		$callbacks[0]();
+
+		self::assertSame(
+			array(
+				array( 'custom_order_tables', $plugin_file, true ),
+				array( 'cart_checkout_blocks', $plugin_file, true ),
+			),
+			$declared->getArrayCopy()
+		);
 	}
 }

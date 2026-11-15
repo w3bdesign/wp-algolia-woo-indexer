@@ -114,8 +114,7 @@ abstract class Test_Case extends TestCase {
 
 		Functions\when( 'wp_die' )->alias(
 			static function ( $message = '', $title = '', $args = array() ) {
-				$exception = new Wp_Die_Exception( esc_html( (string) $message ), esc_html( (string) $title ), (array) $args );
-				throw $exception;
+				throw new Wp_Die_Exception( esc_html( (string) $message ), esc_html( (string) $title ), (int) ( $args['response'] ?? 0 ) );
 			}
 		);
 	}
@@ -247,5 +246,28 @@ abstract class Test_Case extends TestCase {
 				return array_key_exists( $name, $options ) ? $options[ $name ] : false;
 			}
 		);
+	}
+
+	/**
+	 * Stub a WordPress function and record the arguments of every call.
+	 *
+	 * Lets a test assert on calls with PHPUnit instead of relying on
+	 * expectations, which static analysis does not count as assertions.
+	 *
+	 * @param string $function_name WordPress function to stub.
+	 * @param mixed  $return_value  Value each call returns.
+	 * @return ArrayObject One array of arguments per call, in call order.
+	 */
+	protected function record_calls( $function_name, $return_value = null ) {
+		$calls = new ArrayObject();
+
+		Functions\when( $function_name )->alias(
+			static function ( ...$args ) use ( $calls, $return_value ) {
+				$calls[] = $args;
+				return $return_value;
+			}
+		);
+
+		return $calls;
 	}
 }

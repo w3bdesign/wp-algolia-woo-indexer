@@ -83,11 +83,14 @@ final class Indexer_Init_Test extends Indexer_Test_Case {
 	public function test_auto_send_hooks_save_post( $is_admin ) {
 		Functions\when( 'is_admin' )->justReturn( $is_admin );
 		$this->stub_options( array( '_algolia_woo_indexer_automatically_send_new_products' => '1' ) );
-		Actions\expectAdded( 'save_post' )
-			->once()
-			->with( array( Algolia_Woo_Indexer::class, 'send_new_product_to_algolia' ), 10, 2 );
+		$hooks = $this->record_save_post_hooks();
 
 		Algolia_Woo_Indexer::init();
+
+		self::assertSame(
+			array( array( array( Algolia_Woo_Indexer::class, 'send_new_product_to_algolia' ), 10, 2 ) ),
+			$hooks->getArrayCopy()
+		);
 	}
 
 	/**
@@ -112,9 +115,11 @@ final class Indexer_Init_Test extends Indexer_Test_Case {
 	#[DataProvider( 'auto_send_disabled_values' )]
 	public function test_save_post_needs_string_one( $value ) {
 		$this->stub_options( array( '_algolia_woo_indexer_automatically_send_new_products' => $value ) );
-		Actions\expectAdded( 'save_post' )->never();
+		$hooks = $this->record_save_post_hooks();
 
 		Algolia_Woo_Indexer::init();
+
+		self::assertCount( 0, $hooks );
 	}
 
 	/**

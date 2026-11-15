@@ -43,7 +43,7 @@ final class Verify_Nonces_Test extends Test_Case {
 		} catch ( Wp_Die_Exception $exception ) {
 			self::assertSame( 'Action is not allowed.', $exception->getMessage() );
 			self::assertSame( 'Error!', $exception->title );
-			self::assertSame( array( 'response' => 403 ), $exception->args );
+			self::assertSame( 403, $exception->response );
 			return;
 		}
 

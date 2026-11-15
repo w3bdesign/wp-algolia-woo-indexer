@@ -96,10 +96,13 @@ final class Indexer_Lifecycle_Test extends Indexer_Test_Case {
 				'_algolia_woo_indexer_index_name'     => 'products',
 			)
 		);
-		Functions\expect( 'add_option' )->never();
-		Functions\expect( 'set_transient' )->once();
+		$added      = $this->record_calls( 'add_option' );
+		$transients = $this->record_calls( 'set_transient' );
 
 		Algolia_Woo_Indexer::activate_plugin();
+
+		self::assertCount( 0, $added );
+		self::assertSame( array( array( 'algowoo-plugin-notice', true ) ), $transients->getArrayCopy() );
 	}
 
 	/**
@@ -108,9 +111,12 @@ final class Indexer_Lifecycle_Test extends Indexer_Test_Case {
 	 * @return void
 	 */
 	public function test_deactivation_deletes_transient() {
-		Functions\expect( 'delete_transient' )->once()->with( 'algowoo-plugin-notice' );
-		Functions\expect( 'delete_option' )->never();
+		$transients = $this->record_calls( 'delete_transient' );
+		$options    = $this->record_calls( 'delete_option' );
 
 		Algolia_Woo_Indexer::deactivate_plugin();
+
+		self::assertSame( array( array( 'algowoo-plugin-notice' ) ), $transients->getArrayCopy() );
+		self::assertCount( 0, $options );
 	}
 }

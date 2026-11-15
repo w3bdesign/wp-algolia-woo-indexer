@@ -8,6 +8,7 @@
 namespace Algowoo\Tests\Support;
 
 use ArrayObject;
+use Brain\Monkey\Actions;
 use Brain\Monkey\Functions;
 
 /**
@@ -83,5 +84,23 @@ abstract class Indexer_Test_Case extends Test_Case {
 		);
 
 		return $this->capture_hook_callbacks( 'admin_notices' );
+	}
+
+	/**
+	 * Record every save_post registration with its priority and accepted arguments.
+	 *
+	 * @return ArrayObject One array of add_action() arguments per registration.
+	 */
+	protected function record_save_post_hooks() {
+		$hooks = new ArrayObject();
+		Actions\expectAdded( 'save_post' )
+			->zeroOrMoreTimes()
+			->whenHappen(
+				static function ( ...$args ) use ( $hooks ) {
+					$hooks[] = $args;
+				}
+			);
+
+		return $hooks;
 	}
 }

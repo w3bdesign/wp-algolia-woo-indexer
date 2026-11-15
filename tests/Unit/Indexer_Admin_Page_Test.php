@@ -32,18 +32,23 @@ final class Indexer_Admin_Page_Test extends Indexer_Test_Case {
 	 * @return void
 	 */
 	public function test_admin_menu_adds_settings_page() {
-		Functions\expect( 'add_submenu_page' )
-			->once()
-			->with(
-				'options-general.php',
-				'Algolia Woo Indexer Settings',
-				'Algolia Woo Indexer Settings',
-				'manage_options',
-				'algolia-woo-indexer-settings',
-				array( Algolia_Woo_Indexer::get_instance(), 'algolia_woo_indexer_settings' )
-			);
+		$pages = $this->record_calls( 'add_submenu_page' );
 
 		Algolia_Woo_Indexer::admin_menu();
+
+		self::assertSame(
+			array(
+				array(
+					'options-general.php',
+					'Algolia Woo Indexer Settings',
+					'Algolia Woo Indexer Settings',
+					'manage_options',
+					'algolia-woo-indexer-settings',
+					array( Algolia_Woo_Indexer::get_instance(), 'algolia_woo_indexer_settings' ),
+				),
+			),
+			$pages->getArrayCopy()
+		);
 	}
 
 	/**
@@ -52,9 +57,11 @@ final class Indexer_Admin_Page_Test extends Indexer_Test_Case {
 	 * @return void
 	 */
 	public function test_styles_skip_other_pages() {
-		Functions\expect( 'wp_enqueue_style' )->never();
+		$styles = $this->record_calls( 'wp_enqueue_style' );
 
 		Algolia_Woo_Indexer::enqueue_settings_styles( 'index.php' );
+
+		self::assertCount( 0, $styles );
 	}
 
 	/**
@@ -64,20 +71,26 @@ final class Indexer_Admin_Page_Test extends Indexer_Test_Case {
 	 */
 	public function test_styles_enqueued_on_settings_page() {
 		$plugin_dir = self::plugin_dir();
-		Functions\expect( 'plugins_url' )
-			->once()
-			->with( '/assets/css/admin.css', $plugin_dir . '/algolia-woo-indexer.php' )
-			->andReturn( 'https://shop.test/admin.css' );
-		Functions\expect( 'wp_enqueue_style' )
-			->once()
-			->with(
-				'algolia-woo-indexer-settings',
-				'https://shop.test/admin.css',
-				array(),
-				(string) filemtime( $plugin_dir . '/assets/css/admin.css' )
-			);
+		$urls       = $this->record_calls( 'plugins_url', 'https://shop.test/admin.css' );
+		$styles     = $this->record_calls( 'wp_enqueue_style' );
 
 		Algolia_Woo_Indexer::enqueue_settings_styles( 'settings_page_algolia-woo-indexer-settings' );
+
+		self::assertSame(
+			array( array( '/assets/css/admin.css', $plugin_dir . '/algolia-woo-indexer.php' ) ),
+			$urls->getArrayCopy()
+		);
+		self::assertSame(
+			array(
+				array(
+					'algolia-woo-indexer-settings',
+					'https://shop.test/admin.css',
+					array(),
+					(string) filemtime( $plugin_dir . '/assets/css/admin.css' ),
+				),
+			),
+			$styles->getArrayCopy()
+		);
 	}
 
 	/**
@@ -135,10 +148,13 @@ final class Indexer_Admin_Page_Test extends Indexer_Test_Case {
 	 * @return void
 	 */
 	public function test_load_textdomain_path() {
-		Functions\expect( 'load_plugin_textdomain' )
-			->once()
-			->with( 'algolia-woo-indexer', false, basename( self::plugin_dir() ) . '/languages/' );
+		$loads = $this->record_calls( 'load_plugin_textdomain' );
 
 		Algolia_Woo_Indexer::load_textdomain();
+
+		self::assertSame(
+			array( array( 'algolia-woo-indexer', false, basename( self::plugin_dir() ) . '/languages/' ) ),
+			$loads->getArrayCopy()
+		);
 	}
 }

@@ -8,7 +8,7 @@
 namespace Algowoo\Tests\Support;
 
 /**
- * Carries the arguments wp_die() was called with, so tests can assert on them.
+ * Carries the title and HTTP response code wp_die() was called with, so tests can assert on them.
  */
 final class Wp_Die_Exception extends \RuntimeException {
 
@@ -20,22 +20,22 @@ final class Wp_Die_Exception extends \RuntimeException {
 	public $title;
 
 	/**
-	 * Arguments passed to wp_die().
+	 * HTTP response code from the 'response' argument passed to wp_die(), or 0 when absent.
 	 *
-	 * @var array
+	 * @var int
 	 */
-	public $args;
+	public $response;
 
 	/**
 	 * Create the exception.
 	 *
-	 * @param string $message Message passed to wp_die().
-	 * @param string $title   Title passed to wp_die().
-	 * @param array  $args    Arguments passed to wp_die().
+	 * @param string $message  Message passed to wp_die().
+	 * @param string $title    Title passed to wp_die().
+	 * @param int    $response HTTP response code passed to wp_die().
 	 */
-	public function __construct( $message, $title, array $args ) {
+	public function __construct( $message, $title, $response ) {
 		parent::__construct( $message );
-		$this->title = $title;
-		$this->args  = $args;
+		$this->title    = $title;
+		$this->response = $response;
 	}
 }

@@ -30,11 +30,15 @@ final class Indexer_Settings_Test extends Indexer_Test_Case {
 	 * @return void
 	 */
 	public function test_sections_skipped_outside_admin() {
-		Functions\expect( 'register_setting' )->never();
-		Functions\expect( 'add_settings_section' )->never();
-		Functions\expect( 'add_settings_field' )->never();
+		$settings = $this->record_calls( 'register_setting' );
+		$sections = $this->record_calls( 'add_settings_section' );
+		$fields   = $this->record_calls( 'add_settings_field' );
 
 		Algolia_Woo_Indexer::setup_settings_sections();
+
+		self::assertCount( 0, $settings );
+		self::assertCount( 0, $sections );
+		self::assertCount( 0, $fields );
 	}
 
 	/**
