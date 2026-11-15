@@ -201,9 +201,13 @@ repository.
   contradict it. Historically they described AJAX endpoints, AJAX-driven
   singleton behaviour and a non-existent `prepare_product_data()` method.
   If any of that reappears, delete it
-- `README.md` claims the plugin will not submit products without a
-  category. No code in `classes/` filters on categories. The claim is
-  unverified; do not repeat it as fact and do not implement it unasked
+- `README.md` states the plugin will not submit products without a
+  category. The maintainer has confirmed this by testing, so keep the
+  claim. No code in `classes/` filters on categories, so the behaviour
+  comes from outside the plugin's own code. Do not implement category
+  filtering unasked
+- The legacy `_index_in_stock` option is only deleted by `uninstall.php`.
+  There is no in-stock setting, and `README.md` no longer claims one
 
 ## Static analysis: three independent gates
 

@@ -1,6 +1,8 @@
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/quality/g/w3bdesign/algolia-woo-indexer/master?style=flat-square&logo=scrutinizer)](https://scrutinizer-ci.com/g/w3bdesign/algolia-woo-indexer/?branch=master)
 [![Codacy Badge](https://img.shields.io/codacy/grade/bfe1f91c2d3a40e6953baabeee88f781?style=flat-square&logo=codacy)](https://app.codacy.com/gh/w3bdesign/wp-algolia-woo-indexer/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-[![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green?style=flat-square&logo=php)](https://github.com/w3bdesign/algolia-woo-indexer)
+[![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green?style=flat-square&logo=php)](https://github.com/w3bdesign/wp-algolia-woo-indexer)
+[![PHPUnit](https://img.shields.io/github/actions/workflow/status/w3bdesign/wp-algolia-woo-indexer/phpunit.yml?branch=master&style=flat-square&logo=github&label=PHPUnit)](https://github.com/w3bdesign/wp-algolia-woo-indexer/actions/workflows/phpunit.yml)
+[![SonarCloud](https://img.shields.io/sonar/quality_gate/w3bdesign_algolia-woo-indexer?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&label=SonarCloud)](https://sonarcloud.io/summary/new_code?id=w3bdesign_algolia-woo-indexer)
 
 ![Screenshot](/screenshots/screenshot1.jpg)
 
@@ -10,8 +12,7 @@
 
 ## Description
 
-This plugin transfers products from WooCommerce to Algolia. You can choose if it
-only sends products that are in stock.
+This plugin transfers products from WooCommerce to Algolia.
 
 Add the Application ID, Search API Key, Write API Key, and index name.
 Copy the built-in Search API Key from Algolia for connection checks.
@@ -78,7 +79,7 @@ solutions.
 - Paste the built-in Search API Key into the Search API Key field
 - Add the custom key to the Write API Key field on the plugin settings page
 - Add the name of the index that should be used to index WooCommerce products
-- Click on the `Send products with Algolia` button to send the products
+- Click on the `Send products to Algolia` button to send the products
   to Algolia
 
 ## Licence
@@ -99,7 +100,7 @@ upload products.
 Feel free to [open an issue][issues] and I will do my best to troubleshoot and
 assist.
 
-[issues]: https://github.com/w3bdesign/algolia-woo-indexer/issues
+[issues]: https://github.com/w3bdesign/wp-algolia-woo-indexer/issues
 
 ## TODO
 
