@@ -12,14 +12,20 @@ use ArrayObject;
 use Algowoo\Tests\Support\Test_Case;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Covers the bootstrap: loading classes, lifecycle hooks and WooCommerce compatibility.
  *
  * There is no CoversClass attribute, because a plain file has no class to
  * name. Coverage is attributed to whatever the test executes.
+ *
+ * WordPress loads the plugin file once per request, so each test runs in its
+ * own process and loads it once with require_once. That also keeps the
+ * FeaturesUtil alias mock from leaking into other tests.
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 final class Plugin_File_Test extends Test_Case {
 
 	/**
@@ -37,7 +43,7 @@ final class Plugin_File_Test extends Test_Case {
 		Functions\when( 'get_option' )->justReturn( false );
 		$callbacks = $this->capture_hook_callbacks( 'before_woocommerce_init' );
 
-		require self::plugin_dir() . '/algolia-woo-indexer.php';
+		require_once self::plugin_dir() . '/algolia-woo-indexer.php';
 
 		return $callbacks;
 	}
@@ -84,12 +90,8 @@ final class Plugin_File_Test extends Test_Case {
 	/**
 	 * With WooCommerce loaded, HPOS and Cart/Checkout Blocks compatibility are declared.
 	 *
-	 * Runs in its own process because the FeaturesUtil alias lasts for the process.
-	 *
 	 * @return void
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_declares_hpos_and_blocks() {
 		$plugin_file = self::plugin_dir() . '/algolia-woo-indexer.php';
 		$features    = mock( 'alias:Automattic\WooCommerce\Utilities\FeaturesUtil' );

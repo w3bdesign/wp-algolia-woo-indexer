@@ -45,7 +45,7 @@ final class Uninstall_Test extends Test_Case {
 		);
 		define( 'WP_UNINSTALL_PLUGIN', 'wp-algolia-woo-indexer/algolia-woo-indexer.php' );
 
-		require self::plugin_dir() . '/uninstall.php';
+		require_once self::plugin_dir() . '/uninstall.php';
 
 		self::assertSame( '_algolia_woo_indexer', ALGOWOO_DB_OPTION );
 		self::assertSame(
