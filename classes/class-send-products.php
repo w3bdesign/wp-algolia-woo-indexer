@@ -258,8 +258,8 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 		 * Access is validated through the write itself, so the key needs no key or
 		 * index listing permissions.
 		 *
-		 * @param \Algolia\AlgoliaSearch\SearchIndex     $index   Index to write to.
-		 * @param array<int, array<string, mixed>> $records Records to save.
+		 * @param \Algolia\AlgoliaSearch\SearchIndex $index   Index to write to.
+		 * @param array<int, array<string, mixed>>   $records Records to save.
 		 * @return object|null The client response, or null when Algolia threw an exception.
 		 */
 		private static function save_records( $index, $records ) {
