@@ -2672,28 +2672,6 @@ uninstall.php
 48:   be reproduced inside a real WordPress plus WooCommerce install
 ```
 
-## File: assets/css/admin.css
-```css
- 1: /**
- 2:  * Readable settings-page layout; controls retain WordPress core styling.
- 3:  */
- 4: .algowoo-settings {
- 5: 	max-width: 960px;
- 6: }
- 7: .algowoo-settings .algowoo-settings-field {
- 8: 	width: 25em;
- 9: 	max-width: 100%;
-10: }
-11: .algowoo-settings .algowoo-settings-field .regular-text {
-12: 	box-sizing: border-box;
-13: 	width: 100%;
-14: 	max-width: 100%;
-15: }
-16: .algowoo-settings .algowoo-settings-field .description {
-17: 	overflow-wrap: anywhere;
-18: }
-```
-
 ## File: classes/class-check-requirements.php
 ```php
   1: <?php
@@ -3864,6 +3842,25 @@ uninstall.php
 82:           fi
 ```
 
+## File: assets/css/admin.css
+```css
+ 1: .algowoo-settings {
+ 2:   max-width: 960px;
+ 3: }
+ 4: .algowoo-settings .algowoo-settings-field {
+ 5:   width: 25em;
+ 6:   max-width: 100%;
+ 7: }
+ 8: .algowoo-settings .algowoo-settings-field .regular-text {
+ 9:   box-sizing: border-box;
+10:   width: 100%;
+11:   max-width: 100%;
+12: }
+13: .algowoo-settings .algowoo-settings-field .description {
+14:   overflow-wrap: anywhere;
+15: }
+```
+
 ## File: classes/class-algolia-settings-fields.php
 ```php
   1: <?php
@@ -4594,256 +4591,6 @@ uninstall.php
 191: }
 ```
 
-## File: tests/Unit/Send_Products_Algolia_Test.php
-```php
-  1: <?php
-  2: /**
-  3:  * Tests for Algolia_Send_Products that reach the Algolia client.
-  4:  *
-  5:  * @package algolia-woo-indexer
-  6:  */
-  7: namespace Algowoo\Tests\Unit;
-  8: use Algolia\AlgoliaSearch\Exceptions\AlgoliaException;
-  9: use Algolia\AlgoliaSearch\Response\NullResponse;
- 10: use Algowoo\Algolia_Send_Products;
- 11: use Algowoo\Tests\Support\Test_Case;
- 12: use Brain\Monkey\Functions;
- 13: use Mockery\MockInterface;
- 14: use PHPUnit\Framework\Attributes\CoversClass;
- 15: use PHPUnit\Framework\Attributes\PreserveGlobalState;
- 16: use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
- 17: use stdClass;
- 18: /**
- 19:  * Covers record building and the outcomes of saveObjects().
- 20:  *
- 21:  * The plugin calls the static SearchClient::create(), so each test replaces
- 22:  * that class with a Mockery alias. An alias can only be declared before the
- 23:  * real class is autoloaded, and it lasts for the whole process, so every test
- 24:  * here runs in its own process.
- 25:  *
- 26:  * PHPMD suppression: the plugin's API is static, so it has to be called
- 27:  * statically until the production code is refactored.
- 28:  *
- 29:  * @SuppressWarnings("PHPMD.StaticAccess")
- 30:  */
- 31: #[CoversClass( Algolia_Send_Products::class )]
- 32: #[RunTestsInSeparateProcesses]
- 33: #[PreserveGlobalState( false )]
- 34: final class Send_Products_Algolia_Test extends Test_Case {
- 35: 	/**
- 36: 	 * Mocked Algolia index.
- 37: 	 *
- 38: 	 * @var MockInterface
- 39: 	 */
- 40: 	private $index;
- 41: 	/**
- 42: 	 * Number of wp_reset_postdata() calls.
- 43: 	 *
- 44: 	 * @var int
- 45: 	 */
- 46: 	private $postdata_resets = 0;
- 47: 	/**
- 48: 	 * Arguments SearchClient::create() was called with.
- 49: 	 *
- 50: 	 * @var array
- 51: 	 */
- 52: 	private $client_args = array();
- 53: 	/**
- 54: 	 * Replace the Algolia client and stub complete settings.
- 55: 	 *
- 56: 	 * @return void
- 57: 	 */
- 58: 	protected function setUp(): void {
- 59: 		parent::setUp();
- 60: 		$this->index = mock();
- 61: 		$client      = mock();
- 62: 		$client->shouldReceive( 'initIndex' )->andReturnUsing(
- 63: 			function ( $index_name ) {
- 64: 				$this->client_args[] = $index_name;
- 65: 				return $this->index;
- 66: 			}
- 67: 		);
- 68: 		mock( 'alias:Algolia\AlgoliaSearch\SearchClient' )
- 69: 			->shouldReceive( 'create' )
- 70: 			->andReturnUsing(
- 71: 				function ( $app_id, $api_key ) use ( $client ) {
- 72: 					$this->client_args = array( $app_id, $api_key );
- 73: 					return $client;
- 74: 				}
- 75: 			);
- 76: 		$this->stub_options(
- 77: 			array(
- 78: 				'_algolia_woo_indexer_application_id' => 'APP',
- 79: 				'_algolia_woo_indexer_admin_api_key'  => 'write-key',
- 80: 				'_algolia_woo_indexer_index_name'     => 'products',
- 81: 			)
- 82: 		);
- 83: 		Functions\when( 'wp_reset_postdata' )->alias(
- 84: 			function () {
- 85: 				++$this->postdata_resets;
- 86: 			}
- 87: 		);
- 88: 	}
- 89: 	/**
- 90: 	 * Build a mock WooCommerce product.
- 91: 	 *
- 92: 	 * @param int    $product_id Product ID.
- 93: 	 * @param string $type       Product type.
- 94: 	 * @param string $image      HTML returned by get_image().
- 95: 	 * @return MockInterface
- 96: 	 */
- 97: 	private function product( $product_id, $type, $image ) {
- 98: 		$product = mock();
- 99: 		$product->shouldReceive( 'is_type' )->andReturnUsing(
-100: 			static function ( $checked_type ) use ( $type ) {
-101: 				return $checked_type === $type;
-102: 			}
-103: 		);
-104: 		$product->shouldReceive( 'get_sale_price' )->andReturn( '8' );
-105: 		$product->shouldReceive( 'get_regular_price' )->andReturn( '10' );
-106: 		$product->shouldReceive( 'get_variation_sale_price' )->andReturn( '4' );
-107: 		$product->shouldReceive( 'get_variation_regular_price' )->andReturn( '12' );
-108: 		$product->shouldReceive( 'get_image' )->andReturn( $image );
-109: 		$product->shouldReceive( 'get_id' )->andReturn( $product_id );
-110: 		$product->shouldReceive( 'get_name' )->andReturn( 'Product ' . $product_id );
-111: 		$product->shouldReceive( 'get_short_description' )->andReturn( 'Short ' . $product_id );
-112: 		$product->shouldReceive( 'is_on_sale' )->andReturn( 'variable' === $type );
-113: 		return $product;
-114: 	}
-115: 	/**
-116: 	 * Sending everything fetches all published products and saves one record per product.
-117: 	 *
-118: 	 * @return void
-119: 	 */
-120: 	public function test_sends_all_products() {
-121: 		Functions\expect( 'wc_get_products' )
-122: 			->once()
-123: 			->with(
-124: 				array(
-125: 					'status'   => 'publish',
-126: 					'limit'    => -1,
-127: 					'paginate' => false,
-128: 				)
-129: 			)
-130: 			->andReturn(
-131: 				array(
-132: 					$this->product( 11, 'simple', '<img width="300" src="https://shop.test/a.jpg" class="wp-post-image" />' ),
-133: 					$this->product( 12, 'variable', '' ),
-134: 				)
-135: 			);
-136: 		$this->index->shouldReceive( 'saveObjects' )
-137: 			->once()
-138: 			->with(
-139: 				array(
-140: 					array(
-141: 						'objectID'          => 11,
-142: 						'product_name'      => 'Product 11',
-143: 						'product_image'     => 'https://shop.test/a.jpg',
-144: 						'short_description' => 'Short 11',
-145: 						'regular_price'     => '10',
-146: 						'sale_price'        => '8',
-147: 						'on_sale'           => false,
-148: 					),
-149: 					array(
-150: 						'objectID'          => 12,
-151: 						'product_name'      => 'Product 12',
-152: 						'product_image'     => null,
-153: 						'short_description' => 'Short 12',
-154: 						'regular_price'     => '12',
-155: 						'sale_price'        => '4',
-156: 						'on_sale'           => true,
-157: 					),
-158: 				)
-159: 			)
-160: 			->andReturn( new stdClass() );
-161: 		$notices = $this->capture_hook_callbacks( 'admin_notices' );
-162: 		Algolia_Send_Products::send_products_to_algolia();
-163: 		self::assertSame( 1, $this->postdata_resets );
-164: 		self::assertSame( array( 'APP', 'write-key', 'products' ), $this->client_args );
-165: 		self::assertSame(
-166: 			array( '<div class="notice notice-success is-dismissible"><p>2 products sent to Algolia index &quot;products&quot;. Indexing may still be in progress.</p></div>' ),
-167: 			$this->render_notices( $notices )
-168: 		);
-169: 	}
-170: 	/**
-171: 	 * Sending one product fetches it by ID and uses the singular notice.
-172: 	 *
-173: 	 * @return void
-174: 	 */
-175: 	public function test_sends_single_product() {
-176: 		Functions\expect( 'wc_get_products' )
-177: 			->once()
-178: 			->with(
-179: 				array(
-180: 					'status'   => 'publish',
-181: 					'include'  => array( 42 ),
-182: 					'paginate' => false,
-183: 				)
-184: 			)
-185: 			->andReturn( array( $this->product( 42, 'grouped', '' ) ) );
-186: 		$this->index->shouldReceive( 'saveObjects' )->once()->andReturn( new stdClass() );
-187: 		$notices = $this->capture_hook_callbacks( 'admin_notices' );
-188: 		Algolia_Send_Products::send_products_to_algolia( 42 );
-189: 		self::assertStringContainsString( '1 product sent to Algolia index', $this->render_notices( $notices )[0] );
-190: 	}
-191: 	/**
-192: 	 * Non-string options fall back to the placeholder, which still passes the empty check.
-193: 	 *
-194: 	 * @return void
-195: 	 */
-196: 	public function test_non_string_options_use_placeholder() {
-197: 		$this->stub_options( array() );
-198: 		Functions\when( 'wc_get_products' )->justReturn( array() );
-199: 		Algolia_Send_Products::send_products_to_algolia();
-200: 		self::assertSame( array( 'change me', 'change me', 'change me' ), $this->client_args );
-201: 	}
-202: 	/**
-203: 	 * With no published products nothing is sent and no notice is queued.
-204: 	 *
-205: 	 * @return void
-206: 	 */
-207: 	public function test_no_products_sends_nothing() {
-208: 		Functions\expect( 'wc_get_products' )->once()->andReturn( array() );
-209: 		$this->index->shouldReceive( 'saveObjects' )->never();
-210: 		$notices = $this->capture_hook_callbacks( 'admin_notices' );
-211: 		Algolia_Send_Products::send_products_to_algolia();
-212: 		self::assertSame( 0, $this->postdata_resets );
-213: 		self::assertCount( 0, $notices );
-214: 	}
-215: 	/**
-216: 	 * An Algolia error is caught and reported as a notice about the Write API Key.
-217: 	 *
-218: 	 * @return void
-219: 	 */
-220: 	public function test_algolia_error_queues_error_notice() {
-221: 		Functions\when( 'wc_get_products' )->justReturn( array( $this->product( 1, 'simple', '' ) ) );
-222: 		$this->index->shouldReceive( 'saveObjects' )->once()->andThrow( new AlgoliaException( 'Forbidden' ) );
-223: 		$notices = $this->capture_hook_callbacks( 'admin_notices' );
-224: 		Algolia_Send_Products::send_products_to_algolia();
-225: 		$rendered = $this->render_notices( $notices );
-226: 		self::assertCount( 1, $rendered );
-227: 		self::assertStringContainsString( '<div class="error notice">', $rendered[0] );
-228: 		self::assertStringContainsString( 'Unable to send products to Algolia.', $rendered[0] );
-229: 		self::assertStringContainsString( 'A Search API Key cannot upload products.', $rendered[0] );
-230: 	}
-231: 	/**
-232: 	 * A NullResponse from the client is reported instead of a success message.
-233: 	 *
-234: 	 * @return void
-235: 	 */
-236: 	public function test_null_response_queues_notice() {
-237: 		Functions\when( 'wc_get_products' )->justReturn( array( $this->product( 1, 'simple', '' ) ) );
-238: 		$this->index->shouldReceive( 'saveObjects' )->once()->andReturn( new NullResponse() );
-239: 		$notices = $this->capture_hook_callbacks( 'admin_notices' );
-240: 		Algolia_Send_Products::send_products_to_algolia();
-241: 		self::assertSame(
-242: 			array( '<div class="notice notice-error"><p>No response from the server. Please check your settings and try again.</p></div>' ),
-243: 			$this->render_notices( $notices )
-244: 		);
-245: 	}
-246: }
-```
-
 ## File: tests/Unit/Send_Products_Test.php
 ```php
   1: <?php
@@ -5017,240 +4764,6 @@ uninstall.php
 49:     "phpstan": "phpstan analyse --no-progress --memory-limit=1G"
 50:   }
 51: }
-```
-
-## File: classes/class-send-products.php
-```php
-  1: <?php
-  2: /**
-  3:  * Algolia Woo Indexer class for sending products
-  4:  * Called from main plugin file algolia-woo-indexer.php
-  5:  *
-  6:  * @package algolia-woo-indexer
-  7:  */
-  8: namespace Algowoo;
-  9: use Algowoo\Algolia_Check_Requirements;
- 10: /**
- 11:  * Abort if this file is called directly
- 12:  */
- 13: if ( ! defined( 'ABSPATH' ) ) {
- 14: 	exit;
- 15: }
- 16: /**
- 17:  * Include plugin file if function is_plugin_active does not exist
- 18:  */
- 19: if ( ! function_exists( 'is_plugin_active' ) ) {
- 20: 	require_once ABSPATH . '/wp-admin/includes/plugin.php';
- 21: }
- 22: /**
- 23:  * Define the plugin version and the database table name
- 24:  */
- 25: define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
- 26: define( 'ALGOWOO_CURRENT_DB_VERSION', '0.3' );
- 27: /**
- 28:  * Define application constants
- 29:  */
- 30: define( 'CHANGE_ME', 'change me' );
- 31: /**
- 32:  * Database table names
- 33:  */
- 34: define( 'INDEX_NAME', '_index_name' );
- 35: define( 'AUTOMATICALLY_SEND_NEW_PRODUCTS', '_automatically_send_new_products' );
- 36: define( 'ALGOLIA_APP_ID', '_application_id' );
- 37: define( 'ALGOLIA_SEARCH_API_KEY', '_search_api_key' );
- 38: // Keep the legacy option suffix so existing saved keys remain available.
- 39: define( 'ALGOLIA_API_KEY', '_admin_api_key' );
- 40: if ( ! class_exists( 'Algolia_Send_Products' ) ) {
- 41: 	/**
- 42: 	 * Algolia WooIndexer main class
- 43: 	 *
- 44: 	 * @todo Rename class "Algolia_Send_Products" to match the regular expression ^[A-Z][a-zA-Z0-9]*$.
- 45: 	 */
- 46: 	class Algolia_Send_Products {
- 47: 		const PLUGIN_NAME      = 'Algolia Woo Indexer';
- 48: 		const PLUGIN_TRANSIENT = 'algowoo-plugin-notice';
- 49: 		/**
- 50: 		 * The Algolia instance
- 51: 		 *
- 52: 		 * @var \Algolia\AlgoliaSearch\SearchClient
- 53: 		 */
- 54: 		private static $algolia = null;
- 55: 		/**
- 56: 		 * Get sale price or regular price based on product type
- 57: 		 *
- 58: 		 * @param  mixed $product Product to check.
- 59: 		 * @return array ['sale_price' => $sale_price,'regular_price' => $regular_price] Array with regular price and sale price
- 60: 		 */
- 61: 		public static function get_product_type_price( $product ) {
- 62: 			$sale_price    = 0;
- 63: 			$regular_price = 0;
- 64: 			if ( $product->is_type( 'simple' ) ) {
- 65: 				$sale_price    = $product->get_sale_price();
- 66: 				$regular_price = $product->get_regular_price();
- 67: 			} elseif ( $product->is_type( 'variable' ) ) {
- 68: 				$sale_price    = $product->get_variation_sale_price( 'min', true );
- 69: 				$regular_price = $product->get_variation_regular_price( 'max', true );
- 70: 			}
- 71: 			return array(
- 72: 				'sale_price'    => $sale_price,
- 73: 				'regular_price' => $regular_price,
- 74: 			);
- 75: 		}
- 76: 		/**
- 77: 		 * Send WooCommerce products to Algolia
- 78: 		 *
- 79: 		 * Called statically from hook callbacks, so the requirement checks have to
- 80: 		 * be reached statically.
- 81: 		 *
- 82: 		 * @SuppressWarnings("PHPMD.StaticAccess")
- 83: 		 *
- 84: 		 * @param int|string|null $id ID of a single product to send, or '' to send all published products.
- 85: 		 * @return void
- 86: 		 */
- 87: 		public static function send_products_to_algolia( $id = '' ) {
- 88: 			/**
- 89: 			 * Remove classes from plugin URL and autoload Algolia with Composer
- 90: 			 */
- 91: 			$base_plugin_directory = str_replace( 'classes', '', __DIR__ );
- 92: 			$autoloader            = $base_plugin_directory . '/vendor/autoload.php';
- 93: 			if ( ! file_exists( $autoloader ) ) {
- 94: 				Algolia_Check_Requirements::queue_admin_notice(
- 95: 					__( 'The Algolia PHP client is missing. Run "composer install" in the plugin directory.', 'algolia-woo-indexer' )
- 96: 				);
- 97: 				return;
- 98: 			}
- 99: 			require_once $autoloader;
-100: 			/**
-101: 			 * Fetch the required variables from the Settings API
-102: 			 */
-103: 			$algolia_application_id = get_option( ALGOWOO_DB_OPTION . ALGOLIA_APP_ID );
-104: 			$algolia_application_id = is_string( $algolia_application_id ) ? $algolia_application_id : CHANGE_ME;
-105: 			$algolia_api_key = get_option( ALGOWOO_DB_OPTION . ALGOLIA_API_KEY );
-106: 			$algolia_api_key = is_string( $algolia_api_key ) ? $algolia_api_key : CHANGE_ME;
-107: 			$algolia_index_name = get_option( ALGOWOO_DB_OPTION . INDEX_NAME );
-108: 			$algolia_index_name = is_string( $algolia_index_name ) ? $algolia_index_name : CHANGE_ME;
-109: 			/**
-110: 			 * Display admin notice and return if not all values have been set
-111: 			 */
-112: 			if ( ! Algolia_Check_Requirements::check_algolia_input_values( $algolia_application_id, $algolia_api_key, $algolia_index_name ) ) {
-113: 				return;
-114: 			}
-115: 			/**
-116: 			 * Initiate the Algolia client
-117: 			 */
-118: 			self::$algolia = \Algolia\AlgoliaSearch\SearchClient::create( $algolia_application_id, $algolia_api_key );
-119: 			/**
-120: 			 * Initialize the search index and set the name to the option from the database
-121: 			 */
-122: 			$index = self::$algolia->initIndex( $algolia_index_name );
-123: 			/**
-124: 			 * Setup arguments for sending all products to Algolia
-125: 			 *
-126: 			 * Limit => -1 means we send all products
-127: 			 */
-128: 			$arguments = array(
-129: 				'status'   => 'publish',
-130: 				'limit'    => -1,
-131: 				'paginate' => false,
-132: 			);
-133: 			/**
-134: 			 * Setup arguments for sending only a single product
-135: 			 */
-136: 			if ( isset( $id ) && '' !== $id ) {
-137: 				$arguments = array(
-138: 					'status'   => 'publish',
-139: 					'include'  => array( $id ),
-140: 					'paginate' => false,
-141: 				);
-142: 			}
-143: 			/**
-144: 			 * Fetch all products from WooCommerce
-145: 			 *
-146: 			 * @see https://docs.woocommerce.com/wc-apidocs/function-wc_get_products.html
-147: 			 */
-148: 			$products = wc_get_products( $arguments );
-149: 			if ( empty( $products ) ) {
-150: 				return;
-151: 			}
-152: 			$records = array();
-153: 			$record  = array();
-154: 			foreach ( $products as $product ) {
-155: 				/**
-156: 				 * Set sale price or regular price based on product type
-157: 				 */
-158: 				$product_type_price = self::get_product_type_price( $product );
-159: 				$sale_price         = $product_type_price['sale_price'];
-160: 				$regular_price      = $product_type_price['regular_price'];
-161: 				/**
-162: 				 * Extract image from $product->get_image()
-163: 				 */
-164: 				preg_match( '/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result );
-165: 				$product_image = array_pop( $result );
-166: 				/**
-167: 				 * Build the record array using the information from the WooCommerce product
-168: 				 */
-169: 				$record['objectID']          = $product->get_id();
-170: 				$record['product_name']      = $product->get_name();
-171: 				$record['product_image']     = $product_image;
-172: 				$record['short_description'] = $product->get_short_description();
-173: 				$record['regular_price']     = $regular_price;
-174: 				$record['sale_price']        = $sale_price;
-175: 				$record['on_sale']           = $product->is_on_sale();
-176: 				$records[]                   = $record;
-177: 			}
-178: 			wp_reset_postdata();
-179: 			/**
-180: 			 * Send the information to Algolia and save the result
-181: 			 * If result is NullResponse, print an error message
-182: 			 */
-183: 			// Validate access through the write itself, without requiring key or index listing permissions.
-184: 			try {
-185: 				$result = $index->saveObjects( $records );
-186: 			} catch ( \Algolia\AlgoliaSearch\Exceptions\AlgoliaException $error ) {
-187: 				add_action(
-188: 					'admin_notices',
-189: 					function () {
-190: 						echo '<div class="error notice">
-191: 							<p>' . esc_html__( 'Unable to send products to Algolia. Check your connection, Application ID, index name, and Write API Key. The key must have addObject permission for the configured index. A Search API Key cannot upload products.', 'algolia-woo-indexer' ) . '</p>
-192: 							</div>';
-193: 					}
-194: 				);
-195: 				return;
-196: 			}
-197: 			if ( 'Algolia\AlgoliaSearch\Response\NullResponse' === get_class( $result ) ) {
-198: 				Algolia_Check_Requirements::queue_admin_notice(
-199: 					__( 'No response from the server. Please check your settings and try again.', 'algolia-woo-indexer' )
-200: 				);
-201: 				return;
-202: 			}
-203: 			/**
-204: 			 * Queue the success message so that it is rendered on admin_notices
-205: 			 * rather than echoed from the middle of an admin_init callback.
-206: 			 */
-207: 			$product_count = count( $records );
-208: 			$message       = sprintf(
-209: 				/* translators: 1: Number of products sent, 2: Algolia index name. */
-210: 				_n(
-211: 					'%1$s product sent to Algolia index "%2$s". Indexing may still be in progress.',
-212: 					'%1$s products sent to Algolia index "%2$s". Indexing may still be in progress.',
-213: 					$product_count,
-214: 					'algolia-woo-indexer'
-215: 				),
-216: 				number_format_i18n( $product_count ),
-217: 				$algolia_index_name
-218: 			);
-219: 			add_action(
-220: 				'admin_notices',
-221: 				function () use ( $message ) {
-222: 					printf(
-223: 						'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
-224: 						esc_html( $message )
-225: 					);
-226: 				}
-227: 			);
-228: 		}
-229: 	}
-230: }
 ```
 
 ## File: tests/Support/Test_Case.php
@@ -5606,6 +5119,277 @@ uninstall.php
 104: }
 ```
 
+## File: tests/Unit/Send_Products_Algolia_Test.php
+```php
+  1: <?php
+  2: /**
+  3:  * Tests for Algolia_Send_Products that reach the Algolia client.
+  4:  *
+  5:  * @package algolia-woo-indexer
+  6:  */
+  7: namespace Algowoo\Tests\Unit;
+  8: use Algolia\AlgoliaSearch\Exceptions\AlgoliaException;
+  9: use Algolia\AlgoliaSearch\Response\NullResponse;
+ 10: use Algowoo\Algolia_Send_Products;
+ 11: use Algowoo\Tests\Support\Test_Case;
+ 12: use Brain\Monkey\Functions;
+ 13: use Mockery\MockInterface;
+ 14: use PHPUnit\Framework\Attributes\CoversClass;
+ 15: use PHPUnit\Framework\Attributes\PreserveGlobalState;
+ 16: use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+ 17: use stdClass;
+ 18: /**
+ 19:  * Covers record building and the outcomes of saveObjects().
+ 20:  *
+ 21:  * The plugin calls the static SearchClient::create(), so each test replaces
+ 22:  * that class with a Mockery alias. An alias can only be declared before the
+ 23:  * real class is autoloaded, and it lasts for the whole process, so every test
+ 24:  * here runs in its own process.
+ 25:  *
+ 26:  * PHPMD suppression: the plugin's API is static, so it has to be called
+ 27:  * statically until the production code is refactored.
+ 28:  *
+ 29:  * @SuppressWarnings("PHPMD.StaticAccess")
+ 30:  */
+ 31: #[CoversClass( Algolia_Send_Products::class )]
+ 32: #[RunTestsInSeparateProcesses]
+ 33: #[PreserveGlobalState( false )]
+ 34: final class Send_Products_Algolia_Test extends Test_Case {
+ 35: 	/**
+ 36: 	 * Mocked Algolia index.
+ 37: 	 *
+ 38: 	 * @var MockInterface
+ 39: 	 */
+ 40: 	private $index;
+ 41: 	/**
+ 42: 	 * Number of wp_reset_postdata() calls.
+ 43: 	 *
+ 44: 	 * @var int
+ 45: 	 */
+ 46: 	private $postdata_resets = 0;
+ 47: 	/**
+ 48: 	 * Arguments SearchClient::create() was called with.
+ 49: 	 *
+ 50: 	 * @var array
+ 51: 	 */
+ 52: 	private $client_args = array();
+ 53: 	/**
+ 54: 	 * Replace the Algolia client and stub complete settings.
+ 55: 	 *
+ 56: 	 * @return void
+ 57: 	 */
+ 58: 	protected function setUp(): void {
+ 59: 		parent::setUp();
+ 60: 		$this->index = mock();
+ 61: 		$client      = mock();
+ 62: 		$client->shouldReceive( 'initIndex' )->andReturnUsing(
+ 63: 			function ( $index_name ) {
+ 64: 				$this->client_args[] = $index_name;
+ 65: 				return $this->index;
+ 66: 			}
+ 67: 		);
+ 68: 		mock( 'alias:Algolia\AlgoliaSearch\SearchClient' )
+ 69: 			->shouldReceive( 'create' )
+ 70: 			->andReturnUsing(
+ 71: 				function ( $app_id, $api_key ) use ( $client ) {
+ 72: 					$this->client_args = array( $app_id, $api_key );
+ 73: 					return $client;
+ 74: 				}
+ 75: 			);
+ 76: 		$this->stub_options(
+ 77: 			array(
+ 78: 				'_algolia_woo_indexer_application_id' => 'APP',
+ 79: 				'_algolia_woo_indexer_admin_api_key'  => 'write-key',
+ 80: 				'_algolia_woo_indexer_index_name'     => 'products',
+ 81: 			)
+ 82: 		);
+ 83: 		Functions\when( 'wp_reset_postdata' )->alias(
+ 84: 			function () {
+ 85: 				++$this->postdata_resets;
+ 86: 			}
+ 87: 		);
+ 88: 	}
+ 89: 	/**
+ 90: 	 * Build a mock WooCommerce product.
+ 91: 	 *
+ 92: 	 * @param int    $product_id Product ID.
+ 93: 	 * @param string $type       Product type.
+ 94: 	 * @param string $image      HTML returned by get_image().
+ 95: 	 * @return MockInterface
+ 96: 	 */
+ 97: 	private function product( $product_id, $type, $image ) {
+ 98: 		$product = mock();
+ 99: 		$product->shouldReceive( 'is_type' )->andReturnUsing(
+100: 			static function ( $checked_type ) use ( $type ) {
+101: 				return $checked_type === $type;
+102: 			}
+103: 		);
+104: 		$product->shouldReceive( 'get_sale_price' )->andReturn( '8' );
+105: 		$product->shouldReceive( 'get_regular_price' )->andReturn( '10' );
+106: 		$product->shouldReceive( 'get_variation_sale_price' )->andReturn( '4' );
+107: 		$product->shouldReceive( 'get_variation_regular_price' )->andReturn( '12' );
+108: 		$product->shouldReceive( 'get_image' )->andReturn( $image );
+109: 		$product->shouldReceive( 'get_id' )->andReturn( $product_id );
+110: 		$product->shouldReceive( 'get_name' )->andReturn( 'Product ' . $product_id );
+111: 		$product->shouldReceive( 'get_short_description' )->andReturn( 'Short ' . $product_id );
+112: 		$product->shouldReceive( 'is_on_sale' )->andReturn( 'variable' === $type );
+113: 		return $product;
+114: 	}
+115: 	/**
+116: 	 * Sending everything fetches all published products and saves one record per product.
+117: 	 *
+118: 	 * @return void
+119: 	 */
+120: 	public function test_sends_all_products() {
+121: 		Functions\expect( 'wc_get_products' )
+122: 			->once()
+123: 			->with(
+124: 				array(
+125: 					'status'   => 'publish',
+126: 					'limit'    => -1,
+127: 					'paginate' => false,
+128: 				)
+129: 			)
+130: 			->andReturn(
+131: 				array(
+132: 					$this->product( 11, 'simple', '<img width="300" src="https://shop.test/a.jpg" class="wp-post-image" />' ),
+133: 					$this->product( 12, 'variable', '' ),
+134: 				)
+135: 			);
+136: 		$this->index->shouldReceive( 'saveObjects' )
+137: 			->once()
+138: 			->with(
+139: 				array(
+140: 					array(
+141: 						'objectID'          => 11,
+142: 						'product_name'      => 'Product 11',
+143: 						'product_image'     => 'https://shop.test/a.jpg',
+144: 						'short_description' => 'Short 11',
+145: 						'regular_price'     => '10',
+146: 						'sale_price'        => '8',
+147: 						'on_sale'           => false,
+148: 					),
+149: 					array(
+150: 						'objectID'          => 12,
+151: 						'product_name'      => 'Product 12',
+152: 						'product_image'     => null,
+153: 						'short_description' => 'Short 12',
+154: 						'regular_price'     => '12',
+155: 						'sale_price'        => '4',
+156: 						'on_sale'           => true,
+157: 					),
+158: 				)
+159: 			)
+160: 			->andReturn( new stdClass() );
+161: 		$notices = $this->capture_hook_callbacks( 'admin_notices' );
+162: 		Algolia_Send_Products::send_products_to_algolia();
+163: 		self::assertSame( 1, $this->postdata_resets );
+164: 		self::assertSame( array( 'APP', 'write-key', 'products' ), $this->client_args );
+165: 		self::assertSame(
+166: 			array( '<div class="notice notice-success is-dismissible"><p>2 products sent to Algolia index &quot;products&quot;. Indexing may still be in progress.</p></div>' ),
+167: 			$this->render_notices( $notices )
+168: 		);
+169: 	}
+170: 	/**
+171: 	 * Sending one product fetches it by ID and uses the singular notice.
+172: 	 *
+173: 	 * @return void
+174: 	 */
+175: 	public function test_sends_single_product() {
+176: 		Functions\expect( 'wc_get_products' )
+177: 			->once()
+178: 			->with(
+179: 				array(
+180: 					'status'   => 'publish',
+181: 					'include'  => array( 42 ),
+182: 					'paginate' => false,
+183: 				)
+184: 			)
+185: 			->andReturn( array( $this->product( 42, 'grouped', '' ) ) );
+186: 		$this->index->shouldReceive( 'saveObjects' )->once()->andReturn( new stdClass() );
+187: 		$notices = $this->capture_hook_callbacks( 'admin_notices' );
+188: 		Algolia_Send_Products::send_products_to_algolia( 42 );
+189: 		self::assertStringContainsString( '1 product sent to Algolia index', $this->render_notices( $notices )[0] );
+190: 	}
+191: 	/**
+192: 	 * A null ID is treated like no ID and fetches every published product.
+193: 	 *
+194: 	 * @return void
+195: 	 */
+196: 	public function test_null_id_sends_all_products() {
+197: 		$queries = $this->record_calls( 'wc_get_products', array() );
+198: 		Algolia_Send_Products::send_products_to_algolia( null );
+199: 		self::assertSame(
+200: 			array(
+201: 				array(
+202: 					array(
+203: 						'status'   => 'publish',
+204: 						'limit'    => -1,
+205: 						'paginate' => false,
+206: 					),
+207: 				),
+208: 			),
+209: 			$queries->getArrayCopy()
+210: 		);
+211: 	}
+212: 	/**
+213: 	 * Non-string options fall back to the placeholder, which still passes the empty check.
+214: 	 *
+215: 	 * @return void
+216: 	 */
+217: 	public function test_non_string_options_use_placeholder() {
+218: 		$this->stub_options( array() );
+219: 		Functions\when( 'wc_get_products' )->justReturn( array() );
+220: 		Algolia_Send_Products::send_products_to_algolia();
+221: 		self::assertSame( array( 'change me', 'change me', 'change me' ), $this->client_args );
+222: 	}
+223: 	/**
+224: 	 * With no published products nothing is sent and no notice is queued.
+225: 	 *
+226: 	 * @return void
+227: 	 */
+228: 	public function test_no_products_sends_nothing() {
+229: 		Functions\expect( 'wc_get_products' )->once()->andReturn( array() );
+230: 		$this->index->shouldReceive( 'saveObjects' )->never();
+231: 		$notices = $this->capture_hook_callbacks( 'admin_notices' );
+232: 		Algolia_Send_Products::send_products_to_algolia();
+233: 		self::assertSame( 0, $this->postdata_resets );
+234: 		self::assertCount( 0, $notices );
+235: 	}
+236: 	/**
+237: 	 * An Algolia error is caught and reported as a notice about the Write API Key.
+238: 	 *
+239: 	 * @return void
+240: 	 */
+241: 	public function test_algolia_error_queues_error_notice() {
+242: 		Functions\when( 'wc_get_products' )->justReturn( array( $this->product( 1, 'simple', '' ) ) );
+243: 		$this->index->shouldReceive( 'saveObjects' )->once()->andThrow( new AlgoliaException( 'Forbidden' ) );
+244: 		$notices = $this->capture_hook_callbacks( 'admin_notices' );
+245: 		Algolia_Send_Products::send_products_to_algolia();
+246: 		$rendered = $this->render_notices( $notices );
+247: 		self::assertCount( 1, $rendered );
+248: 		self::assertStringContainsString( '<div class="error notice">', $rendered[0] );
+249: 		self::assertStringContainsString( 'Unable to send products to Algolia.', $rendered[0] );
+250: 		self::assertStringContainsString( 'A Search API Key cannot upload products.', $rendered[0] );
+251: 	}
+252: 	/**
+253: 	 * A NullResponse from the client is reported instead of a success message.
+254: 	 *
+255: 	 * @return void
+256: 	 */
+257: 	public function test_null_response_queues_notice() {
+258: 		Functions\when( 'wc_get_products' )->justReturn( array( $this->product( 1, 'simple', '' ) ) );
+259: 		$this->index->shouldReceive( 'saveObjects' )->once()->andReturn( new NullResponse() );
+260: 		$notices = $this->capture_hook_callbacks( 'admin_notices' );
+261: 		Algolia_Send_Products::send_products_to_algolia();
+262: 		self::assertSame(
+263: 			array( '<div class="notice notice-error"><p>No response from the server. Please check your settings and try again.</p></div>' ),
+264: 			$this->render_notices( $notices )
+265: 		);
+266: 	}
+267: }
+```
+
 ## File: tests/Unit/Verify_Nonces_Test.php
 ```php
   1: <?php
@@ -5783,74 +5567,6 @@ uninstall.php
 173: 		self::assertTrue( Algolia_Verify_Nonces::verify_send_products_nonce() );
 174: 	}
 175: }
-```
-
-## File: algolia-woo-indexer.php
-```php
- 1: <?php
- 2: /**
- 3:  * Plugin Name:     Algolia WooCommerce Indexer
- 4:  * Description:     Implement Algolia indexing from WooCommerce
- 5:  * Text Domain:     algolia-woo-indexer
- 6:  * Author:          Daniel Fjeldstad
- 7:  * Requires at least: 7.1
- 8:  * Requires PHP: 8.5
- 9:  * WC requires at least: 11.2.1
-10:  * Version:         1.0.9
-11:  * License:         AGPLv3 or later
-12:  * License URI:     https://www.gnu.org/licenses/agpl-3.0.html
-13:  *
-14:  * @package         algolia-woo-indexer
-15:  * @license         AGPL-3.0-or-later
-16:  */
-17: /**
-18:  * Abort if this file is called directly
-19:  */
-20: if ( ! defined( 'ABSPATH' ) ) {
-21: 	exit;
-22: }
-23: /**
-24:  * Main class file
-25:  */
-26: require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-woo-indexer.php';
-27: /**
-28:  * Class for checking plugin requirements
-29:  */
-30: require_once plugin_dir_path( __FILE__ ) . '/classes/class-check-requirements.php';
-31: /**
-32:  * Class for verifying nonces
-33:  */
-34: require_once plugin_dir_path( __FILE__ ) . '/classes/class-verify-nonces.php';
-35: /**
-36:  * Class for sending products
-37:  */
-38: require_once plugin_dir_path( __FILE__ ) . '/classes/class-send-products.php';
-39: /**
-40:  * Class for checking the Algolia connection and displaying its status.
-41:  */
-42: require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-connection-status.php';
-43: /**
-44:  * Class for rendering the settings sections and fields.
-45:  */
-46: require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-settings-fields.php';
-47: $algowooindexer = \Algowoo\Algolia_Woo_Indexer::get_instance();
-48: register_activation_hook( __FILE__, array( $algowooindexer, 'activate_plugin' ) );
-49: register_deactivation_hook( __FILE__, array( $algowooindexer, 'deactivate_plugin' ) );
-50: /**
-51:  * Declare compatibility with WooCommerce High-Performance Order Storage and
-52:  * Cart/Checkout Blocks. This plugin only reads products, so it is unaffected by
-53:  * the order storage backend.
-54:  */
-55: add_action(
-56: 	'before_woocommerce_init',
-57: 	function () {
-58: 		if ( ! class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
-59: 			return;
-60: 		}
-61: 		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
-62: 		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
-63: 	}
-64: );
 ```
 
 ## File: classes/class-algolia-connection-status.php
@@ -6069,6 +5785,351 @@ uninstall.php
 212: 		<?php
 213: 	}
 214: }
+```
+
+## File: algolia-woo-indexer.php
+```php
+ 1: <?php
+ 2: /**
+ 3:  * Plugin Name:     Algolia WooCommerce Indexer
+ 4:  * Description:     Implement Algolia indexing from WooCommerce
+ 5:  * Text Domain:     algolia-woo-indexer
+ 6:  * Author:          Daniel Fjeldstad
+ 7:  * Requires at least: 7.1
+ 8:  * Requires PHP: 8.5
+ 9:  * WC requires at least: 11.2.1
+10:  * Version:         1.0.9
+11:  * License:         AGPLv3 or later
+12:  * License URI:     https://www.gnu.org/licenses/agpl-3.0.html
+13:  *
+14:  * @package         algolia-woo-indexer
+15:  * @license         AGPL-3.0-or-later
+16:  */
+17: /**
+18:  * Abort if this file is called directly
+19:  */
+20: if ( ! defined( 'ABSPATH' ) ) {
+21: 	exit;
+22: }
+23: /**
+24:  * Main class file
+25:  */
+26: require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-woo-indexer.php';
+27: /**
+28:  * Class for checking plugin requirements
+29:  */
+30: require_once plugin_dir_path( __FILE__ ) . '/classes/class-check-requirements.php';
+31: /**
+32:  * Class for verifying nonces
+33:  */
+34: require_once plugin_dir_path( __FILE__ ) . '/classes/class-verify-nonces.php';
+35: /**
+36:  * Class for sending products
+37:  */
+38: require_once plugin_dir_path( __FILE__ ) . '/classes/class-send-products.php';
+39: /**
+40:  * Class for checking the Algolia connection and displaying its status.
+41:  */
+42: require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-connection-status.php';
+43: /**
+44:  * Class for rendering the settings sections and fields.
+45:  */
+46: require_once plugin_dir_path( __FILE__ ) . '/classes/class-algolia-settings-fields.php';
+47: $algowooindexer = \Algowoo\Algolia_Woo_Indexer::get_instance();
+48: register_activation_hook( __FILE__, array( $algowooindexer, 'activate_plugin' ) );
+49: register_deactivation_hook( __FILE__, array( $algowooindexer, 'deactivate_plugin' ) );
+50: /**
+51:  * Declare compatibility with WooCommerce High-Performance Order Storage and
+52:  * Cart/Checkout Blocks. This plugin only reads products, so it is unaffected by
+53:  * the order storage backend.
+54:  */
+55: add_action(
+56: 	'before_woocommerce_init',
+57: 	function () {
+58: 		if ( ! class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+59: 			return;
+60: 		}
+61: 		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+62: 		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
+63: 	}
+64: );
+```
+
+## File: classes/class-send-products.php
+```php
+  1: <?php
+  2: /**
+  3:  * Algolia Woo Indexer class for sending products
+  4:  * Called from main plugin file algolia-woo-indexer.php
+  5:  *
+  6:  * @package algolia-woo-indexer
+  7:  */
+  8: namespace Algowoo;
+  9: use Algowoo\Algolia_Check_Requirements;
+ 10: /**
+ 11:  * Abort if this file is called directly
+ 12:  */
+ 13: if ( ! defined( 'ABSPATH' ) ) {
+ 14: 	exit;
+ 15: }
+ 16: /**
+ 17:  * Include plugin file if function is_plugin_active does not exist
+ 18:  */
+ 19: if ( ! function_exists( 'is_plugin_active' ) ) {
+ 20: 	require_once ABSPATH . '/wp-admin/includes/plugin.php';
+ 21: }
+ 22: /**
+ 23:  * Define the plugin version and the database table name
+ 24:  */
+ 25: define( 'ALGOWOO_DB_OPTION', '_algolia_woo_indexer' );
+ 26: define( 'ALGOWOO_CURRENT_DB_VERSION', '0.3' );
+ 27: /**
+ 28:  * Define application constants
+ 29:  */
+ 30: define( 'CHANGE_ME', 'change me' );
+ 31: /**
+ 32:  * Database table names
+ 33:  */
+ 34: define( 'INDEX_NAME', '_index_name' );
+ 35: define( 'AUTOMATICALLY_SEND_NEW_PRODUCTS', '_automatically_send_new_products' );
+ 36: define( 'ALGOLIA_APP_ID', '_application_id' );
+ 37: define( 'ALGOLIA_SEARCH_API_KEY', '_search_api_key' );
+ 38: // Keep the legacy option suffix so existing saved keys remain available.
+ 39: define( 'ALGOLIA_API_KEY', '_admin_api_key' );
+ 40: if ( ! class_exists( 'Algolia_Send_Products' ) ) {
+ 41: 	/**
+ 42: 	 * Algolia WooIndexer main class
+ 43: 	 *
+ 44: 	 * @todo Rename class "Algolia_Send_Products" to match the regular expression ^[A-Z][a-zA-Z0-9]*$.
+ 45: 	 */
+ 46: 	class Algolia_Send_Products {
+ 47: 		const PLUGIN_NAME      = 'Algolia Woo Indexer';
+ 48: 		const PLUGIN_TRANSIENT = 'algowoo-plugin-notice';
+ 49: 		/**
+ 50: 		 * The Algolia instance
+ 51: 		 *
+ 52: 		 * @var \Algolia\AlgoliaSearch\SearchClient
+ 53: 		 */
+ 54: 		private static $algolia = null;
+ 55: 		/**
+ 56: 		 * Get sale price or regular price based on product type
+ 57: 		 *
+ 58: 		 * @param  mixed $product Product to check.
+ 59: 		 * @return array ['sale_price' => $sale_price,'regular_price' => $regular_price] Array with regular price and sale price
+ 60: 		 */
+ 61: 		public static function get_product_type_price( $product ) {
+ 62: 			$sale_price    = 0;
+ 63: 			$regular_price = 0;
+ 64: 			if ( $product->is_type( 'simple' ) ) {
+ 65: 				$sale_price    = $product->get_sale_price();
+ 66: 				$regular_price = $product->get_regular_price();
+ 67: 			} elseif ( $product->is_type( 'variable' ) ) {
+ 68: 				$sale_price    = $product->get_variation_sale_price( 'min', true );
+ 69: 				$regular_price = $product->get_variation_regular_price( 'max', true );
+ 70: 			}
+ 71: 			return array(
+ 72: 				'sale_price'    => $sale_price,
+ 73: 				'regular_price' => $regular_price,
+ 74: 			);
+ 75: 		}
+ 76: 		/**
+ 77: 		 * Send WooCommerce products to Algolia
+ 78: 		 *
+ 79: 		 * Called statically from hook callbacks, so the requirement checks have to
+ 80: 		 * be reached statically.
+ 81: 		 *
+ 82: 		 * @SuppressWarnings("PHPMD.StaticAccess")
+ 83: 		 *
+ 84: 		 * @param int|string|null $id ID of a single product to send, or '' to send all published products.
+ 85: 		 * @return void
+ 86: 		 */
+ 87: 		public static function send_products_to_algolia( $id = '' ) {
+ 88: 			if ( ! self::load_composer_autoloader() ) {
+ 89: 				Algolia_Check_Requirements::queue_admin_notice(
+ 90: 					__( 'The Algolia PHP client is missing. Run "composer install" in the plugin directory.', 'algolia-woo-indexer' )
+ 91: 				);
+ 92: 				return;
+ 93: 			}
+ 94: 			$algolia_application_id = self::get_setting( ALGOLIA_APP_ID );
+ 95: 			$algolia_api_key        = self::get_setting( ALGOLIA_API_KEY );
+ 96: 			$algolia_index_name     = self::get_setting( INDEX_NAME );
+ 97: 			// Queues its own admin notice when a value is missing.
+ 98: 			if ( ! Algolia_Check_Requirements::check_algolia_input_values( $algolia_application_id, $algolia_api_key, $algolia_index_name ) ) {
+ 99: 				return;
+100: 			}
+101: 			self::$algolia = \Algolia\AlgoliaSearch\SearchClient::create( $algolia_application_id, $algolia_api_key );
+102: 			$index         = self::$algolia->initIndex( $algolia_index_name );
+103: 			/**
+104: 			 * Fetch the published products from WooCommerce
+105: 			 *
+106: 			 * @see https://docs.woocommerce.com/wc-apidocs/function-wc_get_products.html
+107: 			 */
+108: 			$products = wc_get_products( self::build_query_arguments( $id ) );
+109: 			if ( empty( $products ) ) {
+110: 				return;
+111: 			}
+112: 			$records = self::build_records( $products );
+113: 			wp_reset_postdata();
+114: 			$result = self::save_records( $index, $records );
+115: 			// save_records() has already queued an error notice.
+116: 			if ( null === $result ) {
+117: 				return;
+118: 			}
+119: 			if ( 'Algolia\AlgoliaSearch\Response\NullResponse' === get_class( $result ) ) {
+120: 				Algolia_Check_Requirements::queue_admin_notice(
+121: 					__( 'No response from the server. Please check your settings and try again.', 'algolia-woo-indexer' )
+122: 				);
+123: 				return;
+124: 			}
+125: 			self::queue_success_notice( count( $records ), $algolia_index_name );
+126: 		}
+127: 		/**
+128: 		 * Load the Composer autoloader that provides the Algolia client.
+129: 		 *
+130: 		 * @return bool True when the autoloader exists and was loaded.
+131: 		 */
+132: 		private static function load_composer_autoloader() {
+133: 			// Remove "classes" from the directory to get the plugin root.
+134: 			$base_plugin_directory = str_replace( 'classes', '', __DIR__ );
+135: 			$autoloader            = $base_plugin_directory . '/vendor/autoload.php';
+136: 			if ( ! file_exists( $autoloader ) ) {
+137: 				return false;
+138: 			}
+139: 			require_once $autoloader;
+140: 			return true;
+141: 		}
+142: 		/**
+143: 		 * Read a connection setting, falling back to the placeholder when it is not a string.
+144: 		 *
+145: 		 * @param string $suffix Option suffix appended to ALGOWOO_DB_OPTION.
+146: 		 * @return string
+147: 		 */
+148: 		private static function get_setting( $suffix ) {
+149: 			$value = get_option( ALGOWOO_DB_OPTION . $suffix );
+150: 			return is_string( $value ) ? $value : CHANGE_ME;
+151: 		}
+152: 		/**
+153: 		 * Build the wc_get_products() arguments for one product or for all of them.
+154: 		 *
+155: 		 * Limit => -1 means every published product is fetched.
+156: 		 *
+157: 		 * @param int|string|null $product_id ID of a single product, or '' or null for all products.
+158: 		 * @return array<string, mixed>
+159: 		 */
+160: 		private static function build_query_arguments( $product_id ) {
+161: 			if ( isset( $product_id ) && '' !== $product_id ) {
+162: 				return array(
+163: 					'status'   => 'publish',
+164: 					'include'  => array( $product_id ),
+165: 					'paginate' => false,
+166: 				);
+167: 			}
+168: 			return array(
+169: 				'status'   => 'publish',
+170: 				'limit'    => -1,
+171: 				'paginate' => false,
+172: 			);
+173: 		}
+174: 		/**
+175: 		 * Extract the image URL from the product's image HTML.
+176: 		 *
+177: 		 * @param \WC_Product $product Product to read the image from.
+178: 		 * @return string|null The image URL, or null when no image tag matches.
+179: 		 */
+180: 		private static function get_product_image_url( $product ) {
+181: 			preg_match( '/<img(.*)src(.*)=(.*)"(.*)"/U', $product->get_image(), $result );
+182: 			return array_pop( $result );
+183: 		}
+184: 		/**
+185: 		 * Build one Algolia record from a WooCommerce product.
+186: 		 *
+187: 		 * @param \WC_Product $product Product to convert.
+188: 		 * @return array<string, mixed>
+189: 		 */
+190: 		private static function build_record( $product ) {
+191: 			$product_type_price = self::get_product_type_price( $product );
+192: 			return array(
+193: 				'objectID'          => $product->get_id(),
+194: 				'product_name'      => $product->get_name(),
+195: 				'product_image'     => self::get_product_image_url( $product ),
+196: 				'short_description' => $product->get_short_description(),
+197: 				'regular_price'     => $product_type_price['regular_price'],
+198: 				'sale_price'        => $product_type_price['sale_price'],
+199: 				'on_sale'           => $product->is_on_sale(),
+200: 			);
+201: 		}
+202: 		/**
+203: 		 * Build the Algolia records for a list of WooCommerce products.
+204: 		 *
+205: 		 * @param array<int, \WC_Product> $products Products to convert.
+206: 		 * @return array<int, array<string, mixed>>
+207: 		 */
+208: 		private static function build_records( $products ) {
+209: 			$records = array();
+210: 			foreach ( $products as $product ) {
+211: 				$records[] = self::build_record( $product );
+212: 			}
+213: 			return $records;
+214: 		}
+215: 		/**
+216: 		 * Save the records to the index, queueing an error notice if Algolia rejects them.
+217: 		 *
+218: 		 * Access is validated through the write itself, so the key needs no key or
+219: 		 * index listing permissions.
+220: 		 *
+221: 		 * @param \Algolia\AlgoliaSearch\SearchIndex $index   Index to write to.
+222: 		 * @param array<int, array<string, mixed>>   $records Records to save.
+223: 		 * @return object|null The client response, or null when Algolia threw an exception.
+224: 		 */
+225: 		private static function save_records( $index, $records ) {
+226: 			try {
+227: 				return $index->saveObjects( $records );
+228: 			} catch ( \Algolia\AlgoliaSearch\Exceptions\AlgoliaException $error ) {
+229: 				add_action(
+230: 					'admin_notices',
+231: 					function () {
+232: 						echo '<div class="error notice">
+233: 							<p>' . esc_html__( 'Unable to send products to Algolia. Check your connection, Application ID, index name, and Write API Key. The key must have addObject permission for the configured index. A Search API Key cannot upload products.', 'algolia-woo-indexer' ) . '</p>
+234: 							</div>';
+235: 					}
+236: 				);
+237: 				return null;
+238: 			}
+239: 		}
+240: 		/**
+241: 		 * Queue the success message for admin_notices.
+242: 		 *
+243: 		 * The message is queued rather than echoed, because this runs from an
+244: 		 * admin_init callback.
+245: 		 *
+246: 		 * @param int    $product_count Number of products sent.
+247: 		 * @param string $index_name    Algolia index name.
+248: 		 * @return void
+249: 		 */
+250: 		private static function queue_success_notice( $product_count, $index_name ) {
+251: 			$message = sprintf(
+252: 				/* translators: 1: Number of products sent, 2: Algolia index name. */
+253: 				_n(
+254: 					'%1$s product sent to Algolia index "%2$s". Indexing may still be in progress.',
+255: 					'%1$s products sent to Algolia index "%2$s". Indexing may still be in progress.',
+256: 					$product_count,
+257: 					'algolia-woo-indexer'
+258: 				),
+259: 				number_format_i18n( $product_count ),
+260: 				$index_name
+261: 			);
+262: 			add_action(
+263: 				'admin_notices',
+264: 				function () use ( $message ) {
+265: 					printf(
+266: 						'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+267: 						esc_html( $message )
+268: 					);
+269: 				}
+270: 			);
+271: 		}
+272: 	}
+273: }
 ```
 
 ## File: README.md
