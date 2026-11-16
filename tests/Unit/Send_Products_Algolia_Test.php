@@ -207,6 +207,30 @@ final class Send_Products_Algolia_Test extends Test_Case {
 	}
 
 	/**
+	 * A null ID is treated like no ID and fetches every published product.
+	 *
+	 * @return void
+	 */
+	public function test_null_id_sends_all_products() {
+		$queries = $this->record_calls( 'wc_get_products', array() );
+
+		Algolia_Send_Products::send_products_to_algolia( null );
+
+		self::assertSame(
+			array(
+				array(
+					array(
+						'status'   => 'publish',
+						'limit'    => -1,
+						'paginate' => false,
+					),
+				),
+			),
+			$queries->getArrayCopy()
+		);
+	}
+
+	/**
 	 * Non-string options fall back to the placeholder, which still passes the empty check.
 	 *
 	 * @return void
