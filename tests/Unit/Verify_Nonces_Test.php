@@ -20,7 +20,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * PHPMD suppression: the plugin's API is static, so it has to be called
  * statically until the production code is refactored.
  *
- * @SuppressWarnings(PHPMD.StaticAccess)
+ * @SuppressWarnings("PHPMD.StaticAccess")
  */
 #[CoversClass( Algolia_Verify_Nonces::class )]
 final class Verify_Nonces_Test extends Test_Case {

@@ -1,0 +1,11 @@
+parameters:
+	level: 5
+	phpVersion: 80500
+	paths:
+		- classes
+		- algolia-woo-indexer.php
+		- uninstall.php
+	scanFiles:
+		- vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
+	scanDirectories:
+		- vendor/algolia/algoliasearch-client-php/src

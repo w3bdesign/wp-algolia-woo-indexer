@@ -40,7 +40,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Class instance
 		 *
-		 * @var object
+		 * @var Algolia_Woo_Indexer|null
 		 */
 		private static $instance;
 
@@ -129,7 +129,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * Registered as a static `admin_init` callback, so the collaborating classes
 		 * have to be reached statically.
 		 *
-		 * @SuppressWarnings(PHPMD.StaticAccess)
+		 * @SuppressWarnings("PHPMD.StaticAccess")
 		 *
 		 * @return void
 		 */
@@ -145,7 +145,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * Called statically from the constructor before any instance is available,
 		 * so the requirement checks have to be reached statically.
 		 *
-		 * @SuppressWarnings(PHPMD.StaticAccess)
+		 * @SuppressWarnings("PHPMD.StaticAccess")
 		 *
 		 * @return void
 		 */
@@ -223,10 +223,10 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * Registered as a static `save_post` callback, so the sender has to be
 		 * reached statically.
 		 *
-		 * @SuppressWarnings(PHPMD.StaticAccess)
+		 * @SuppressWarnings("PHPMD.StaticAccess")
 		 *
-		 * @param int   $post_id ID of the product.
-		 * @param array $post Post array.
+		 * @param int      $post_id ID of the product.
+		 * @param \WP_Post $post    Saved post.
 		 *
 		 * @return void
 		 */
@@ -244,7 +244,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		 * Registered as a static `admin_init` callback, so the nonce verifier has to
 		 * be reached statically.
 		 *
-		 * @SuppressWarnings(PHPMD.StaticAccess)
+		 * @SuppressWarnings("PHPMD.StaticAccess")
 		 *
 		 * @return void
 		 */
@@ -416,7 +416,7 @@ if ( ! class_exists( 'Algolia_Woo_Indexer' ) ) {
 		/**
 		 * Get active object instance
 		 *
-		 * @return object
+		 * @return Algolia_Woo_Indexer
 		 */
 		public static function get_instance() {
 			if ( ! self::$instance ) {

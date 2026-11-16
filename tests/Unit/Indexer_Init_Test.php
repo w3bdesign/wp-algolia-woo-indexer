@@ -20,7 +20,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * PHPMD suppression: the plugin's API is static, so it has to be called
  * statically until the production code is refactored.
  *
- * @SuppressWarnings(PHPMD.StaticAccess)
+ * @SuppressWarnings("PHPMD.StaticAccess")
  */
 #[CoversClass( Algolia_Woo_Indexer::class )]
 final class Indexer_Init_Test extends Indexer_Test_Case {

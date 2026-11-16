@@ -15,7 +15,8 @@
   "config": {
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true,
-      "phpcompatibility/phpcs-compatinfo": true
+      "phpcompatibility/phpcs-compatinfo": true,
+      "phpstan/extension-installer": true
     },
     "platform": {
       "php": "8.5.0"
@@ -28,7 +29,11 @@
     "phpunit/phpunit": "^13.4",
     "brain/monkey": "^2.7",
     "mockery/mockery": "^1.6",
-    "phpmd/phpmd": "^3.0"
+    "phpmd/phpmd": "^3.0",
+    "phpstan/phpstan": "^2.3",
+    "phpstan/extension-installer": "^1.4",
+    "szepeviktor/phpstan-wordpress": "^2.0",
+    "php-stubs/woocommerce-stubs": "^11.3"
   },
   "autoload-dev": {
     "psr-4": {
@@ -40,6 +45,7 @@
     "test:coverage": "@php -d pcov.enabled=1 vendor/bin/phpunit --coverage-text --coverage-clover=build/coverage/clover.xml",
     "phpcs": "phpcs .",
     "phpcbf": "phpcbf .",
-    "phpmd": "phpmd analyze classes tests algolia-woo-indexer.php uninstall.php --ruleset phpmd.xml --no-progress"
+    "phpmd": "phpmd analyze classes tests algolia-woo-indexer.php uninstall.php --ruleset phpmd.xml --no-progress",
+    "phpstan": "phpstan analyse --no-progress --memory-limit=1G"
   }
 }

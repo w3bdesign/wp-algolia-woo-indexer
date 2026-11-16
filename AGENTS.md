@@ -209,9 +209,9 @@ repository.
 - The legacy `_index_in_stock` option is only deleted by `uninstall.php`.
   There is no in-stock setting, and `README.md` no longer claims one
 
-## Static analysis: three independent gates
+## Static analysis: four independent gates
 
-A change has to satisfy all three. They use different rulesets, so passing
+A change has to satisfy all four. They use different rulesets, so passing
 one says nothing about the others.
 
 1. **PHPCS** via `.github/workflows/phpcs.yml` (rtCamp action, `WordPress`
@@ -235,7 +235,7 @@ one says nothing about the others.
    `phpmd.xml` with it rather than only fixing the instance.
    Its `StaticAccess` rule fires on this codebase's deliberate static
    style. The accepted workaround is a
-   `@SuppressWarnings(PHPMD.StaticAccess)` line in the docblock of the
+   `@SuppressWarnings("PHPMD.StaticAccess")` line in the docblock of the
    static hook callback, not a refactor to dependency injection. It is
    already applied to `maybe_send_products()`, `init()`,
    `send_new_product_to_algolia()`, `update_settings_options()` and
@@ -243,7 +243,7 @@ one says nothing about the others.
    **Do not add suppressions to make a finding go away without asking the
    maintainer first. Fix the finding instead.** The only suppressions in
    `tests/` are:
-   - a class-level `@SuppressWarnings(PHPMD.StaticAccess)` on test classes
+   - a class-level `@SuppressWarnings("PHPMD.StaticAccess")` on test classes
      that call the plugin's static API, which cannot be avoided until that
      API is refactored. Never use it to cover Mockery or helper statics: use
      Mockery's global `mock()` function and the `Overrides_Built_Ins` trait
@@ -259,6 +259,18 @@ one says nothing about the others.
    ones: no blank line between `<?php` and the file docblock, `@param`
    comments must end in a full stop, docblocks need a short description, and
    class comments must use `/** */`
+4. **PHPStan** via `.github/workflows/static-analysis.yml`, which also runs
+   `composer phpmd` so the in-repo `phpmd.xml` and baseline are enforced in
+   CI, not only by Codacy. Config is `phpstan.neon.dist`: level 5, PHP 8.5,
+   production code only (`classes/`, the main plugin file, `uninstall.php`),
+   with `szepeviktor/phpstan-wordpress` and the WooCommerce stubs. There is
+   no baseline; keep it at zero errors. Docblock types are trusted, so a
+   wrong `@param` or `@return` shows up as a real error: fix the docblock to
+   match what the code accepts rather than ignoring the error. Write
+   PHPMD tags as `@SuppressWarnings("PHPMD.StaticAccess")`, with quotes.
+   PHPStan cannot parse the unquoted form, and PHPMD and Codacy accept both.
+   Level 6 currently reports missing array value types; raising the level
+   is the next step
 
 ## Development Commands
 
@@ -270,6 +282,7 @@ one says nothing about the others.
 - Fix coding standards: `composer phpcbf`. `phpcs-autofix.yml` also
   applies automatic fixes in CI
 - Run PHPMD: `composer phpmd`
+- Run PHPStan: `composer phpstan`
 - **GitHub Actions are pinned to full commit SHAs** with a trailing version
   comment (`uses: actions/checkout@<40-char sha> # v7.0.1`), never to a tag
   such as `@v7`, because tags can be moved. Dependabot's `github-actions`

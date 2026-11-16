@@ -1,0 +1,50 @@
+name: Static analysis
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: static-analysis-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-analysis:
+    name: ${{ matrix.tool.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tool:
+          - name: PHPStan
+            script: phpstan
+          - name: PHPMD
+            script: phpmd
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: "8.5"
+          extensions: mbstring, curl, xml, dom, json, tokenizer
+          coverage: none
+          tools: composer
+
+      # composer.lock is not committed, so dependencies resolve fresh on each run.
+      # The platform config in composer.json pins resolution to PHP 8.5.
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Run ${{ matrix.tool.name }}
+        run: composer ${{ matrix.tool.script }}
