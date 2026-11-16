@@ -2,6 +2,7 @@
 [![Codacy Badge](https://img.shields.io/codacy/grade/bfe1f91c2d3a40e6953baabeee88f781?style=flat-square&logo=codacy)](https://app.codacy.com/gh/w3bdesign/wp-algolia-woo-indexer/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green?style=flat-square&logo=php)](https://github.com/w3bdesign/wp-algolia-woo-indexer)
 [![PHPUnit](https://img.shields.io/github/actions/workflow/status/w3bdesign/wp-algolia-woo-indexer/phpunit.yml?branch=master&style=flat-square&logo=github&label=PHPUnit)](https://github.com/w3bdesign/wp-algolia-woo-indexer/actions/workflows/phpunit.yml)
+[![PHPStan | PHPMD](https://img.shields.io/github/actions/workflow/status/w3bdesign/wp-algolia-woo-indexer/static-analysis.yml?branch=master&style=flat-square&logo=github&label=PHPStan%20%7C%20PHPMD)](https://github.com/w3bdesign/wp-algolia-woo-indexer/actions/workflows/static-analysis.yml)
 [![SonarCloud](https://img.shields.io/sonar/quality_gate/w3bdesign_algolia-woo-indexer?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&label=SonarCloud)](https://sonarcloud.io/summary/new_code?id=w3bdesign_algolia-woo-indexer)
 
 ![Screenshot](/screenshots/screenshot1.jpg)
