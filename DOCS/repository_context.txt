@@ -5786,429 +5786,111 @@ uninstall.php
 ```markdown
   1: [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/quality/g/w3bdesign/algolia-woo-indexer/master?style=flat-square&logo=scrutinizer)](https://scrutinizer-ci.com/g/w3bdesign/algolia-woo-indexer/?branch=master)
   2: [![Codacy Badge](https://img.shields.io/codacy/grade/bfe1f91c2d3a40e6953baabeee88f781?style=flat-square&logo=codacy)](https://app.codacy.com/gh/w3bdesign/wp-algolia-woo-indexer/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-  3: [![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green?style=flat-square&logo=php)](https://github.com/w3bdesign/algolia-woo-indexer)
-  4: 
-  5: ![Screenshot](/screenshots/screenshot1.jpg)
+  3: [![PHP Linter](https://img.shields.io/badge/Code%20checked%20with-PHPCS-green?style=flat-square&logo=php)](https://github.com/w3bdesign/wp-algolia-woo-indexer)
+  4: [![PHPUnit](https://img.shields.io/github/actions/workflow/status/w3bdesign/wp-algolia-woo-indexer/phpunit.yml?branch=master&style=flat-square&logo=github&label=PHPUnit)](https://github.com/w3bdesign/wp-algolia-woo-indexer/actions/workflows/phpunit.yml)
+  5: [![SonarCloud](https://img.shields.io/sonar/quality_gate/w3bdesign_algolia-woo-indexer?server=https%3A%2F%2Fsonarcloud.io&style=flat-square&logo=sonarcloud&label=SonarCloud)](https://sonarcloud.io/summary/new_code?id=w3bdesign_algolia-woo-indexer)
   6: 
-  7: # Algolia WooCommerce Indexer
+  7: ![Screenshot](/screenshots/screenshot1.jpg)
   8: 
-  9: - Used in production at https://flora-di-berna.ch
+  9: # Algolia WooCommerce Indexer
  10: 
- 11: ## Description
+ 11: - Used in production at https://flora-di-berna.ch
  12: 
- 13: This plugin transfers products from WooCommerce to Algolia. You can choose if it
- 14: only sends products that are in stock.
- 15: 
- 16: Add the Application ID, Search API Key, Write API Key, and index name.
- 17: Copy the built-in Search API Key from Algolia for connection checks.
- 18: 
- 19: For uploads, create a separate Write API Key with only Add records (addObject)
- 20: permission, restricted to the exact product index.
- 21: 
- 22: Note that this plugin is designed for developers developing headless Ecommerce
- 23: solutions.
- 24: 
- 25: ### This plugin will NOT submit products without a category
- 26: 
- 27: ## Basic Features
- 28: 
- 29: - Manually or automatically submit WooCommerce products to Algolia
- 30: - Default options are added upon plugin activation
- 31: - Options are deleted from database upon plugin uninstallation (not on
- 32:   deactivation)
- 33: - Compatible with WooCommerce High-Performance Order Storage (HPOS) and
- 34:   Cart/Checkout Blocks; the plugin indexes products and does not access
- 35:   orders or modify checkout
- 36: 
- 37: ## Advanced Features
- 38: 
- 39: - POT file for translations is included
- 40: - All code scanned and verified with PHPCS
- 41: - Code follows modern coding standards
- 42: - All variables are properly sanitized to ensure that no security issues are
- 43:   present
- 44: - AI Repository documentation located in `/DOCS/repository_context.txt`
- 45: - PHPCS Autofix with Github actions
- 46: - PHPUnit test suite with at least 90% line coverage, enforced in GitHub
- 47:   Actions. Run it with `composer test`, or `composer test:coverage` for a
- 48:   coverage report (needs the `pcov` extension)
- 49: - PHPMD configuration (`phpmd.xml`), run with `composer phpmd`
- 50: - AI Assistant guidance files (`AGENTS.md` and `.roo/rules-*/AGENTS.md`) for
- 51:   immediate productivity with AI coding tools
- 52: 
- 53: ## Requirements
- 54: 
- 55: - An account at <www.algolia.com> (either free or premium)
- 56: - Access to install and activate plugins (usually administrator rights)
- 57: - WordPress 7.1 or newer
- 58: - WooCommerce 11.2.1 or newer
- 59: - PHP 8.5 or newer
- 60: - PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
- 61: - All products MUST have a category assigned (Uncategorized is not a
- 62:   category), or they will not be submitted
- 63: 
- 64: ## Installation
- 65: 
- 66: - Login to WordPress as Admin
- 67: - Upload `Algolia Woo Indexer` to the `/wp-content/plugins/` directory of your
- 68:   application
- 69: - Activate the plugin through the `Plugins` menu in WordPress
- 70: - Log in to Algolia, open API keys, and copy the Application ID
- 71: - Copy the built-in Search API Key for the connection check
- 72: - Create a dedicated custom Write API Key with only Add records (addObject)
- 73:   permission and restrict its allowed indices to the exact product index name
- 74:   (avoid wildcards)
- 75: - Go back to WordPress and access plugin settings under
- 76:   `Settings->Algolia Woo Indexer`
- 77: - Add the `Application ID` to the plugin settings page
- 78: - Paste the built-in Search API Key into the Search API Key field
- 79: - Add the custom key to the Write API Key field on the plugin settings page
- 80: - Add the name of the index that should be used to index WooCommerce products
- 81: - Click on the `Send products with Algolia` button to send the products
- 82:   to Algolia
- 83: 
- 84: ## Licence
- 85: 
- 86: This plugin is licensed under the GNU Affero General Public License v3.0 or
- 87: later (AGPLv3 or later). See the [LICENSE](LICENSE) file for the full text.
- 88: 
- 89: ## Troubleshooting
- 90: 
- 91: If you encounter any errors, first of all make sure that your hosting
- 92: environment meets the requirements listed under Requirements.
- 93: 
- 94: For upload errors, also check connectivity, the Application ID, and that
- 95: the Write API Key has Add records (addObject) permission for the configured
- 96: index. Read-only keys and keys restricted to a different index cannot
- 97: upload products.
- 98: 
- 99: Feel free to [open an issue][issues] and I will do my best to troubleshoot and
-100: assist.
-101: 
-102: [issues]: https://github.com/w3bdesign/algolia-woo-indexer/issues
-103: 
-104: ## TODO
-105: 
-106: - Upgrade Algolia package and check that it works correctly
-```
-
-## File: AGENTS.md
-```markdown
-  1: # AGENTS.md
-  2: 
-  3: This file provides guidance to agents when working with code in this
-  4: repository.
-  5: 
-  6: ## Requirements
-  7: 
-  8: - Plugin header in `algolia-woo-indexer.php` requires WordPress 7.1+,
-  9:   PHP 8.5+, WooCommerce 11.2.1+
- 10: - Runtime checks use `ALGOLIA_MIN_PHP_VERSION` / `ALGOLIA_MIN_WP_VERSION`,
- 11:   defined in `classes/class-check-requirements.php`. Keep them in sync with
- 12:   the plugin header, `readme.txt` and `README.md`. `composer.json` also
- 13:   declares `"php": ">=8.5"` and pins `config.platform.php` to 8.5, and
- 14:   `phpcs.xml` sets `testVersion` to `8.5-`. Raise them together. A unit test
- 15:   asserts that the constant matches the plugin header
- 16: - **`Requires at least: 7.1` is correct and is not a typo.** WordPress 7.0
- 17:   and 7.1 exist and 7.1.x is the current release line. Do not "fix" this to
- 18:   6.x. Verify any WordPress version claim against
- 19:   `https://api.wordpress.org/core/stable-check/1.0/` before acting on it,
- 20:   never from memory
- 21: - Runtime dependency: `algolia/algoliasearch-client-php` (Composer).
- 22:   `Send_Products::send_products_to_algolia()` `require_once`s
- 23:   `vendor/autoload.php`, but it is guarded by `file_exists()` and shows an
- 24:   admin notice instead of fatally erroring when `vendor/` is absent
+ 13: ## Description
+ 14: 
+ 15: This plugin transfers products from WooCommerce to Algolia.
+ 16: 
+ 17: Add the Application ID, Search API Key, Write API Key, and index name.
+ 18: Copy the built-in Search API Key from Algolia for connection checks.
+ 19: 
+ 20: For uploads, create a separate Write API Key with only Add records (addObject)
+ 21: permission, restricted to the exact product index.
+ 22: 
+ 23: Note that this plugin is designed for developers developing headless Ecommerce
+ 24: solutions.
  25: 
- 26: ## Licence
+ 26: ### This plugin will NOT submit products without a category
  27: 
- 28: - **The project is AGPL-3.0.** The `LICENSE` file is the authority
- 29: - Every declaration is now aligned to it. Keep all five in sync when
- 30:   touching any one of them:
- 31:   - `LICENSE` — the full AGPL-3.0 text
- 32:   - `readme.txt` — `License: AGPLv3 or later` /
- 33:     `License URI: https://www.gnu.org/licenses/agpl-3.0.html`
- 34:   - `algolia-woo-indexer.php` — the same two fields in the plugin header,
- 35:     plus `@license AGPL-3.0-or-later` in the docblock
- 36:   - `composer.json` — `"license": "AGPL-3.0-or-later"`
- 37:   - `README.md` — the `## Licence` section
- 38: - The plugin header and `readme.txt` use the WordPress readme spelling
- 39:   (`AGPLv3 or later`); `composer.json` and the docblock use the SPDX
- 40:   identifier (`AGPL-3.0-or-later`). Both forms are intentional
- 41: - Historic stale values were `GPLv2 or later` in `readme.txt` and
- 42:   `GNU version 3` in the docblock. Do not reintroduce either
- 43: 
- 44: ## WordPress Plugin Architecture (Non-obvious patterns)
- 45: 
- 46: - Two-phase init: `algolia-woo-indexer.php` `require_once`s every class
- 47:   file, then calls `\Algowoo\Algolia_Woo_Indexer::get_instance()` and
- 48:   registers the activation/deactivation hooks on that instance. The
- 49:   constructor calls the static `init()`, which registers all hooks
- 50: - All classes live in namespace `Algowoo` and are loaded manually, with no
- 51:   autoloader. A new class file needs a `require_once` in the main file
- 52: - Classes are one of two styles:
- 53:   - Legacy, wrapped in `if ( ! class_exists() )`: `Algolia_Woo_Indexer`,
- 54:     `Algolia_Send_Products`, `Algolia_Verify_Nonces`,
- 55:     `Algolia_Check_Requirements`. These are mostly static methods
- 56:   - Newer `final` classes named `AlgoliaConnectionStatus` and
- 57:     `AlgoliaSettingsFields`. The main class uses `AlgoliaConnectionStatus`
- 58:     as an injected, optional constructor dependency.
- 59:     `AlgoliaSettingsFields` is called statically as Settings API render
- 60:     callbacks
- 61: - There is no AJAX. The settings form and the "Send products" form are
- 62:   plain POSTs to `options-general.php?page=algolia-woo-indexer-settings`,
- 63:   handled on `admin_init` by `update_settings_options()` and
- 64:   `maybe_send_products()`
- 65: - Settings fields are registered in a data-driven `$fields` array in
- 66:   `Algolia_Woo_Indexer::setup_settings_sections()`. Add a field there and a
- 67:   `render_*` method in `AlgoliaSettingsFields`
- 68: - Product sends are triggered either by the manual form, which is protected
- 69:   by both a nonce and a capability check, or by the `save_post` hook when
- 70:   the auto-send option is `'1'` (`send_new_product_to_algolia()`, which
- 71:   sends only published `product` posts)
- 72: - **The `save_post` hook is registered outside `is_admin()` on purpose**, so
- 73:   that products published through the REST API, WP-CLI or a scheduled post
- 74:   are indexed too. Do not move it back inside the `is_admin()` block. Only
- 75:   the admin menu, styles and the `admin_init` handlers belong there
- 76: - `algolia-woo-indexer.php` declares WooCommerce HPOS (`custom_order_tables`)
- 77:   and `cart_checkout_blocks` compatibility on `before_woocommerce_init`,
- 78:   guarded by a `class_exists()` check on `FeaturesUtil`. The plugin only
- 79:   reads products, so it is unaffected by the order storage backend
- 80: 
- 81: ## Security conventions
- 82: 
- 83: - **Nonces guard against CSRF, not authorization. Every write path pairs a
- 84:   nonce check with `current_user_can( 'manage_options' )`.** Keep both
- 85: - Pass the capability to `current_user_can()` as a string literal. A class
- 86:   constant triggers `WordPress.WP.Capabilities.Undetermined` in PHPCS
- 87: - All `$_POST` reads go through `filter_input()`, then `wp_unslash()`, then
- 88:   `sanitize_text_field()`. `Algolia_Woo_Indexer::get_posted_setting()` is the
- 89:   helper for the array-shaped settings fields
- 90: - **Never echo markup from `admin_init`, from `init()` or at file scope.**
- 91:   Queue it with `Algolia_Check_Requirements::queue_admin_notice( $message )`,
- 92:   or register your own `add_action( 'admin_notices', ... )` closure. The
- 93:   message passed to `queue_admin_notice()` must already be translated and
- 94:   unescaped; the helper escapes it
- 95: - `AlgoliaConnectionStatus` is cached per request, requires `manage_options`,
- 96:   validates the Application ID as `^[a-zA-Z0-9]+$`, disables redirects, and
- 97:   redacts both keys from diagnostics through
- 98:   `sanitize_connection_diagnostic()`. Keep all of this when editing it
+ 28: ## Basic Features
+ 29: 
+ 30: - Manually or automatically submit WooCommerce products to Algolia
+ 31: - Default options are added upon plugin activation
+ 32: - Options are deleted from database upon plugin uninstallation (not on
+ 33:   deactivation)
+ 34: - Compatible with WooCommerce High-Performance Order Storage (HPOS) and
+ 35:   Cart/Checkout Blocks; the plugin indexes products and does not access
+ 36:   orders or modify checkout
+ 37: 
+ 38: ## Advanced Features
+ 39: 
+ 40: - POT file for translations is included
+ 41: - All code scanned and verified with PHPCS
+ 42: - Code follows modern coding standards
+ 43: - All variables are properly sanitized to ensure that no security issues are
+ 44:   present
+ 45: - AI Repository documentation located in `/DOCS/repository_context.txt`
+ 46: - PHPCS Autofix with Github actions
+ 47: - PHPUnit test suite with at least 90% line coverage, enforced in GitHub
+ 48:   Actions. Run it with `composer test`, or `composer test:coverage` for a
+ 49:   coverage report (needs the `pcov` extension)
+ 50: - PHPMD configuration (`phpmd.xml`), run with `composer phpmd`
+ 51: - AI Assistant guidance files (`AGENTS.md` and `.roo/rules-*/AGENTS.md`) for
+ 52:   immediate productivity with AI coding tools
+ 53: 
+ 54: ## Requirements
+ 55: 
+ 56: - An account at <www.algolia.com> (either free or premium)
+ 57: - Access to install and activate plugins (usually administrator rights)
+ 58: - WordPress 7.1 or newer
+ 59: - WooCommerce 11.2.1 or newer
+ 60: - PHP 8.5 or newer
+ 61: - PHP extensions/functions enabled: `mbstring`, `mbregex` and `cURL`
+ 62: - All products MUST have a category assigned (Uncategorized is not a
+ 63:   category), or they will not be submitted
+ 64: 
+ 65: ## Installation
+ 66: 
+ 67: - Login to WordPress as Admin
+ 68: - Upload `Algolia Woo Indexer` to the `/wp-content/plugins/` directory of your
+ 69:   application
+ 70: - Activate the plugin through the `Plugins` menu in WordPress
+ 71: - Log in to Algolia, open API keys, and copy the Application ID
+ 72: - Copy the built-in Search API Key for the connection check
+ 73: - Create a dedicated custom Write API Key with only Add records (addObject)
+ 74:   permission and restrict its allowed indices to the exact product index name
+ 75:   (avoid wildcards)
+ 76: - Go back to WordPress and access plugin settings under
+ 77:   `Settings->Algolia Woo Indexer`
+ 78: - Add the `Application ID` to the plugin settings page
+ 79: - Paste the built-in Search API Key into the Search API Key field
+ 80: - Add the custom key to the Write API Key field on the plugin settings page
+ 81: - Add the name of the index that should be used to index WooCommerce products
+ 82: - Click on the `Send products to Algolia` button to send the products
+ 83:   to Algolia
+ 84: 
+ 85: ## Licence
+ 86: 
+ 87: This plugin is licensed under the GNU Affero General Public License v3.0 or
+ 88: later (AGPLv3 or later). See the [LICENSE](LICENSE) file for the full text.
+ 89: 
+ 90: ## Troubleshooting
+ 91: 
+ 92: If you encounter any errors, first of all make sure that your hosting
+ 93: environment meets the requirements listed under Requirements.
+ 94: 
+ 95: For upload errors, also check connectivity, the Application ID, and that
+ 96: the Write API Key has Add records (addObject) permission for the configured
+ 97: index. Read-only keys and keys restricted to a different index cannot
+ 98: upload products.
  99: 
-100: ## Nonces
-101: 
-102: - Both verifiers live in `Algolia_Verify_Nonces`, both return `bool`, and
-103:   both `wp_die()` with a 403 on failure
-104: - `verify_settings_nonce()` returns `false` when the settings form was not
-105:   submitted at all. Otherwise it enforces `manage_options` and then
-106:   `wp_verify_nonce()`. Action is `algolia_woo_indexer_admin_api_nonce_action`
-107:   and field is `algolia_woo_indexer_admin_api_nonce_name`, rendered inside
-108:   the Write API Key field renderer
-109: - `verify_send_products_nonce()` returns `false` when the hidden
-110:   `send_products_to_algolia` field is absent. Otherwise it enforces
-111:   `manage_options` and then the nonce. Action is
-112:   `send_products_to_algolia_nonce_action` and field is
-113:   `send_products_to_algolia_nonce_name`
-114: - `update_settings_options()` returns early unless
-115:   `verify_settings_nonce()` is truthy, so the capability gate covers every
-116:   `update_option()` call in that method
-117: 
-118: ## Options and constants
-119: 
-120: - Constants are global `define()`s at the top of
-121:   `classes/class-send-products.php`, not class constants, and are loaded
-122:   after the main class file. Do not use them at file scope in
-123:   `class-algolia-woo-indexer.php`
-124:   - `ALGOWOO_DB_OPTION` = `_algolia_woo_indexer`
-125:   - `ALGOLIA_APP_ID`, `ALGOLIA_SEARCH_API_KEY`, `INDEX_NAME`,
-126:     `AUTOMATICALLY_SEND_NEW_PRODUCTS`
-127:   - `ALGOLIA_API_KEY` = `_admin_api_key`. This legacy suffix holds the
-128:     **Write** API key and is kept so existing saved keys keep working. Do
-129:     not rename it
-130:   - `CHANGE_ME` = `'change me'`, the placeholder compared
-131:     case-insensitively
-132: - These names are unprefixed globals, which is a known wart. Prefix any new
-133:   constant you add
-134: - Each setting is its own option, `ALGOWOO_DB_OPTION . SUFFIX`, read through
-135:   `get_option()`. `Algolia_Woo_Indexer::get_algolia_settings()` returns the
-136:   connection settings
-137: - Form field names use an array shape, for example
-138:   `algolia_woo_indexer_application_id[id]`, `..._admin_api_key[key]`,
-139:   `..._search_api_key[key]`, `..._index_name[name]`
-140: - The four credential options are only written when the submitted value is
-141:   non-empty, so clearing a field does not clear the saved option
-142: - **The auto-send option is written unconditionally** as `'1'` or `'0'`,
-143:   because an unchecked checkbox is absent from the POST data. Keep it
-144:   outside the non-empty loop or automatic indexing becomes impossible to
-145:   switch off
-146: - `uninstall.php` redefines `ALGOWOO_DB_OPTION` and deletes the options by
-147:   literal suffix, including the legacy `_index_in_stock`. Update it when
-148:   adding or renaming options
-149: - Activation seeds `'Change me'` defaults and sets the transient
-150:   `algowoo-plugin-notice`. Deactivation deletes only the transient
-151: 
-152: ## Two different Algolia keys
-153: 
-154: - Write API Key (`_admin_api_key`) is used by `Send_Products` via the
-155:   Algolia PHP client (`SearchClient::create()` then `saveObjects()`). It is
-156:   created fresh on every send. Docs say it should have only `addObject`
-157:   permission
-158: - Search API Key (`_search_api_key`) is used only by
-159:   `AlgoliaConnectionStatus`, which makes one `wp_remote_post()` to
-160:   `https://{appId}.algolia.net/1/indexes/{index}/query` with an empty query
-161:   on each settings-page load
-162: 
-163: ## Indexing details
-164: 
-165: - `send_products_to_algolia( $id = '' )` guards the Composer autoloader,
-166:   reads the settings, and **returns early unless
-167:   `Algolia_Check_Requirements::check_algolia_input_values()` passes**. That
-168:   check returns `bool` and queues its own notice
-169: - It then fetches published products with `wc_get_products()`, using
-170:   `limit => -1` for all products or `include => [ $id ]` for one, builds all
-171:   records, and sends them in one `saveObjects()` call. There is no chunking,
-172:   which is the main scaling limitation
-173: - Record fields: `objectID`, `product_name`, `product_image`,
-174:   `short_description`, `regular_price`, `sale_price`, `on_sale`
-175: - Image URL is extracted with a regex on `$product->get_image()`:
-176:   `preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', ...)` followed by
-177:   `array_pop()`
-178: - Price logic in `get_product_type_price()` handles only `simple` (sale and
-179:   regular price getters) and `variable` (min sale, max regular variation
-180:   prices). Other product types get `0`
-181: - Outcomes are all reported through `admin_notices`: an `AlgoliaException`
-182:   from `saveObjects()`, a `NullResponse` result, and the plural-aware `_n()`
-183:   success message
-184: 
-185: ## Known quirks (do not "fix" unasked)
-186: 
-187: - `class-algolia-woo-indexer.php` has a bare `// TODO Rename class ...` line
-188:   comment sitting between the class docblock and the `class` keyword. The
-189:   same shape in `class-send-products.php` tripped
-190:   `Squiz.Commenting.ClassComment.WrongStyle` and had to be moved into the
-191:   docblock as `@todo`. If the commenting sniff fires here, move it rather
-192:   than deleting it
-193: - Text domain is `algolia-woo-indexer` everywhere. Translation files are in
-194:   `languages/`, and `load_textdomain()` resolves that with
-195:   `basename( dirname( __DIR__ ) )` because the class file lives in
-196:   `classes/`
-197: - `DOCS/repository_context.txt` is generated by the Repomix GitHub workflow
-198:   on pushes to `main`. Do not edit it by hand
-199: - The four `.roo/rules-*/AGENTS.md` files have been reconciled with this
-200:   one. They each open by naming this file as the authority and must not
-201:   contradict it. Historically they described AJAX endpoints, AJAX-driven
-202:   singleton behaviour and a non-existent `prepare_product_data()` method.
-203:   If any of that reappears, delete it
-204: - `README.md` claims the plugin will not submit products without a
-205:   category. No code in `classes/` filters on categories. The claim is
-206:   unverified; do not repeat it as fact and do not implement it unasked
-207: 
-208: ## Static analysis: three independent gates
-209: 
-210: A change has to satisfy all three. They use different rulesets, so passing
-211: one says nothing about the others.
-212: 
-213: 1. **PHPCS** via `.github/workflows/phpcs.yml` (rtCamp action, `WordPress`
-214:    standard). Local config is `phpcs.xml`: `WordPress` plus
-215:    `PHPCompatibility`, excluding
-216:    `WordPress.Files.FileName.NotHyphenatedLowercase` and
-217:    `WordPress.Files.FileName.InvalidClassFileName`, ignoring `vendor`,
-218:    `node_modules`, `dev-lib`, `.github` and `algoliasearch-client-php`.
-219:    `testVersion` is `8.5-`. `tests/` is checked too. The installed
-220:    PHPCompatibility 9.3.5 predates PHP 8, so it cannot flag 8.x issues; the
-221:    10.0 alpha passes cleanly on `classes/` and `tests/`
-222: 2. **Codacy, running PHPMD.** It **blocks merges** and uses its own
-223:    configuration, so it ignores the local `phpmd.xml`. Run
-224:    `composer phpmd` locally. `phpmd.xml` mirrors the Codacy rules seen so
-225:    far: `TooManyMethods` with a maximum of 10 that also counts `test_*`
-226:    methods, and `Superglobals`. PHPMD's own defaults are looser and hid both
-227:    from local runs. The only rule excluded is `LongVariable`.
-228:    `phpmd.baseline.xml` records the 9 pre-existing findings in `classes/` so
-229:    that only new violations fail. Do not grow the baseline to hide new
-230:    findings. If Codacy reports something `composer phpmd` did not, align
-231:    `phpmd.xml` with it rather than only fixing the instance.
-232:    Its `StaticAccess` rule fires on this codebase's deliberate static
-233:    style. The accepted workaround is a
-234:    `@SuppressWarnings(PHPMD.StaticAccess)` line in the docblock of the
-235:    static hook callback, not a refactor to dependency injection. It is
-236:    already applied to `maybe_send_products()`, `init()`,
-237:    `send_new_product_to_algolia()`, `update_settings_options()` and
-238:    `Algolia_Send_Products::send_products_to_algolia()`.
-239:    **Do not add suppressions to make a finding go away without asking the
-240:    maintainer first. Fix the finding instead.** The only suppressions in
-241:    `tests/` are:
-242:    - a class-level `@SuppressWarnings(PHPMD.StaticAccess)` on test classes
-243:      that call the plugin's static API, which cannot be avoided until that
-244:      API is refactored. Never use it to cover Mockery or helper statics: use
-245:      Mockery's global `mock()` function and the `Overrides_Built_Ins` trait
-246:    - `phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited` where a
-247:      test sets `$wp_version`, which production reads
-248:      Keep test method names at 40 characters or fewer (`LongMethodName`) and
-249:      test classes at 10 methods or fewer (`TooManyMethods`, data providers
-250:      count). Split a class around a shared abstract base in `tests/Support/`
-251:      rather than suppressing. Read globals with `global $wp_version;`, not
-252:      `$GLOBALS[...]`, which trips `Superglobals`
-253: 3. **A VIP-style PHPCS scanner** that reports `Squiz.Commenting.*` and
-254:    `Generic.Commenting.*` errors the local `phpcs.xml` does not. Recurring
-255:    ones: no blank line between `<?php` and the file docblock, `@param`
-256:    comments must end in a full stop, docblocks need a short description, and
-257:    class comments must use `/** */`
-258: 
-259: ## Development Commands
-260: 
-261: - Install dependencies: `composer install`
-262: - Run the unit tests: `composer test`
-263: - Coverage report: `composer test:coverage` (needs the `pcov` extension)
-264: - Run PHP_CodeSniffer: `composer phpcs`. `phpcs.xml` lists no files, so a
-265:   bare `vendor/bin/phpcs` errors; pass a path (`vendor/bin/phpcs .`)
-266: - Fix coding standards: `composer phpcbf`. `phpcs-autofix.yml` also
-267:   applies automatic fixes in CI
-268: - Run PHPMD: `composer phpmd`
-269: - **GitHub Actions are pinned to full commit SHAs** with a trailing version
-270:   comment (`uses: actions/checkout@<40-char sha> # v7.0.1`), never to a tag
-271:   such as `@v7`, because tags can be moved. Dependabot's `github-actions`
-272:   entry updates the SHA and the comment together. Pin new actions the same
-273:   way. Resolve a SHA with
-274:   `git ls-remote https://github.com/<owner>/<repo> 'refs/tags/<tag>^{}'`,
-275:   falling back to `refs/tags/<tag>` for lightweight tags
-276: 
-277: ## Unit tests
-278: 
-279: - PHPUnit 13 with Brain Monkey and Mockery, with no WordPress install.
-280:   `tests/Unit/*_Test.php` holds the tests and `tests/Support/` holds the
-281:   shared base class and helpers. Class and file names use WordPress style
-282:   (`Send_Products_Test`) so PHPCS passes without exclusions
-283: - CI: `.github/workflows/phpunit.yml` runs the suite on PHP 8.5, **fails
-284:   below 90% line coverage**, and runs PHP 8.6 as a non-blocking job. The
-285:   only uncovered lines are the `exit;` direct-access guards
-286: - `tests/bootstrap.php` defines `ABSPATH` to point at `tests/fixtures/wordpress/`,
-287:   whose `wp-admin/includes/plugin.php` is deliberately empty. `Test_Case`
-288:   loads the class files once per process, in the main plugin file's order.
-289:   The global `define()`s mean they can never be loaded twice
-290: - **PHP built-ins are faked through namespaced shims, not Brain Monkey.**
-291:   The plugin calls `filter_input()`, `extension_loaded()`,
-292:   `function_exists()`, `file_exists()` and `version_compare()` unqualified
-293:   inside `namespace Algowoo`, so `tests/shims.php` defines `Algowoo\*`
-294:   versions that delegate to a `Built_In_Functions` instance held in the
-295:   global `$algowoo_built_ins`, created in `tests/bootstrap.php`. In tests,
-296:   use `$this->override_built_in()` and `$this->set_post_data()` from the
-297:   `Overrides_Built_Ins` trait; the latter simulates `$_POST`, because
-298:   `filter_input()` never sees request data under the CLI. Shims must exist
-299:   before any plugin file loads, because PHP caches how an unqualified call
-300:   resolves. To fake another built-in, add a shim there
-301: - **Brain Monkey trap:** when a function is stubbed with `Functions\when()`
-302:   in `setUp()`, a later `Functions\expect()` for that function in the test
-303:   is silently ignored, including `->never()`. Record calls in the `when()`
-304:   alias and assert on them instead, or don't stub it in `setUp()`
-305: - Anything that reaches `SearchClient::create()` lives in
-306:   `Send_Products_Algolia_Test`, which runs each test in a separate process
-307:   with a Mockery `alias:` mock created through the global `mock()` helper.
-308:   `tests/fixtures/class-wp-error.php` is a minimal `WP_Error` for transport
-309:   error tests. `Uninstall_Test` also runs in a separate
-310:   process with `$load_plugin_classes = false`, because `uninstall.php`
-311:   defines `ALGOWOO_DB_OPTION` itself
-312: - The bundled Algolia client v2.8.0 raises deprecation notices on PHP 8.5
-313:   (implicitly nullable parameters, `ArrayAccess` return types,
-314:   `curl_close()`). `ignoreIndirectDeprecations` keeps them from failing the
-315:   suite, while deprecations in plugin code still fail it
+100: Feel free to [open an issue][issues] and I will do my best to troubleshoot and
+101: assist.
+102: 
+103: [issues]: https://github.com/w3bdesign/wp-algolia-woo-indexer/issues
+104: 
+105: ## TODO
+106: 
+107: - Upgrade Algolia package and check that it works correctly
 ```
 
 ## File: classes/class-algolia-connection-status.php
@@ -6868,4 +6550,327 @@ uninstall.php
 435: 		}
 436: 	}
 437: }
+```
+
+## File: AGENTS.md
+```markdown
+  1: # AGENTS.md
+  2: 
+  3: This file provides guidance to agents when working with code in this
+  4: repository.
+  5: 
+  6: ## Requirements
+  7: 
+  8: - Plugin header in `algolia-woo-indexer.php` requires WordPress 7.1+,
+  9:   PHP 8.5+, WooCommerce 11.2.1+
+ 10: - Runtime checks use `ALGOLIA_MIN_PHP_VERSION` / `ALGOLIA_MIN_WP_VERSION`,
+ 11:   defined in `classes/class-check-requirements.php`. Keep them in sync with
+ 12:   the plugin header, `readme.txt` and `README.md`. `composer.json` also
+ 13:   declares `"php": ">=8.5"` and pins `config.platform.php` to 8.5, and
+ 14:   `phpcs.xml` sets `testVersion` to `8.5-`. Raise them together. A unit test
+ 15:   asserts that the constant matches the plugin header
+ 16: - **`Requires at least: 7.1` is correct and is not a typo.** WordPress 7.0
+ 17:   and 7.1 exist and 7.1.x is the current release line. Do not "fix" this to
+ 18:   6.x. Verify any WordPress version claim against
+ 19:   `https://api.wordpress.org/core/stable-check/1.0/` before acting on it,
+ 20:   never from memory
+ 21: - Runtime dependency: `algolia/algoliasearch-client-php` (Composer).
+ 22:   `Send_Products::send_products_to_algolia()` `require_once`s
+ 23:   `vendor/autoload.php`, but it is guarded by `file_exists()` and shows an
+ 24:   admin notice instead of fatally erroring when `vendor/` is absent
+ 25: 
+ 26: ## Licence
+ 27: 
+ 28: - **The project is AGPL-3.0.** The `LICENSE` file is the authority
+ 29: - Every declaration is now aligned to it. Keep all five in sync when
+ 30:   touching any one of them:
+ 31:   - `LICENSE` — the full AGPL-3.0 text
+ 32:   - `readme.txt` — `License: AGPLv3 or later` /
+ 33:     `License URI: https://www.gnu.org/licenses/agpl-3.0.html`
+ 34:   - `algolia-woo-indexer.php` — the same two fields in the plugin header,
+ 35:     plus `@license AGPL-3.0-or-later` in the docblock
+ 36:   - `composer.json` — `"license": "AGPL-3.0-or-later"`
+ 37:   - `README.md` — the `## Licence` section
+ 38: - The plugin header and `readme.txt` use the WordPress readme spelling
+ 39:   (`AGPLv3 or later`); `composer.json` and the docblock use the SPDX
+ 40:   identifier (`AGPL-3.0-or-later`). Both forms are intentional
+ 41: - Historic stale values were `GPLv2 or later` in `readme.txt` and
+ 42:   `GNU version 3` in the docblock. Do not reintroduce either
+ 43: 
+ 44: ## WordPress Plugin Architecture (Non-obvious patterns)
+ 45: 
+ 46: - Two-phase init: `algolia-woo-indexer.php` `require_once`s every class
+ 47:   file, then calls `\Algowoo\Algolia_Woo_Indexer::get_instance()` and
+ 48:   registers the activation/deactivation hooks on that instance. The
+ 49:   constructor calls the static `init()`, which registers all hooks
+ 50: - All classes live in namespace `Algowoo` and are loaded manually, with no
+ 51:   autoloader. A new class file needs a `require_once` in the main file
+ 52: - Classes are one of two styles:
+ 53:   - Legacy, wrapped in `if ( ! class_exists() )`: `Algolia_Woo_Indexer`,
+ 54:     `Algolia_Send_Products`, `Algolia_Verify_Nonces`,
+ 55:     `Algolia_Check_Requirements`. These are mostly static methods
+ 56:   - Newer `final` classes named `AlgoliaConnectionStatus` and
+ 57:     `AlgoliaSettingsFields`. The main class uses `AlgoliaConnectionStatus`
+ 58:     as an injected, optional constructor dependency.
+ 59:     `AlgoliaSettingsFields` is called statically as Settings API render
+ 60:     callbacks
+ 61: - There is no AJAX. The settings form and the "Send products" form are
+ 62:   plain POSTs to `options-general.php?page=algolia-woo-indexer-settings`,
+ 63:   handled on `admin_init` by `update_settings_options()` and
+ 64:   `maybe_send_products()`
+ 65: - Settings fields are registered in a data-driven `$fields` array in
+ 66:   `Algolia_Woo_Indexer::setup_settings_sections()`. Add a field there and a
+ 67:   `render_*` method in `AlgoliaSettingsFields`
+ 68: - Product sends are triggered either by the manual form, which is protected
+ 69:   by both a nonce and a capability check, or by the `save_post` hook when
+ 70:   the auto-send option is `'1'` (`send_new_product_to_algolia()`, which
+ 71:   sends only published `product` posts)
+ 72: - **The `save_post` hook is registered outside `is_admin()` on purpose**, so
+ 73:   that products published through the REST API, WP-CLI or a scheduled post
+ 74:   are indexed too. Do not move it back inside the `is_admin()` block. Only
+ 75:   the admin menu, styles and the `admin_init` handlers belong there
+ 76: - `algolia-woo-indexer.php` declares WooCommerce HPOS (`custom_order_tables`)
+ 77:   and `cart_checkout_blocks` compatibility on `before_woocommerce_init`,
+ 78:   guarded by a `class_exists()` check on `FeaturesUtil`. The plugin only
+ 79:   reads products, so it is unaffected by the order storage backend
+ 80: 
+ 81: ## Security conventions
+ 82: 
+ 83: - **Nonces guard against CSRF, not authorization. Every write path pairs a
+ 84:   nonce check with `current_user_can( 'manage_options' )`.** Keep both
+ 85: - Pass the capability to `current_user_can()` as a string literal. A class
+ 86:   constant triggers `WordPress.WP.Capabilities.Undetermined` in PHPCS
+ 87: - All `$_POST` reads go through `filter_input()`, then `wp_unslash()`, then
+ 88:   `sanitize_text_field()`. `Algolia_Woo_Indexer::get_posted_setting()` is the
+ 89:   helper for the array-shaped settings fields
+ 90: - **Never echo markup from `admin_init`, from `init()` or at file scope.**
+ 91:   Queue it with `Algolia_Check_Requirements::queue_admin_notice( $message )`,
+ 92:   or register your own `add_action( 'admin_notices', ... )` closure. The
+ 93:   message passed to `queue_admin_notice()` must already be translated and
+ 94:   unescaped; the helper escapes it
+ 95: - `AlgoliaConnectionStatus` is cached per request, requires `manage_options`,
+ 96:   validates the Application ID as `^[a-zA-Z0-9]+$`, disables redirects, and
+ 97:   redacts both keys from diagnostics through
+ 98:   `sanitize_connection_diagnostic()`. Keep all of this when editing it
+ 99: 
+100: ## Nonces
+101: 
+102: - Both verifiers live in `Algolia_Verify_Nonces`, both return `bool`, and
+103:   both `wp_die()` with a 403 on failure
+104: - `verify_settings_nonce()` returns `false` when the settings form was not
+105:   submitted at all. Otherwise it enforces `manage_options` and then
+106:   `wp_verify_nonce()`. Action is `algolia_woo_indexer_admin_api_nonce_action`
+107:   and field is `algolia_woo_indexer_admin_api_nonce_name`, rendered inside
+108:   the Write API Key field renderer
+109: - `verify_send_products_nonce()` returns `false` when the hidden
+110:   `send_products_to_algolia` field is absent. Otherwise it enforces
+111:   `manage_options` and then the nonce. Action is
+112:   `send_products_to_algolia_nonce_action` and field is
+113:   `send_products_to_algolia_nonce_name`
+114: - `update_settings_options()` returns early unless
+115:   `verify_settings_nonce()` is truthy, so the capability gate covers every
+116:   `update_option()` call in that method
+117: 
+118: ## Options and constants
+119: 
+120: - Constants are global `define()`s at the top of
+121:   `classes/class-send-products.php`, not class constants, and are loaded
+122:   after the main class file. Do not use them at file scope in
+123:   `class-algolia-woo-indexer.php`
+124:   - `ALGOWOO_DB_OPTION` = `_algolia_woo_indexer`
+125:   - `ALGOLIA_APP_ID`, `ALGOLIA_SEARCH_API_KEY`, `INDEX_NAME`,
+126:     `AUTOMATICALLY_SEND_NEW_PRODUCTS`
+127:   - `ALGOLIA_API_KEY` = `_admin_api_key`. This legacy suffix holds the
+128:     **Write** API key and is kept so existing saved keys keep working. Do
+129:     not rename it
+130:   - `CHANGE_ME` = `'change me'`, the placeholder compared
+131:     case-insensitively
+132: - These names are unprefixed globals, which is a known wart. Prefix any new
+133:   constant you add
+134: - Each setting is its own option, `ALGOWOO_DB_OPTION . SUFFIX`, read through
+135:   `get_option()`. `Algolia_Woo_Indexer::get_algolia_settings()` returns the
+136:   connection settings
+137: - Form field names use an array shape, for example
+138:   `algolia_woo_indexer_application_id[id]`, `..._admin_api_key[key]`,
+139:   `..._search_api_key[key]`, `..._index_name[name]`
+140: - The four credential options are only written when the submitted value is
+141:   non-empty, so clearing a field does not clear the saved option
+142: - **The auto-send option is written unconditionally** as `'1'` or `'0'`,
+143:   because an unchecked checkbox is absent from the POST data. Keep it
+144:   outside the non-empty loop or automatic indexing becomes impossible to
+145:   switch off
+146: - `uninstall.php` redefines `ALGOWOO_DB_OPTION` and deletes the options by
+147:   literal suffix, including the legacy `_index_in_stock`. Update it when
+148:   adding or renaming options
+149: - Activation seeds `'Change me'` defaults and sets the transient
+150:   `algowoo-plugin-notice`. Deactivation deletes only the transient
+151: 
+152: ## Two different Algolia keys
+153: 
+154: - Write API Key (`_admin_api_key`) is used by `Send_Products` via the
+155:   Algolia PHP client (`SearchClient::create()` then `saveObjects()`). It is
+156:   created fresh on every send. Docs say it should have only `addObject`
+157:   permission
+158: - Search API Key (`_search_api_key`) is used only by
+159:   `AlgoliaConnectionStatus`, which makes one `wp_remote_post()` to
+160:   `https://{appId}.algolia.net/1/indexes/{index}/query` with an empty query
+161:   on each settings-page load
+162: 
+163: ## Indexing details
+164: 
+165: - `send_products_to_algolia( $id = '' )` guards the Composer autoloader,
+166:   reads the settings, and **returns early unless
+167:   `Algolia_Check_Requirements::check_algolia_input_values()` passes**. That
+168:   check returns `bool` and queues its own notice
+169: - It then fetches published products with `wc_get_products()`, using
+170:   `limit => -1` for all products or `include => [ $id ]` for one, builds all
+171:   records, and sends them in one `saveObjects()` call. There is no chunking,
+172:   which is the main scaling limitation
+173: - Record fields: `objectID`, `product_name`, `product_image`,
+174:   `short_description`, `regular_price`, `sale_price`, `on_sale`
+175: - Image URL is extracted with a regex on `$product->get_image()`:
+176:   `preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', ...)` followed by
+177:   `array_pop()`
+178: - Price logic in `get_product_type_price()` handles only `simple` (sale and
+179:   regular price getters) and `variable` (min sale, max regular variation
+180:   prices). Other product types get `0`
+181: - Outcomes are all reported through `admin_notices`: an `AlgoliaException`
+182:   from `saveObjects()`, a `NullResponse` result, and the plural-aware `_n()`
+183:   success message
+184: 
+185: ## Known quirks (do not "fix" unasked)
+186: 
+187: - `class-algolia-woo-indexer.php` has a bare `// TODO Rename class ...` line
+188:   comment sitting between the class docblock and the `class` keyword. The
+189:   same shape in `class-send-products.php` tripped
+190:   `Squiz.Commenting.ClassComment.WrongStyle` and had to be moved into the
+191:   docblock as `@todo`. If the commenting sniff fires here, move it rather
+192:   than deleting it
+193: - Text domain is `algolia-woo-indexer` everywhere. Translation files are in
+194:   `languages/`, and `load_textdomain()` resolves that with
+195:   `basename( dirname( __DIR__ ) )` because the class file lives in
+196:   `classes/`
+197: - `DOCS/repository_context.txt` is generated by the Repomix GitHub workflow
+198:   on pushes to `main`. Do not edit it by hand
+199: - The four `.roo/rules-*/AGENTS.md` files have been reconciled with this
+200:   one. They each open by naming this file as the authority and must not
+201:   contradict it. Historically they described AJAX endpoints, AJAX-driven
+202:   singleton behaviour and a non-existent `prepare_product_data()` method.
+203:   If any of that reappears, delete it
+204: - `README.md` states the plugin will not submit products without a
+205:   category. The maintainer has confirmed this by testing, so keep the
+206:   claim. No code in `classes/` filters on categories, so the behaviour
+207:   comes from outside the plugin's own code. Do not implement category
+208:   filtering unasked
+209: - The legacy `_index_in_stock` option is only deleted by `uninstall.php`.
+210:   There is no in-stock setting, and `README.md` no longer claims one
+211: 
+212: ## Static analysis: three independent gates
+213: 
+214: A change has to satisfy all three. They use different rulesets, so passing
+215: one says nothing about the others.
+216: 
+217: 1. **PHPCS** via `.github/workflows/phpcs.yml` (rtCamp action, `WordPress`
+218:    standard). Local config is `phpcs.xml`: `WordPress` plus
+219:    `PHPCompatibility`, excluding
+220:    `WordPress.Files.FileName.NotHyphenatedLowercase` and
+221:    `WordPress.Files.FileName.InvalidClassFileName`, ignoring `vendor`,
+222:    `node_modules`, `dev-lib`, `.github` and `algoliasearch-client-php`.
+223:    `testVersion` is `8.5-`. `tests/` is checked too. The installed
+224:    PHPCompatibility 9.3.5 predates PHP 8, so it cannot flag 8.x issues; the
+225:    10.0 alpha passes cleanly on `classes/` and `tests/`
+226: 2. **Codacy, running PHPMD.** It **blocks merges** and uses its own
+227:    configuration, so it ignores the local `phpmd.xml`. Run
+228:    `composer phpmd` locally. `phpmd.xml` mirrors the Codacy rules seen so
+229:    far: `TooManyMethods` with a maximum of 10 that also counts `test_*`
+230:    methods, and `Superglobals`. PHPMD's own defaults are looser and hid both
+231:    from local runs. The only rule excluded is `LongVariable`.
+232:    `phpmd.baseline.xml` records the 9 pre-existing findings in `classes/` so
+233:    that only new violations fail. Do not grow the baseline to hide new
+234:    findings. If Codacy reports something `composer phpmd` did not, align
+235:    `phpmd.xml` with it rather than only fixing the instance.
+236:    Its `StaticAccess` rule fires on this codebase's deliberate static
+237:    style. The accepted workaround is a
+238:    `@SuppressWarnings(PHPMD.StaticAccess)` line in the docblock of the
+239:    static hook callback, not a refactor to dependency injection. It is
+240:    already applied to `maybe_send_products()`, `init()`,
+241:    `send_new_product_to_algolia()`, `update_settings_options()` and
+242:    `Algolia_Send_Products::send_products_to_algolia()`.
+243:    **Do not add suppressions to make a finding go away without asking the
+244:    maintainer first. Fix the finding instead.** The only suppressions in
+245:    `tests/` are:
+246:    - a class-level `@SuppressWarnings(PHPMD.StaticAccess)` on test classes
+247:      that call the plugin's static API, which cannot be avoided until that
+248:      API is refactored. Never use it to cover Mockery or helper statics: use
+249:      Mockery's global `mock()` function and the `Overrides_Built_Ins` trait
+250:    - `phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited` where a
+251:      test sets `$wp_version`, which production reads
+252:      Keep test method names at 40 characters or fewer (`LongMethodName`) and
+253:      test classes at 10 methods or fewer (`TooManyMethods`, data providers
+254:      count). Split a class around a shared abstract base in `tests/Support/`
+255:      rather than suppressing. Read globals with `global $wp_version;`, not
+256:      `$GLOBALS[...]`, which trips `Superglobals`
+257: 3. **A VIP-style PHPCS scanner** that reports `Squiz.Commenting.*` and
+258:    `Generic.Commenting.*` errors the local `phpcs.xml` does not. Recurring
+259:    ones: no blank line between `<?php` and the file docblock, `@param`
+260:    comments must end in a full stop, docblocks need a short description, and
+261:    class comments must use `/** */`
+262: 
+263: ## Development Commands
+264: 
+265: - Install dependencies: `composer install`
+266: - Run the unit tests: `composer test`
+267: - Coverage report: `composer test:coverage` (needs the `pcov` extension)
+268: - Run PHP_CodeSniffer: `composer phpcs`. `phpcs.xml` lists no files, so a
+269:   bare `vendor/bin/phpcs` errors; pass a path (`vendor/bin/phpcs .`)
+270: - Fix coding standards: `composer phpcbf`. `phpcs-autofix.yml` also
+271:   applies automatic fixes in CI
+272: - Run PHPMD: `composer phpmd`
+273: - **GitHub Actions are pinned to full commit SHAs** with a trailing version
+274:   comment (`uses: actions/checkout@<40-char sha> # v7.0.1`), never to a tag
+275:   such as `@v7`, because tags can be moved. Dependabot's `github-actions`
+276:   entry updates the SHA and the comment together. Pin new actions the same
+277:   way. Resolve a SHA with
+278:   `git ls-remote https://github.com/<owner>/<repo> 'refs/tags/<tag>^{}'`,
+279:   falling back to `refs/tags/<tag>` for lightweight tags
+280: 
+281: ## Unit tests
+282: 
+283: - PHPUnit 13 with Brain Monkey and Mockery, with no WordPress install.
+284:   `tests/Unit/*_Test.php` holds the tests and `tests/Support/` holds the
+285:   shared base class and helpers. Class and file names use WordPress style
+286:   (`Send_Products_Test`) so PHPCS passes without exclusions
+287: - CI: `.github/workflows/phpunit.yml` runs the suite on PHP 8.5, **fails
+288:   below 90% line coverage**, and runs PHP 8.6 as a non-blocking job. The
+289:   only uncovered lines are the `exit;` direct-access guards
+290: - `tests/bootstrap.php` defines `ABSPATH` to point at `tests/fixtures/wordpress/`,
+291:   whose `wp-admin/includes/plugin.php` is deliberately empty. `Test_Case`
+292:   loads the class files once per process, in the main plugin file's order.
+293:   The global `define()`s mean they can never be loaded twice
+294: - **PHP built-ins are faked through namespaced shims, not Brain Monkey.**
+295:   The plugin calls `filter_input()`, `extension_loaded()`,
+296:   `function_exists()`, `file_exists()` and `version_compare()` unqualified
+297:   inside `namespace Algowoo`, so `tests/shims.php` defines `Algowoo\*`
+298:   versions that delegate to a `Built_In_Functions` instance held in the
+299:   global `$algowoo_built_ins`, created in `tests/bootstrap.php`. In tests,
+300:   use `$this->override_built_in()` and `$this->set_post_data()` from the
+301:   `Overrides_Built_Ins` trait; the latter simulates `$_POST`, because
+302:   `filter_input()` never sees request data under the CLI. Shims must exist
+303:   before any plugin file loads, because PHP caches how an unqualified call
+304:   resolves. To fake another built-in, add a shim there
+305: - **Brain Monkey trap:** when a function is stubbed with `Functions\when()`
+306:   in `setUp()`, a later `Functions\expect()` for that function in the test
+307:   is silently ignored, including `->never()`. Record calls in the `when()`
+308:   alias and assert on them instead, or don't stub it in `setUp()`
+309: - Anything that reaches `SearchClient::create()` lives in
+310:   `Send_Products_Algolia_Test`, which runs each test in a separate process
+311:   with a Mockery `alias:` mock created through the global `mock()` helper.
+312:   `tests/fixtures/class-wp-error.php` is a minimal `WP_Error` for transport
+313:   error tests. `Uninstall_Test` also runs in a separate
+314:   process with `$load_plugin_classes = false`, because `uninstall.php`
+315:   defines `ALGOWOO_DB_OPTION` itself
+316: - The bundled Algolia client v2.8.0 raises deprecation notices on PHP 8.5
+317:   (implicitly nullable parameters, `ArrayAccess` return types,
+318:   `curl_close()`). `ignoreIndirectDeprecations` keeps them from failing the
+319:   suite, while deprecations in plugin code still fail it
 ```
