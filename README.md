@@ -47,7 +47,9 @@ solutions.
 - PHPUnit test suite with at least 90% line coverage, enforced in GitHub
   Actions. Run it with `composer test`, or `composer test:coverage` for a
   coverage report (needs the `pcov` extension)
-- PHPMD configuration (`phpmd.xml`), run with `composer phpmd`
+- PHPMD (`phpmd.xml`) and PHPStan level 5 (`phpstan.neon.dist`) static
+  analysis, enforced in GitHub Actions. Run them with `composer phpmd` and
+  `composer phpstan`
 - AI Assistant guidance files (`AGENTS.md` and `.roo/rules-*/AGENTS.md`) for
   immediate productivity with AI coding tools
 

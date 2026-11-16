@@ -29,7 +29,7 @@ use stdClass;
  * PHPMD suppression: the plugin's API is static, so it has to be called
  * statically until the production code is refactored.
  *
- * @SuppressWarnings(PHPMD.StaticAccess)
+ * @SuppressWarnings("PHPMD.StaticAccess")
  */
 #[CoversClass( Algolia_Send_Products::class )]
 #[RunTestsInSeparateProcesses]

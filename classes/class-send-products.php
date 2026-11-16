@@ -91,9 +91,9 @@ if ( ! class_exists( 'Algolia_Send_Products' ) ) {
 		 * Called statically from hook callbacks, so the requirement checks have to
 		 * be reached statically.
 		 *
-		 * @SuppressWarnings(PHPMD.StaticAccess)
+		 * @SuppressWarnings("PHPMD.StaticAccess")
 		 *
-		 * @param Int $id Product to send to Algolia if we send only a single product.
+		 * @param int|string|null $id ID of a single product to send, or '' to send all published products.
 		 * @return void
 		 */
 		public static function send_products_to_algolia( $id = '' ) {
